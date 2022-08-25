@@ -187,9 +187,10 @@ public abstract class ODurableComponent extends OSharedResourceAdaptive {
 
   protected long addFile(final OAtomicOperation atomicOperation, final String fileName)
       throws IOException {
-    if (atomicOperation == null) {
-      return readCache.addFile(fileName, writeCache);
-    }
+    assert atomicOperation != null;
+//    if (atomicOperation == null) {
+//      return readCache.addFile(fileName, writeCache);
+//    }
     return atomicOperation.addFile(fileName);
   }
 
