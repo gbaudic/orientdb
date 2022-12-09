@@ -1947,7 +1947,7 @@ public class OConsoleDatabaseApp extends OrientConsole implements OCommandOutput
   }
 
   @ConsoleCommand(description = "Check database integrity", splitInWords = false)
-  public void checkDatabase(@ConsoleParameter(name = "options", description = "Options: -v", optional = true) final String iOptions)
+  public void checkDatabase(@ConsoleParameter(name = "options", description = "Options: -v --skip-graph", optional = true) final String iOptions)
       throws IOException {
     checkForDatabase();
 
@@ -1957,6 +1957,13 @@ public class OConsoleDatabaseApp extends OrientConsole implements OCommandOutput
     }
 
     boolean verbose = iOptions != null && iOptions.contains("-v");
+    final boolean fix_graph = iOptions == null || !iOptions.contains("--skip-graph");
+    
+    if (fix_graph) {
+      // REPAIR GRAPH
+      final Map<String, List<String>> options = parseOptions(iOptions);
+      new OGraphRepair().check(currentDatabase, this, options);
+    }
 
     message("\nChecking storage.");
     try {
