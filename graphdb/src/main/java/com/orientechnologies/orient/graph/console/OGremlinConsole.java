@@ -257,13 +257,16 @@ public class OGremlinConsole extends OConsoleDatabaseApp {
       @ConsoleParameter(name = "options", description = "Options: -v --skip-graph", optional = true) final String iOptions)
       throws IOException {
     final boolean fix_graph = iOptions == null || !iOptions.contains("--skip-graph");
+    String iOptions2 = iOptions;
     if (fix_graph) {
       // REPAIR GRAPH
       final Map<String, List<String>> options = parseOptions(iOptions);
       new OGraphRepair().check(OrientGraphFactory.getNoTxGraphImplFactory().getGraph(currentDatabase), this, options);
+      // Avoid double checking of the graph...
+      iOptions2 = iOptions == null ? "--skip-graph" : iOptions.concat("--skip-graph");
     }
 
-    super.checkDatabase(iOptions);
+    super.checkDatabase(iOptions2);
   }
 
   @Override
