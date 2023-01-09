@@ -356,7 +356,8 @@ public class OServerNetworkListener extends Thread {
     OLogManager.instance()
         .error(this, "Unable to listen for connections using the configured ports '%s' on host '%s'", null, iHostPortRange,
             iHostName);
-    throw new OSystemException("Unable to listen for connections using the configured ports '%s' on host '%s'");
+    throw new OSystemException(String.format("Unable to listen for connections using the configured ports '%s' on host '%s'", iHostPortRange,
+            iHostName));
   }
 
   /**
