@@ -1291,8 +1291,8 @@ public abstract class OStringSerializerHelper {
     else if (iValue instanceof String) {
       String s = (String) iValue;
       if (s.length() > 1
-              && (s.charAt(0) == BINARY_BEGINEND && s.charAt(s.length() - 1) == BINARY_BEGINEND)
-          || (s.charAt(0) == '\'' && s.charAt(s.length() - 1) == '\''))
+              && ((s.charAt(0) == BINARY_BEGINEND && s.charAt(s.length() - 1) == BINARY_BEGINEND)
+          || (s.charAt(0) == '\'' && s.charAt(s.length() - 1) == '\'')))
         // @COMPATIBILITY 1.0rc7-SNAPSHOT ' TO SUPPORT OLD DATABASES
         s = s.substring(1, s.length() - 1);
       // IN CASE OF JSON BINARY IMPORT THIS EXEPTION IS WRONG
