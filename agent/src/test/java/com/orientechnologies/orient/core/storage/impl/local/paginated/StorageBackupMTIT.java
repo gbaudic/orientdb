@@ -10,7 +10,6 @@ import com.orientechnologies.orient.core.db.OrientDBConfig;
 import com.orientechnologies.orient.core.db.OrientDBEmbedded;
 import com.orientechnologies.orient.core.db.OrientDBInternal;
 import com.orientechnologies.orient.core.db.document.ODatabaseDocument;
-import com.orientechnologies.orient.core.db.document.ODatabaseDocumentTx;
 import com.orientechnologies.orient.core.db.tool.ODatabaseCompare;
 import com.orientechnologies.orient.core.metadata.schema.OClass;
 import com.orientechnologies.orient.core.metadata.schema.OSchema;
@@ -124,11 +123,6 @@ public class StorageBackupMTIT {
 
     } finally {
 
-      try {
-        ODatabaseDocumentTx.closeAll();
-      } catch (Exception ex) {
-        logger.error("", ex);
-      }
       if (orientDB.isOpen()) {
         try {
           orientDB.close();
@@ -232,7 +226,6 @@ public class StorageBackupMTIT {
 
     } finally {
       try {
-        ODatabaseDocumentTx.closeAll();
         OGlobalConfiguration.STORAGE_ENCRYPTION_KEY.setValue(null);
       } catch (Exception ex) {
         logger.error("", ex);
@@ -278,7 +271,7 @@ public class StorageBackupMTIT {
             document.field("num", num);
             document.field("data", data);
 
-            document.save();
+            db.save(document);
           } catch (OModificationOperationProhibitedException e) {
             System.out.println("Modification prohibited ... wait ...");
             Thread.sleep(1000);

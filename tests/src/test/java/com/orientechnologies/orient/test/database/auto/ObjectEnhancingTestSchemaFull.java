@@ -17,10 +17,8 @@ package com.orientechnologies.orient.test.database.auto;
 
 import com.orientechnologies.common.log.OLogManager;
 import com.orientechnologies.common.log.OLogger;
-import com.orientechnologies.orient.client.db.ODatabaseHelper;
 import com.orientechnologies.orient.core.id.ORID;
 import com.orientechnologies.orient.core.record.impl.ODocument;
-import com.orientechnologies.orient.object.db.OObjectDatabasePool;
 import com.orientechnologies.orient.object.enhancement.OObjectEntityEnhancer;
 import com.orientechnologies.orient.object.enhancement.OObjectMethodFilter;
 import com.orientechnologies.orient.test.domain.base.CustomMethodFilterTestClass;
@@ -106,9 +104,6 @@ public class ObjectEnhancingTestSchemaFull extends ObjectDBBaseTest {
 
   @AfterClass
   public void end() throws IOException {
-    String prefix = url.substring(0, url.indexOf(':') + 1);
-    logger.info("deleting database %s", url);
-    ODatabaseHelper.dropDatabase(
-        OObjectDatabasePool.global().acquire(url, "admin", "admin"), prefix);
+    dropdb();
   }
 }

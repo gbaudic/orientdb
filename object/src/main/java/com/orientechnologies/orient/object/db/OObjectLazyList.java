@@ -514,8 +514,8 @@ public class OObjectLazyList<TYPE> extends ArrayList<TYPE>
               .getProxiedInstance(
                   doc.getClassName(), getDatabase().getEntityManager(), doc, sourceRecord);
       o =
-          ((OObjectDatabaseTx) getDatabase())
-              .detachAll(o, nonProxiedInstance, alreadyDetached, lazyObjects);
+          OObjectEntitySerializer.detachAll(
+              o, getDatabase(), nonProxiedInstance, alreadyDetached, lazyObjects);
       super.set(iIndex, (TYPE) o);
     }
   }

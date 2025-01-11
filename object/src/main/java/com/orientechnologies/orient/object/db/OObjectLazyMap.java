@@ -288,8 +288,8 @@ public class OObjectLazyMap<TYPE> extends HashMap<Object, Object>
           getDatabase()
               .getUserObjectByRecord((ORecord) ((OIdentifiable) e.getValue()).getRecord(), null);
       o =
-          ((OObjectDatabaseTx) getDatabase())
-              .detachAll(o, nonProxiedInstance, alreadyDetached, lazyObjects);
+          OObjectEntitySerializer.detachAll(
+              o, getDatabase(), nonProxiedInstance, alreadyDetached, lazyObjects);
       super.put(e.getKey(), o);
     }
 

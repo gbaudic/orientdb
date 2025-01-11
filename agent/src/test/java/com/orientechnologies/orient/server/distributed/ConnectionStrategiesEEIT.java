@@ -11,7 +11,6 @@ import com.orientechnologies.orient.core.config.OGlobalConfiguration;
 import com.orientechnologies.orient.core.db.ODatabaseSession;
 import com.orientechnologies.orient.core.db.OrientDB;
 import com.orientechnologies.orient.core.db.OrientDBConfig;
-import com.orientechnologies.orient.core.db.document.ODatabaseDocumentTx;
 import com.orientechnologies.orient.core.sql.executor.OResultSet;
 import com.orientechnologies.orient.server.OServer;
 import java.io.IOException;
@@ -260,6 +259,5 @@ public class ConnectionStrategiesEEIT {
     server0.shutdown();
     server1.shutdown();
     server2.shutdown();
-    ODatabaseDocumentTx.closeAll();
   }
 }

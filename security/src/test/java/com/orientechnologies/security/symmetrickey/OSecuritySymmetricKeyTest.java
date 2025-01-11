@@ -4,7 +4,6 @@ import com.orientechnologies.orient.core.Orient;
 import com.orientechnologies.orient.core.db.OrientDB;
 import com.orientechnologies.orient.core.db.OrientDBConfig;
 import com.orientechnologies.orient.core.db.document.ODatabaseDocument;
-import com.orientechnologies.orient.core.db.document.ODatabaseDocumentTx;
 import com.orientechnologies.orient.core.exception.OSecurityAccessException;
 import com.orientechnologies.orient.core.security.symmetrickey.OSymmetricKey;
 import com.orientechnologies.orient.server.OServer;
@@ -82,11 +81,12 @@ public class OSecuritySymmetricKeyTest extends AbstractSecurityTest {
   public void shouldTestSpecificAESKeyFailure() throws Exception {
     OSymmetricKey sk = new OSymmetricKey("AES", "AAC7LeGkFbmHEYNTz5GwDw==");
 
+    OrientDB remote = new OrientDB("remote:localhost", OrientDBConfig.defaultConfig());
     // "test" is the username.  It's specified in the security.json resource file.
-    ODatabaseDocument db = new ODatabaseDocumentTx(DATABASE_URL);
     // We encrypt the username and specify the Base64-encoded JSON document as the password.
-    db.open("test", sk.encrypt("AES/CBC/PKCS5Padding", "test"));
+    ODatabaseDocument db = remote.open(TESTDB, "test", sk.encrypt("AES/CBC/PKCS5Padding", "test"));
     db.close();
+    remote.close();
   }
 
   @Test
@@ -94,11 +94,12 @@ public class OSecuritySymmetricKeyTest extends AbstractSecurityTest {
     // This key is specified in the security.json resource file.
     OSymmetricKey sk = new OSymmetricKey("AES", "8BC7LeGkFbmHEYNTz5GwDw==");
 
+    OrientDB remote = new OrientDB("remote:localhost", OrientDBConfig.defaultConfig());
     // "test" is the username.  It's specified in the security.json resource file.
-    ODatabaseDocument db = new ODatabaseDocumentTx(DATABASE_URL);
     // We encrypt the username and specify the Base64-encoded JSON document as the password.
-    db.open("test", sk.encrypt("AES/CBC/PKCS5Padding", "test"));
+    ODatabaseDocument db = remote.open(TESTDB, "test", sk.encrypt("AES/CBC/PKCS5Padding", "test"));
     db.close();
+    remote.close();
   }
 
   @Test
@@ -106,11 +107,13 @@ public class OSecuritySymmetricKeyTest extends AbstractSecurityTest {
     OSymmetricKey sk =
         OSymmetricKey.fromStream("AES", new FileInputStream(SERVER_DIRECTORY + "/config/AES.key"));
 
+    OrientDB remote = new OrientDB("remote:localhost", OrientDBConfig.defaultConfig());
     // "test2" is the username.  It's specified in the security.json resource file.
-    ODatabaseDocument db = new ODatabaseDocumentTx(DATABASE_URL);
     // We encrypt the username and specify the Base64-encoded JSON document as the password.
-    db.open("test2", sk.encrypt("AES/CBC/PKCS5Padding", "test2"));
+    ODatabaseDocument db =
+        remote.open(TESTDB, "test2", sk.encrypt("AES/CBC/PKCS5Padding", "test2"));
     db.close();
+    remote.close();
   }
 
   @Test
@@ -122,10 +125,12 @@ public class OSecuritySymmetricKeyTest extends AbstractSecurityTest {
             "keyAlias",
             "password");
 
+    OrientDB remote = new OrientDB("remote:localhost", OrientDBConfig.defaultConfig());
     // "test3" is the username.  It's specified in the security.json resource file.
-    ODatabaseDocument db = new ODatabaseDocumentTx(DATABASE_URL);
     // We encrypt the username and specify the Base64-encoded JSON document as the password.
-    db.open("test3", sk.encrypt("AES/CBC/PKCS5Padding", "test3"));
+    ODatabaseDocument db =
+        remote.open(TESTDB, "test3", sk.encrypt("AES/CBC/PKCS5Padding", "test3"));
     db.close();
+    remote.close();
   }
 }

@@ -20,13 +20,12 @@
 package com.orientechnologies.orient.core.sql;
 
 import com.orientechnologies.common.exception.OException;
-import com.orientechnologies.orient.core.OCreateDatabaseUtil;
-import com.orientechnologies.orient.core.db.ODatabaseDocumentInternal;
+import com.orientechnologies.orient.core.db.ODatabaseSession;
 import com.orientechnologies.orient.core.db.OLiveQueryMonitor;
 import com.orientechnologies.orient.core.db.OLiveQueryResultListener;
 import com.orientechnologies.orient.core.db.OrientDB;
+import com.orientechnologies.orient.core.db.OrientDBConfig;
 import com.orientechnologies.orient.core.db.document.ODatabaseDocument;
-import com.orientechnologies.orient.core.db.document.ODatabaseDocumentTx;
 import com.orientechnologies.orient.core.db.record.OIdentifiable;
 import com.orientechnologies.orient.core.id.ORID;
 import com.orientechnologies.orient.core.metadata.schema.OClass;
@@ -43,11 +42,34 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
+import org.junit.After;
 import org.junit.Assert;
+import org.junit.Before;
 import org.junit.Test;
 
 /** @author Luigi Dell'Aquila (l.dellaquila - at - orientdb.com) */
 public class OLiveQueryV2Test {
+
+  private OrientDB context;
+  private ODatabaseSession db;
+
+  @Before
+  public void before() {
+    context = new OrientDB("memory:", OrientDBConfig.defaultConfig());
+    context
+        .execute(
+            "create database OLiveQueryV2Test memory users (admin identified by 'adminpwd' role"
+                + " admin, reader identified by 'readerpwd' role reader)")
+        .close();
+    db = context.open("OLiveQueryV2Test", "admin", "adminpwd");
+  }
+
+  @After
+  public void after() {
+    db.close();
+    context.close();
+  }
+
   class MyLiveQueryListener implements OLiveQueryResultListener {
     public CountDownLatch latch;
 
@@ -84,238 +106,195 @@ public class OLiveQueryV2Test {
 
   @Test
   public void testLiveInsert() throws InterruptedException {
-    ODatabaseDocument db = new ODatabaseDocumentTx("memory:OLiveQueryV2Test");
-    db.activateOnCurrentThread();
-    db.create();
-    try {
-      db.getMetadata().getSchema().createClass("test");
-      db.getMetadata().getSchema().createClass("test2");
-      MyLiveQueryListener listener = new MyLiveQueryListener(new CountDownLatch(2));
+    db.getMetadata().getSchema().createClass("test");
+    db.getMetadata().getSchema().createClass("test2");
+    MyLiveQueryListener listener = new MyLiveQueryListener(new CountDownLatch(2));
 
-      OLiveQueryMonitor monitor = db.live("select from test", listener);
-      Assert.assertNotNull(monitor);
+    OLiveQueryMonitor monitor = db.live("select from test", listener);
+    Assert.assertNotNull(monitor);
 
-      db.command("insert into test set name = 'foo', surname = 'bar'").close();
-      db.command("insert into test set name = 'foo', surname = 'baz'").close();
-      db.command("insert into test2 set name = 'foo'").close();
+    db.command("insert into test set name = 'foo', surname = 'bar'").close();
+    db.command("insert into test set name = 'foo', surname = 'baz'").close();
+    db.command("insert into test2 set name = 'foo'").close();
 
-      Assert.assertTrue(listener.latch.await(1, TimeUnit.MINUTES));
+    Assert.assertTrue(listener.latch.await(1, TimeUnit.MINUTES));
 
-      monitor.unSubscribe();
+    monitor.unSubscribe();
 
-      db.command("insert into test set name = 'foo', surname = 'bax'").close();
-      db.command("insert into test2 set name = 'foo'").close();
-      db.command("insert into test set name = 'foo', surname = 'baz'").close();
+    db.command("insert into test set name = 'foo', surname = 'bax'").close();
+    db.command("insert into test2 set name = 'foo'").close();
+    db.command("insert into test set name = 'foo', surname = 'baz'").close();
 
-      Assert.assertEquals(listener.ops.size(), 2);
-      for (OResult doc : listener.ops) {
-        Assert.assertEquals(doc.getProperty("@class"), "test");
-        Assert.assertEquals(doc.getProperty("name"), "foo");
-        ORID rid = doc.getProperty("@rid");
-        Assert.assertTrue(rid.isPersistent());
-      }
-    } finally {
-      db.drop();
+    Assert.assertEquals(listener.ops.size(), 2);
+    for (OResult doc : listener.ops) {
+      Assert.assertEquals(doc.getProperty("@class"), "test");
+      Assert.assertEquals(doc.getProperty("name"), "foo");
+      ORID rid = doc.getProperty("@rid");
+      Assert.assertTrue(rid.isPersistent());
     }
   }
 
   @Test
   public void testLiveInsertOnCluster() {
-    final OrientDB context =
-        OCreateDatabaseUtil.createDatabase(
-            "testLiveInsertOnCluster", "embedded:", OCreateDatabaseUtil.TYPE_MEMORY);
-    try (ODatabaseDocumentInternal db =
-        (ODatabaseDocumentInternal)
-            context.open(
-                "testLiveInsertOnCluster", "admin", OCreateDatabaseUtil.NEW_ADMIN_PASSWORD)) {
 
-      OClass clazz = db.getMetadata().getSchema().createClass("test");
+    OClass clazz = db.getMetadata().getSchema().createClass("test");
 
-      int defaultCluster = clazz.getDefaultClusterId();
-      String clusterName = db.getStorage().getClusterNameById(defaultCluster);
+    int defaultCluster = clazz.getDefaultClusterId();
+    String clusterName = db.getClusterNameById(defaultCluster);
 
-      OLiveQueryV2Test.MyLiveQueryListener listener =
-          new OLiveQueryV2Test.MyLiveQueryListener(new CountDownLatch(1));
+    OLiveQueryV2Test.MyLiveQueryListener listener =
+        new OLiveQueryV2Test.MyLiveQueryListener(new CountDownLatch(1));
 
-      db.live(" select from cluster:" + clusterName, listener);
+    db.live(" select from cluster:" + clusterName, listener);
 
-      db.command("insert into cluster:" + clusterName + " set name = 'foo', surname = 'bar'");
+    db.command("insert into cluster:" + clusterName + " set name = 'foo', surname = 'bar'");
 
-      try {
-        Assert.assertTrue(listener.latch.await(1, TimeUnit.MINUTES));
-      } catch (InterruptedException e) {
-        e.printStackTrace();
-      }
-      Assert.assertEquals(listener.ops.size(), 1);
-      for (OResult doc : listener.ops) {
-        Assert.assertEquals(doc.getProperty("name"), "foo");
-        ORID rid = doc.getProperty("@rid");
-        Assert.assertTrue(rid.isPersistent());
-        Assert.assertNotNull(rid);
-      }
+    try {
+      Assert.assertTrue(listener.latch.await(1, TimeUnit.MINUTES));
+    } catch (InterruptedException e) {
+      e.printStackTrace();
+    }
+    Assert.assertEquals(listener.ops.size(), 1);
+    for (OResult doc : listener.ops) {
+      Assert.assertEquals(doc.getProperty("name"), "foo");
+      ORID rid = doc.getProperty("@rid");
+      Assert.assertTrue(rid.isPersistent());
+      Assert.assertNotNull(rid);
     }
   }
 
   @Test
   public void testLiveWithWhereCondition() {
-    final OrientDB context =
-        OCreateDatabaseUtil.createDatabase(
-            "testLiveWithWhereCondition", "embedded:", OCreateDatabaseUtil.TYPE_MEMORY);
-    try (ODatabaseDocumentInternal db =
-        (ODatabaseDocumentInternal)
-            context.open(
-                "testLiveWithWhereCondition", "admin", OCreateDatabaseUtil.NEW_ADMIN_PASSWORD)) {
 
-      OClass clazz = db.getMetadata().getSchema().createClass("test");
+    OLiveQueryV2Test.MyLiveQueryListener listener =
+        new OLiveQueryV2Test.MyLiveQueryListener(new CountDownLatch(1));
 
-      int defaultCluster = clazz.getDefaultClusterId();
-      String clusterName = db.getStorage().getClusterNameById(defaultCluster);
+    db.live("select from V where id = 1", listener);
 
-      OLiveQueryV2Test.MyLiveQueryListener listener =
-          new OLiveQueryV2Test.MyLiveQueryListener(new CountDownLatch(1));
+    db.command("insert into V set id = 1");
 
-      db.live("select from V where id = 1", listener);
-
-      db.command("insert into V set id = 1");
-
-      try {
-        Assert.assertTrue(listener.latch.await(1, TimeUnit.MINUTES));
-      } catch (InterruptedException e) {
-        e.printStackTrace();
-      }
-      Assert.assertEquals(listener.ops.size(), 1);
-      for (OResult doc : listener.ops) {
-        Assert.assertEquals(doc.getProperty("id"), Integer.valueOf(1));
-        ORID rid = doc.getProperty("@rid");
-        Assert.assertTrue(rid.isPersistent());
-        Assert.assertNotNull(rid);
-      }
+    try {
+      Assert.assertTrue(listener.latch.await(1, TimeUnit.MINUTES));
+    } catch (InterruptedException e) {
+      e.printStackTrace();
+    }
+    Assert.assertEquals(listener.ops.size(), 1);
+    for (OResult doc : listener.ops) {
+      Assert.assertEquals(doc.getProperty("id"), Integer.valueOf(1));
+      ORID rid = doc.getProperty("@rid");
+      Assert.assertTrue(rid.isPersistent());
+      Assert.assertNotNull(rid);
     }
   }
 
   @Test
   public void testRestrictedLiveInsert() throws ExecutionException, InterruptedException {
-    ODatabaseDocument db = new ODatabaseDocumentTx("memory:OLiveQueryTest");
-    db.activateOnCurrentThread();
-    db.create();
-    try {
-      OSchema schema = db.getMetadata().getSchema();
-      OClass oRestricted = schema.getClass("ORestricted");
-      schema.createClass("test", oRestricted);
+    OSchema schema = db.getMetadata().getSchema();
+    OClass oRestricted = schema.getClass("ORestricted");
+    schema.createClass("test", oRestricted);
 
-      int liveMatch = 2;
-      OResultSet query = db.query("select from OUSer where name = 'reader'");
+    int liveMatch = 2;
+    OResultSet query = db.query("select from OUSer where name = 'reader'");
 
-      final OIdentifiable reader = query.next().getIdentity().get();
-      final OIdentifiable current = db.getUser().getIdentity();
+    final OIdentifiable reader = query.next().getIdentity().get();
+    final OIdentifiable current = db.getUser().getIdentity();
 
-      ExecutorService executorService = Executors.newSingleThreadExecutor();
+    ExecutorService executorService = Executors.newSingleThreadExecutor();
 
-      final CountDownLatch latch = new CountDownLatch(1);
-      final CountDownLatch dataArrived = new CountDownLatch(liveMatch);
-      Future<Integer> future =
-          executorService.submit(
-              new Callable<Integer>() {
-                @Override
-                public Integer call() throws Exception {
-                  ODatabaseDocumentTx db = new ODatabaseDocumentTx("memory:OLiveQueryTest");
-                  db.open("reader", "reader");
+    final CountDownLatch latch = new CountDownLatch(1);
+    final CountDownLatch dataArrived = new CountDownLatch(liveMatch);
+    Future<Integer> future =
+        executorService.submit(
+            new Callable<Integer>() {
+              @Override
+              public Integer call() throws Exception {
+                ODatabaseSession db = context.open("OLiveQueryV2Test", "reader", "readerpwd");
 
-                  final AtomicInteger integer = new AtomicInteger(0);
-                  db.live(
-                      "live select from test",
-                      new OLiveQueryResultListener() {
+                final AtomicInteger integer = new AtomicInteger(0);
+                db.live(
+                    "live select from test",
+                    new OLiveQueryResultListener() {
 
-                        @Override
-                        public void onCreate(ODatabaseDocument database, OResult data) {
-                          integer.incrementAndGet();
-                          dataArrived.countDown();
-                        }
+                      @Override
+                      public void onCreate(ODatabaseDocument database, OResult data) {
+                        integer.incrementAndGet();
+                        dataArrived.countDown();
+                      }
 
-                        @Override
-                        public void onUpdate(
-                            ODatabaseDocument database, OResult before, OResult after) {
-                          integer.incrementAndGet();
-                          dataArrived.countDown();
-                        }
+                      @Override
+                      public void onUpdate(
+                          ODatabaseDocument database, OResult before, OResult after) {
+                        integer.incrementAndGet();
+                        dataArrived.countDown();
+                      }
 
-                        @Override
-                        public void onDelete(ODatabaseDocument database, OResult data) {
-                          integer.incrementAndGet();
-                          dataArrived.countDown();
-                        }
+                      @Override
+                      public void onDelete(ODatabaseDocument database, OResult data) {
+                        integer.incrementAndGet();
+                        dataArrived.countDown();
+                      }
 
-                        @Override
-                        public void onError(ODatabaseDocument database, OException exception) {}
+                      @Override
+                      public void onError(ODatabaseDocument database, OException exception) {}
 
-                        @Override
-                        public void onEnd(ODatabaseDocument database) {}
-                      });
+                      @Override
+                      public void onEnd(ODatabaseDocument database) {}
+                    });
 
-                  latch.countDown();
-                  Assert.assertTrue(dataArrived.await(1, TimeUnit.MINUTES));
-                  return integer.get();
-                }
-              });
+                latch.countDown();
+                Assert.assertTrue(dataArrived.await(1, TimeUnit.MINUTES));
+                return integer.get();
+              }
+            });
 
-      latch.await();
+    latch.await();
 
-      db.command("insert into test set name = 'foo', surname = 'bar'").close();
+    db.command("insert into test set name = 'foo', surname = 'bar'").close();
 
-      db.command(
-              "insert into test set name = 'foo', surname = 'bar', _allow=?",
-              new ArrayList<OIdentifiable>() {
-                {
-                  add(current);
-                  add(reader);
-                }
-              })
-          .close();
+    db.command(
+            "insert into test set name = 'foo', surname = 'bar', _allow=?",
+            new ArrayList<OIdentifiable>() {
+              {
+                add(current);
+                add(reader);
+              }
+            })
+        .close();
 
-      Integer integer = future.get();
-      Assert.assertEquals(integer.intValue(), liveMatch);
-    } finally {
-      db.drop();
-    }
+    Integer integer = future.get();
+    Assert.assertEquals(integer.intValue(), liveMatch);
   }
 
   @Test
   public void testLiveProjections() throws InterruptedException {
 
-    ODatabaseDocument db = new ODatabaseDocumentTx("memory:OLiveQueryV2Test");
-    db.activateOnCurrentThread();
-    db.create();
-    try {
-      db.getMetadata().getSchema().createClass("test");
-      db.getMetadata().getSchema().createClass("test2");
-      MyLiveQueryListener listener = new MyLiveQueryListener(new CountDownLatch(2));
+    db.getMetadata().getSchema().createClass("test");
+    db.getMetadata().getSchema().createClass("test2");
+    MyLiveQueryListener listener = new MyLiveQueryListener(new CountDownLatch(2));
 
-      OLiveQueryMonitor monitor = db.live("select @class, @rid as rid, name from test", listener);
-      Assert.assertNotNull(monitor);
+    OLiveQueryMonitor monitor = db.live("select @class, @rid as rid, name from test", listener);
+    Assert.assertNotNull(monitor);
 
-      db.command("insert into test set name = 'foo', surname = 'bar'").close();
-      db.command("insert into test set name = 'foo', surname = 'baz'").close();
-      db.command("insert into test2 set name = 'foo'").close();
+    db.command("insert into test set name = 'foo', surname = 'bar'").close();
+    db.command("insert into test set name = 'foo', surname = 'baz'").close();
+    db.command("insert into test2 set name = 'foo'").close();
 
-      Assert.assertTrue(listener.latch.await(5, TimeUnit.SECONDS));
+    Assert.assertTrue(listener.latch.await(5, TimeUnit.SECONDS));
 
-      monitor.unSubscribe();
+    monitor.unSubscribe();
 
-      db.command("insert into test set name = 'foo', surname = 'bax'").close();
-      db.command("insert into test2 set name = 'foo'").close();
-      ;
-      db.command("insert into test set name = 'foo', surname = 'baz'").close();
+    db.command("insert into test set name = 'foo', surname = 'bax'").close();
+    db.command("insert into test2 set name = 'foo'").close();
+    ;
+    db.command("insert into test set name = 'foo', surname = 'baz'").close();
 
-      Assert.assertEquals(listener.ops.size(), 2);
-      for (OResult doc : listener.ops) {
-        Assert.assertEquals(doc.getProperty("@class"), "test");
-        Assert.assertEquals(doc.getProperty("name"), "foo");
-        Assert.assertNull(doc.getProperty("surname"));
-        ORID rid = doc.getProperty("rid");
-        Assert.assertTrue(rid.isPersistent());
-      }
-    } finally {
-      db.drop();
+    Assert.assertEquals(listener.ops.size(), 2);
+    for (OResult doc : listener.ops) {
+      Assert.assertEquals(doc.getProperty("@class"), "test");
+      Assert.assertEquals(doc.getProperty("name"), "foo");
+      Assert.assertNull(doc.getProperty("surname"));
+      ORID rid = doc.getProperty("rid");
+      Assert.assertTrue(rid.isPersistent());
     }
   }
 }

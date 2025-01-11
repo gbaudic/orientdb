@@ -1,7 +1,8 @@
 package com.orientechnologies.orient.server.distributed;
 
+import com.orientechnologies.orient.core.db.OrientDB;
+import com.orientechnologies.orient.core.db.OrientDBConfig;
 import com.orientechnologies.orient.core.db.document.ODatabaseDocument;
-import com.orientechnologies.orient.core.db.document.ODatabaseDocumentTx;
 import com.orientechnologies.orient.core.sql.executor.OResultSet;
 import java.util.Collections;
 import java.util.List;
@@ -64,16 +65,18 @@ public class HAMultiDCCrudTest extends AbstractServerClusterTest {
     Assert.assertTrue(austinDc.contains("usa-1"));
     Assert.assertTrue(austinDc.contains("usa-2"));
 
-    ODatabaseDocument db = new ODatabaseDocumentTx("remote:localhost:2424/" + getDatabaseName());
-    db.open("admin", "admin");
+    OrientDB ctx = new OrientDB("remote:localhost:2424", OrientDBConfig.defaultConfig());
+    OrientDB ctx1 = new OrientDB("remote:localhost:2425", OrientDBConfig.defaultConfig());
+    OrientDB ctx2 = new OrientDB("remote:localhost:2426", OrientDBConfig.defaultConfig());
+
+    ODatabaseDocument db = ctx.open(getDatabaseName(), "admin", "admin");
     try {
       db.command("INSERT into Item (name) values ('foo')").close();
     } finally {
       db.close();
     }
 
-    db = new ODatabaseDocumentTx("remote:localhost:2425/" + getDatabaseName());
-    db.open("admin", "admin");
+    db = ctx1.open(getDatabaseName(), "admin", "admin");
     try {
       OResultSet result = db.command("select set(name) as names from Item");
       Assert.assertEquals(Collections.singleton("foo"), result.next().getProperty("names"));
@@ -91,8 +94,7 @@ public class HAMultiDCCrudTest extends AbstractServerClusterTest {
     }
 
     // TRY AN INSERT AGAINST THE DC WITHOUT QUORUM EXPECTING TO FAIL
-    db = new ODatabaseDocumentTx("remote:localhost:2426/" + getDatabaseName());
-    db.open("admin", "admin");
+    db = ctx2.open(getDatabaseName(), "admin", "admin");
     try {
       db.command("INSERT into Item (map) values ({'a':'b'}) return @this").close();
       Assert.fail("Quorum not reached, but no failure has been caught");
@@ -106,8 +108,7 @@ public class HAMultiDCCrudTest extends AbstractServerClusterTest {
     serverInstance.get(0).getServerInstance().shutdown();
 
     // RETRY AN INSERT AND CHECK IT FAILS (NO QUORUM)
-    db = new ODatabaseDocumentTx("remote:localhost:2425/" + getDatabaseName());
-    db.open("admin", "admin");
+    db = ctx1.open(getDatabaseName(), "admin", "admin");
     try {
       db.command("INSERT into Item (map) values ({'a':'b'}) return @this").close();
       Assert.fail("Quorum not reached, but no failure has been caught");
@@ -126,13 +127,15 @@ public class HAMultiDCCrudTest extends AbstractServerClusterTest {
         30000);
 
     // RETRY AN INSERT AND CHECK IT DOESN'T FAILS (QUORUM REACHED)
-    db = new ODatabaseDocumentTx("remote:localhost:2425/" + getDatabaseName());
-    db.open("admin", "admin");
+    db = ctx1.open(getDatabaseName(), "admin", "admin");
     try {
       db.command("INSERT into Item (map) values ({'a':'b'}) return @this").close();
     } finally {
       db.close();
     }
+    ctx.close();
+    ctx1.close();
+    ctx2.close();
   }
 
   @Override

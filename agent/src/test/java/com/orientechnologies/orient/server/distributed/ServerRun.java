@@ -18,7 +18,6 @@ package com.orientechnologies.orient.server.distributed;
 import com.orientechnologies.common.io.OFileUtils;
 import com.orientechnologies.common.util.OCallable;
 import com.orientechnologies.orient.core.Orient;
-import com.orientechnologies.orient.core.db.document.ODatabaseDocumentTx;
 import com.orientechnologies.orient.server.OServer;
 import com.orientechnologies.orient.server.OServerMain;
 import com.orientechnologies.orient.server.hazelcast.OHazelcastPlugin;
@@ -167,9 +166,7 @@ public class ServerRun {
     closeStorages();
   }
 
-  public void closeStorages() {
-    ODatabaseDocumentTx.closeAll();
-  }
+  public void closeStorages() {}
 
   protected String getServerHome() {
     return getServerHome(serverId);

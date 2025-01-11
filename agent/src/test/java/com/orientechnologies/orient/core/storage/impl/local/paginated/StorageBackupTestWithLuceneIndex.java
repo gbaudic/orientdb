@@ -21,14 +21,15 @@ package com.orientechnologies.orient.core.storage.impl.local.paginated;
 import com.orientechnologies.common.io.OFileUtils;
 import com.orientechnologies.orient.core.command.OCommandOutputListener;
 import com.orientechnologies.orient.core.db.ODatabaseDocumentInternal;
-import com.orientechnologies.orient.core.db.document.ODatabaseDocument;
-import com.orientechnologies.orient.core.db.document.ODatabaseDocumentTx;
+import com.orientechnologies.orient.core.db.ODatabaseType;
+import com.orientechnologies.orient.core.db.OrientDB;
+import com.orientechnologies.orient.core.db.OrientDBConfig;
+import com.orientechnologies.orient.core.db.OrientDBInternal;
 import com.orientechnologies.orient.core.db.tool.ODatabaseCompare;
 import com.orientechnologies.orient.core.metadata.schema.OClass;
 import com.orientechnologies.orient.core.metadata.schema.OSchema;
 import com.orientechnologies.orient.core.metadata.schema.OType;
 import com.orientechnologies.orient.core.record.impl.ODocument;
-import com.orientechnologies.orient.core.storage.OStorage;
 import java.io.File;
 import java.io.IOException;
 import org.junit.After;
@@ -47,18 +48,28 @@ import org.junit.Test;
 public class StorageBackupTestWithLuceneIndex {
   private String buildDirectory;
 
+  private OrientDB ctx;
   private ODatabaseDocumentInternal db;
   private String dbDirectory;
+  private String dbName;
+  private String dbBackupName;
   private String backedUpDbDirectory;
 
   @Before
   public void before() {
-    buildDirectory = System.getProperty("buildDirectory", ".");
-    dbDirectory =
-        buildDirectory + File.separator + StorageBackupTestWithLuceneIndex.class.getSimpleName();
+    buildDirectory = System.getProperty("buildDirectory", "./target");
+    dbDirectory = buildDirectory + "/backup-tests";
+    dbName = StorageBackupTestWithLuceneIndex.class.getSimpleName();
+    dbBackupName = StorageBackupTestWithLuceneIndex.class.getSimpleName() + "BackUp";
+
     OFileUtils.deleteRecursively(new File(dbDirectory));
-    db = new ODatabaseDocumentTx("plocal:" + dbDirectory);
-    db.create();
+    ctx = new OrientDB("embedded:" + dbDirectory, OrientDBConfig.defaultConfig());
+    ctx.execute(
+            "create database "
+                + dbName
+                + " plocal users(admin identified by 'adminpwd' role admin)")
+        .close();
+    db = (ODatabaseDocumentInternal) ctx.open(dbName, "admin", "adminpwd");
 
     backedUpDbDirectory =
         buildDirectory
@@ -69,19 +80,11 @@ public class StorageBackupTestWithLuceneIndex {
 
   @After
   public void after() {
-    if (db.exists()) {
-      if (db.isClosed()) {
-        db.open("admin", "admin");
-      }
-      db.drop();
+    if (ctx.exists(dbName)) {
+      ctx.drop(dbName);
     }
-
-    final ODatabaseDocument backedUpDb = new ODatabaseDocumentTx("plocal:" + backedUpDbDirectory);
-    if (backedUpDb.exists()) {
-      if (backedUpDb.isClosed()) {
-        backedUpDb.open("admin", "admin");
-        backedUpDb.drop();
-      }
+    if (ctx.exists(dbBackupName)) {
+      ctx.drop(dbBackupName);
     }
 
     OFileUtils.deleteRecursively(new File(dbDirectory));
@@ -108,7 +111,7 @@ public class StorageBackupTestWithLuceneIndex {
     final ODocument document = new ODocument("BackupClass");
     document.field("num", 1);
     document.field("name", "Storage");
-    document.save();
+    db.save(document);
 
     final File backupDir = new File(buildDirectory, "backupDir");
     OFileUtils.deleteRecursively(backupDir);
@@ -116,21 +119,22 @@ public class StorageBackupTestWithLuceneIndex {
     if (!backupDir.exists()) Assert.assertTrue(backupDir.mkdirs());
 
     db.incrementalBackup(backupDir.getAbsolutePath());
-    final OStorage storage = db.getStorage();
     db.close();
-
-    storage.close(true);
 
     OFileUtils.deleteRecursively(new File(backedUpDbDirectory));
 
+    OrientDBInternal internal = OrientDBInternal.extract(ctx);
+    internal.restore(
+        dbBackupName,
+        null,
+        null,
+        ODatabaseType.PLOCAL,
+        backupDir.getAbsolutePath(),
+        OrientDBConfig.defaultConfig());
+
     final ODatabaseDocumentInternal backedUpDb =
-        new ODatabaseDocumentTx("plocal:" + backedUpDbDirectory);
-    backedUpDb.create(backupDir.getAbsolutePath());
-
-    final OStorage backupStorage = backedUpDb.getStorage();
-    backedUpDb.close();
-
-    backupStorage.close(true);
+        (ODatabaseDocumentInternal) ctx.open(dbBackupName, "admin", "adminpwd");
+    db = (ODatabaseDocumentInternal) ctx.open(dbName, "admin", "adminpwd");
 
     final ODatabaseCompare compare =
         new ODatabaseCompare(
@@ -146,7 +150,8 @@ public class StorageBackupTestWithLuceneIndex {
     Assert.assertTrue(compare.compare());
   }
 
-  // @Test
+  @Test
+  @Ignore
   public void testSingeThreadIncrementalBackup() throws IOException {
 
     final OSchema schema = db.getMetadata().getSchema();
@@ -170,21 +175,17 @@ public class StorageBackupTestWithLuceneIndex {
     ODocument document = new ODocument("BackupClass");
     document.field("num", 1);
     document.field("name", "Storage");
-    document.save();
+    db.save(document);
 
     db.incrementalBackup(backupDir.getAbsolutePath());
 
     document = new ODocument("BackupClass");
     document.field("num", 1);
     document.field("name", "Storage1");
-    document.save();
+    db.save(document);
 
     db.incrementalBackup(backupDir.getAbsolutePath());
-
-    final OStorage storage = db.getStorage();
     db.close();
-
-    storage.close(true);
 
     final String backedUpDbDirectory =
         buildDirectory
@@ -193,14 +194,17 @@ public class StorageBackupTestWithLuceneIndex {
             + "BackUp";
     OFileUtils.deleteRecursively(new File(backedUpDbDirectory));
 
+    OrientDBInternal internal = OrientDBInternal.extract(ctx);
+    internal.restore(
+        dbBackupName,
+        null,
+        null,
+        ODatabaseType.PLOCAL,
+        backupDir.getAbsolutePath(),
+        OrientDBConfig.defaultConfig());
     final ODatabaseDocumentInternal backedUpDb =
-        new ODatabaseDocumentTx("plocal:" + backedUpDbDirectory);
-    backedUpDb.create(backupDir.getAbsolutePath());
-
-    final OStorage backupStorage = backedUpDb.getStorage();
-    backedUpDb.close();
-
-    backupStorage.close(true);
+        (ODatabaseDocumentInternal) ctx.open(dbBackupName, "admin", "adminpwd");
+    db = (ODatabaseDocumentInternal) ctx.open(dbName, "admin", "adminpwd");
 
     final ODatabaseCompare compare =
         new ODatabaseCompare(

@@ -1,9 +1,10 @@
 package com.orientechnologies.security.kerberos;
 
-import com.orientechnologies.orient.client.remote.OServerAdmin;
 import com.orientechnologies.orient.core.config.OGlobalConfiguration;
+import com.orientechnologies.orient.core.db.ODatabaseType;
+import com.orientechnologies.orient.core.db.OrientDB;
+import com.orientechnologies.orient.core.db.OrientDBConfig;
 import com.orientechnologies.orient.core.db.document.ODatabaseDocument;
-import com.orientechnologies.orient.core.db.document.ODatabaseDocumentTx;
 import com.orientechnologies.orient.core.exception.OSecurityException;
 import com.orientechnologies.security.AbstractSecurityTest;
 import java.io.IOException;
@@ -22,22 +23,20 @@ public class KerberosClientTest extends AbstractSecurityTest {
 
   private static final String kerbServer = "kerby.odbrealm.com";
   private static final String testDB = "TestDB";
-  private static final String url = "remote:" + kerbServer + "/" + testDB;
   private static final String kerbUser = "orientdb@ODBREALM.COM";
   private static final String spn = "OrientDB/kerby.odbrealm.com";
   private static final String ccache = "/home/jenkins/ccache";
 
   @BeforeClass
   public static void beforeClass() throws Exception {
-    OServerAdmin serverAd = new OServerAdmin(kerbServer);
-    serverAd.connect("root", "password");
+    OrientDB remote =
+        new OrientDB("remote:" + kerbServer, "root", "password", OrientDBConfig.defaultConfig());
 
-    if (!serverAd.existsDatabase(testDB, "plocal")) {
-      serverAd.createDatabase(testDB, "graph", "plocal");
+    if (!remote.exists(testDB)) {
+      remote.create(testDB, ODatabaseType.MEMORY);
 
       // orientdb@ODBREALM.COM
-      ODatabaseDocument db = new ODatabaseDocumentTx(url);
-      db.open("root", "password");
+      ODatabaseDocument db = remote.open(testDB, "root", "password");
 
       try {
         // Create the Kerberos client user.
@@ -50,7 +49,7 @@ public class KerberosClientTest extends AbstractSecurityTest {
       }
     }
 
-    serverAd.close();
+    remote.close();
 
     OGlobalConfiguration.CLIENT_CREDENTIAL_INTERCEPTOR.setValue(
         "com.orientechnologies.orient.core.security.kerberos.OKerberosCredentialInterceptor");
@@ -67,11 +66,12 @@ public class KerberosClientTest extends AbstractSecurityTest {
     Assert.assertTrue(fileExists(ccache));
 
     OGlobalConfiguration.CLIENT_KRB5_CCNAME.setValue(ccache);
+    OrientDB remote = new OrientDB("remote:" + kerbServer, OrientDBConfig.defaultConfig());
 
-    ODatabaseDocument db = new ODatabaseDocumentTx(url);
-    db.open(kerbUser, "");
+    ODatabaseDocument db = remote.open(testDB, kerbUser, "");
 
     db.close();
+    remote.close();
   }
 
   @Test
@@ -81,11 +81,11 @@ public class KerberosClientTest extends AbstractSecurityTest {
     Assert.assertTrue(fileExists(ccache));
 
     OGlobalConfiguration.CLIENT_KRB5_CCNAME.setValue(ccache);
-
-    ODatabaseDocument db = new ODatabaseDocumentTx(url);
-    db.open(kerbUser, spn);
+    OrientDB remote = new OrientDB("remote:" + kerbServer, OrientDBConfig.defaultConfig());
+    ODatabaseDocument db = remote.open(testDB, kerbUser, spn);
 
     db.close();
+    remote.close();
   }
 
   @Test(expected = OSecurityException.class)
@@ -95,10 +95,10 @@ public class KerberosClientTest extends AbstractSecurityTest {
     shellCommand(String.format("echo password | kinit -c %s orientdb", ccache));
 
     OGlobalConfiguration.CLIENT_KRB5_CCNAME.setValue(wrongcache);
-
-    ODatabaseDocument db = new ODatabaseDocumentTx(url);
-    db.open(kerbUser, spn);
+    OrientDB remote = new OrientDB("remote:" + kerbServer, OrientDBConfig.defaultConfig());
+    ODatabaseDocument db = remote.open(testDB, kerbUser, spn);
 
     db.close();
+    remote.close();
   }
 }

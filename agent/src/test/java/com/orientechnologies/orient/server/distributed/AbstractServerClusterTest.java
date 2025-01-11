@@ -23,10 +23,7 @@ import com.orientechnologies.common.log.OLogManager;
 import com.orientechnologies.common.log.OLogger;
 import com.orientechnologies.common.util.OCallable;
 import com.orientechnologies.orient.core.Orient;
-import com.orientechnologies.orient.core.db.ODatabaseDocumentInternal;
-import com.orientechnologies.orient.core.db.ODatabaseRecordThreadLocal;
 import com.orientechnologies.orient.core.db.document.ODatabaseDocument;
-import com.orientechnologies.orient.core.db.document.ODatabaseDocumentTx;
 import com.orientechnologies.orient.core.record.impl.ODocument;
 import java.io.IOException;
 import java.util.ArrayList;
@@ -89,7 +86,6 @@ public abstract class AbstractServerClusterTest {
   }
 
   public void init(final int servers) {
-    ODatabaseDocumentTx.closeAll();
 
     GroupProperty.WAIT_SECONDS_BEFORE_JOIN.setSystemProperty("1");
 
@@ -290,7 +286,6 @@ public abstract class AbstractServerClusterTest {
         onAfterDatabaseCreation(graph);
       } finally {
         graph.close();
-        ODatabaseDocumentTx.closeAll();
       }
     }
 
@@ -325,25 +320,6 @@ public abstract class AbstractServerClusterTest {
         Thread.sleep(200);
       } catch (InterruptedException e) {
         // IGNORE IT
-      }
-    }
-  }
-
-  protected void executeWhen(
-      int serverId,
-      OCallable<Boolean, ODatabaseDocument> condition,
-      OCallable<Boolean, ODatabaseDocument> action)
-      throws Exception {
-    final ODatabaseDocument db =
-        new ODatabaseDocumentTx(getDatabaseURL(serverInstance.get(serverId)))
-            .open("admin", "admin");
-    try {
-      executeWhen(db, condition, action);
-    } finally {
-      if (!db.isClosed()) {
-        ODatabaseRecordThreadLocal.instance().set((ODatabaseDocumentInternal) db);
-        db.close();
-        ODatabaseRecordThreadLocal.instance().set(null);
       }
     }
   }
@@ -408,47 +384,6 @@ public abstract class AbstractServerClusterTest {
       } catch (InterruptedException e) {
         // IGNORE IT
       }
-    }
-  }
-
-  protected void waitFor(
-      final int serverId,
-      final OCallable<Boolean, ODatabaseDocument> condition,
-      final long timeout) {
-    try {
-      ODatabaseDocument db =
-          new ODatabaseDocumentTx(getDatabaseURL(serverInstance.get(serverId)))
-              .open("admin", "admin");
-      try {
-
-        final long startTime = System.currentTimeMillis();
-
-        while (true) {
-          if (condition.call(db)) {
-            break;
-          }
-
-          if (timeout > 0 && System.currentTimeMillis() - startTime > timeout) {
-            logger.error("TIMEOUT on wait-for condition (timeout=%d)", null, timeout);
-            break;
-          }
-
-          try {
-            Thread.sleep(1000);
-          } catch (InterruptedException e) {
-            // IGNORE IT
-          }
-        }
-
-      } finally {
-        if (!db.isClosed()) {
-          ODatabaseRecordThreadLocal.instance().set((ODatabaseDocumentInternal) db);
-          db.close();
-          ODatabaseRecordThreadLocal.instance().set(null);
-        }
-      }
-    } catch (Exception e) {
-      // INGORE IT
     }
   }
 

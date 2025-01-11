@@ -1,8 +1,9 @@
 package com.orientechnologies.orient.core.index;
 
 import com.orientechnologies.orient.core.config.OGlobalConfiguration;
+import com.orientechnologies.orient.core.db.OrientDB;
+import com.orientechnologies.orient.core.db.OrientDBConfig;
 import com.orientechnologies.orient.core.db.document.ODatabaseDocument;
-import com.orientechnologies.orient.core.db.document.ODatabaseDocumentTx;
 import org.junit.After;
 import org.junit.Before;
 
@@ -12,25 +13,27 @@ import org.junit.Before;
  */
 public class OPropertySBTreeRidBagIndexDefinitionTest
     extends OPropertyRidBagAbstractIndexDefinition {
+  private OrientDB context;
   protected ODatabaseDocument database;
   private int topThreshold;
   private int bottomThreshold;
 
-  public OPropertySBTreeRidBagIndexDefinitionTest() {
-    final String buildDirectory = System.getProperty("buildDirectory", ".");
-    final String url = "plocal:" + buildDirectory + "/test-db/" + this.getClass().getSimpleName();
-    database = new ODatabaseDocumentTx(url);
-    if (database.exists()) {
-      database.open("admin", "admin");
-      database.drop();
-    }
-
-    database.create();
-    database.close();
-  }
-
   @Before
-  public void beforeMethod2() {
+  public void beforeMethod() {
+    final String buildDirectory = System.getProperty("buildDirectory", ".");
+    String dbName = this.getClass().getSimpleName();
+    context =
+        new OrientDB("embedded:" + buildDirectory + "/test-db/", OrientDBConfig.defaultConfig());
+    if (context.exists(dbName)) {
+      context.drop(dbName);
+    }
+    context
+        .execute(
+            "create database "
+                + dbName
+                + " plocal users(admin identified by 'adminpwd' role admin)")
+        .close();
+
     super.beforeMethod();
 
     topThreshold =
@@ -41,13 +44,14 @@ public class OPropertySBTreeRidBagIndexDefinitionTest
     OGlobalConfiguration.RID_BAG_EMBEDDED_TO_SBTREEBONSAI_THRESHOLD.setValue(-1);
     OGlobalConfiguration.RID_BAG_SBTREEBONSAI_TO_EMBEDDED_THRESHOLD.setValue(-1);
 
-    database.open("admin", "admin");
+    database = context.open(this.getClass().getSimpleName(), "admin", "adminpwd");
   }
 
   @After
   public void afterMethod() {
     database.close();
-
+    context.drop(this.getClass().getSimpleName());
+    context.close();
     OGlobalConfiguration.RID_BAG_EMBEDDED_TO_SBTREEBONSAI_THRESHOLD.setValue(topThreshold);
     OGlobalConfiguration.RID_BAG_SBTREEBONSAI_TO_EMBEDDED_THRESHOLD.setValue(bottomThreshold);
   }

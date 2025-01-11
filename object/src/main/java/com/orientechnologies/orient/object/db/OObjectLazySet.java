@@ -22,6 +22,7 @@ import com.orientechnologies.orient.core.db.record.OIdentifiable;
 import com.orientechnologies.orient.core.id.ORID;
 import com.orientechnologies.orient.core.record.ORecord;
 import com.orientechnologies.orient.core.record.impl.ODocument;
+import com.orientechnologies.orient.object.enhancement.OObjectEntitySerializer;
 import com.orientechnologies.orient.object.enhancement.OObjectProxyMethodHandler;
 import java.io.Serializable;
 import java.util.Collection;
@@ -324,14 +325,14 @@ public class OObjectLazySet<TYPE> extends HashSet<TYPE>
                   fetchPlan);
           super.add(
               (TYPE)
-                  ((OObjectDatabaseTx) getDatabase())
-                      .detachAll(e, nonProxiedInstance, alreadyDetached, lazyObjects));
+                  OObjectEntitySerializer.detachAll(
+                      e, getDatabase(), nonProxiedInstance, alreadyDetached, lazyObjects));
         } else if (e instanceof ODocument) {
           e = database.getUserObjectByRecord((ORecord) e, fetchPlan);
           super.add(
               (TYPE)
-                  ((OObjectDatabaseTx) getDatabase())
-                      .detachAll(e, nonProxiedInstance, alreadyDetached, lazyObjects));
+                  OObjectEntitySerializer.detachAll(
+                      e, getDatabase(), nonProxiedInstance, alreadyDetached, lazyObjects));
         } else add((TYPE) e);
       }
     }

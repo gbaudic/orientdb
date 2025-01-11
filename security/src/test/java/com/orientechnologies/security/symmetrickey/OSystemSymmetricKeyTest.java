@@ -4,7 +4,6 @@ import com.orientechnologies.orient.core.Orient;
 import com.orientechnologies.orient.core.db.OrientDB;
 import com.orientechnologies.orient.core.db.OrientDBConfig;
 import com.orientechnologies.orient.core.db.document.ODatabaseDocument;
-import com.orientechnologies.orient.core.db.document.ODatabaseDocumentTx;
 import com.orientechnologies.orient.core.security.symmetrickey.OSymmetricKey;
 import com.orientechnologies.orient.server.OServer;
 import com.orientechnologies.security.AbstractSecurityTest;
@@ -103,11 +102,13 @@ public class OSystemSymmetricKeyTest extends AbstractSecurityTest {
 
     OSymmetricKey sk = new OSymmetricKey("AES", "8BC7LeGkFbmHEYNTz5GwDw==");
 
+    OrientDB remote = new OrientDB("remote:localhost", OrientDBConfig.defaultConfig());
     // "sysuser" is the username.  We just created it in OSystem.
-    ODatabaseDocument db = new ODatabaseDocumentTx(DATABASE_URL);
     // We encrypt the username and specify the Base64-encoded JSON document as the password.
-    db.open(sysuser, sk.encrypt("AES/CBC/PKCS5Padding", sysuser));
+    ODatabaseDocument db =
+        remote.open(TESTDB, sysuser, sk.encrypt("AES/CBC/PKCS5Padding", sysuser));
     db.close();
+    remote.close();
   }
 
   @Test
@@ -135,11 +136,13 @@ public class OSystemSymmetricKeyTest extends AbstractSecurityTest {
     OSymmetricKey sk =
         OSymmetricKey.fromStream("AES", new FileInputStream(SERVER_DIRECTORY + "/config/AES.key"));
 
+    OrientDB remote = new OrientDB("remote:localhost", OrientDBConfig.defaultConfig());
     // "sysuser" is the username.  We just created it in OSystem.
-    ODatabaseDocument db = new ODatabaseDocumentTx(DATABASE_URL);
     // We encrypt the username and specify the Base64-encoded JSON document as the password.
-    db.open(sysuser, sk.encrypt("AES/CBC/PKCS5Padding", sysuser));
+    ODatabaseDocument db =
+        remote.open(TESTDB, sysuser, sk.encrypt("AES/CBC/PKCS5Padding", sysuser));
     db.close();
+    remote.close();
   }
 
   @Test
@@ -171,10 +174,12 @@ public class OSystemSymmetricKeyTest extends AbstractSecurityTest {
             "keyAlias",
             "password");
 
+    OrientDB remote = new OrientDB("remote:localhost", OrientDBConfig.defaultConfig());
     // "sysuser" is the username.  We just created it in OSystem.
-    ODatabaseDocument db = new ODatabaseDocumentTx(DATABASE_URL);
     // We encrypt the username and specify the Base64-encoded JSON document as the password.
-    db.open(sysuser, sk.encrypt("AES/CBC/PKCS5Padding", sysuser));
+    ODatabaseDocument db =
+        remote.open(TESTDB, sysuser, sk.encrypt("AES/CBC/PKCS5Padding", sysuser));
     db.close();
+    remote.close();
   }
 }
