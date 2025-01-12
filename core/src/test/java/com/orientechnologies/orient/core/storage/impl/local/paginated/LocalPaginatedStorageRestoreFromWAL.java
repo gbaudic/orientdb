@@ -4,7 +4,8 @@ import com.orientechnologies.orient.core.command.OCommandOutputListener;
 import com.orientechnologies.orient.core.config.OGlobalConfiguration;
 import com.orientechnologies.orient.core.db.ODatabaseDocumentInternal;
 import com.orientechnologies.orient.core.db.ODatabaseRecordThreadLocal;
-import com.orientechnologies.orient.core.db.document.ODatabaseDocumentTx;
+import com.orientechnologies.orient.core.db.OrientDB;
+import com.orientechnologies.orient.core.db.OrientDBConfig;
 import com.orientechnologies.orient.core.db.tool.ODatabaseCompare;
 import com.orientechnologies.orient.core.id.ORID;
 import com.orientechnologies.orient.core.metadata.schema.OClass;
@@ -42,6 +43,7 @@ import org.junit.Test;
  */
 public class LocalPaginatedStorageRestoreFromWAL {
   private static File buildDir;
+  private OrientDB ctx;
   private ODatabaseDocumentInternal testDocumentTx;
   private ODatabaseDocumentInternal baseDocumentTx;
   private ExecutorService executorService = Executors.newCachedThreadPool();
@@ -85,26 +87,25 @@ public class LocalPaginatedStorageRestoreFromWAL {
 
   @Before
   public void beforeMethod() {
-    baseDocumentTx =
-        new ODatabaseDocumentTx(
-            "plocal:" + buildDir.getAbsolutePath() + "/baseLocalPaginatedStorageRestoreFromWAL");
-    if (baseDocumentTx.exists()) {
-      baseDocumentTx.open("admin", "admin");
-      baseDocumentTx.drop();
+    ctx = new OrientDB("plocal:" + buildDir.getAbsolutePath(), OrientDBConfig.defaultConfig());
+    if (ctx.exists("baseLocalPaginatedStorageRestoreFromWAL")) {
+      ctx.drop("baseLocalPaginatedStorageRestoreFromWAL");
     }
+    ctx.execute(
+        "create database baseLocalPaginatedStorageRestoreFromWAL plocal users(admin identified by"
+            + " 'adminpwd' role admin)");
 
-    baseDocumentTx.create();
+    baseDocumentTx =
+        (ODatabaseDocumentInternal)
+            ctx.open("baseLocalPaginatedStorageRestoreFromWAL", "admin", "adminpwd");
 
     createSchema(baseDocumentTx);
   }
 
   @After
   public void afterMethod() {
-    testDocumentTx.open("admin", "admin");
-    testDocumentTx.drop();
-
-    baseDocumentTx.open("admin", "admin");
-    baseDocumentTx.drop();
+    ctx.drop("testLocalPaginatedStorageRestoreFromWAL");
+    ctx.drop("baseLocalPaginatedStorageRestoreFromWAL");
   }
 
   @Test
@@ -123,10 +124,8 @@ public class LocalPaginatedStorageRestoreFromWAL {
     baseStorage.close();
 
     testDocumentTx =
-        new ODatabaseDocumentTx(
-            "plocal:" + buildDir.getAbsolutePath() + "/testLocalPaginatedStorageRestoreFromWAL");
-    testDocumentTx.open("admin", "admin");
-    testDocumentTx.close();
+        (ODatabaseDocumentInternal)
+            ctx.open("testLocalPaginatedStorageRestoreFromWAL", "admin", "adminpwd");
 
     ODatabaseCompare databaseCompare =
         new ODatabaseCompare(
@@ -299,8 +298,9 @@ public class LocalPaginatedStorageRestoreFromWAL {
 
       Random random = new Random();
 
-      final ODatabaseDocumentInternal db = new ODatabaseDocumentTx(baseDocumentTx.getURL());
-      db.open("admin", "admin");
+      final ODatabaseDocumentInternal db =
+          (ODatabaseDocumentInternal)
+              ctx.open("baseLocalPaginatedStorageRestoreFromWAL", "admin", "adminpwd");
       try {
         List<ORID> testTwoList = new ArrayList<ORID>();
         List<ORID> firstDocs = new ArrayList<ORID>();

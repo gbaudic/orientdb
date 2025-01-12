@@ -1,7 +1,10 @@
 package com.orientechnologies.orient.core.index;
 
-import com.orientechnologies.orient.core.db.OPartitionedDatabasePool;
-import com.orientechnologies.orient.core.db.document.ODatabaseDocumentTx;
+import com.orientechnologies.orient.core.db.ODatabasePool;
+import com.orientechnologies.orient.core.db.ODatabaseSession;
+import com.orientechnologies.orient.core.db.OrientDB;
+import com.orientechnologies.orient.core.db.OrientDBConfig;
+import com.orientechnologies.orient.core.db.document.ODatabaseDocument;
 import com.orientechnologies.orient.core.metadata.schema.OClass;
 import com.orientechnologies.orient.core.metadata.schema.OType;
 import com.orientechnologies.orient.core.record.impl.ODocument;
@@ -18,22 +21,24 @@ import org.junit.Ignore;
 import org.junit.Test;
 
 public class OLiveIndexRebuildTest {
-  private final OPartitionedDatabasePool pool =
-      new OPartitionedDatabasePool("memory:liveIndexRebuild", "admin", "admin");
+  private OrientDB ctx;
+  private ODatabasePool pool;
 
   private final String indexName = "liveIndex";
   private final String className = "liveIndexClass";
   private final String propertyName = "liveIndexProperty";
 
-  private final String databaseURL = "memory:liveIndexRebuild";
   private final AtomicBoolean stop = new AtomicBoolean();
 
   @Test
   @Ignore
   public void testLiveIndexRebuild() throws Exception {
-    final ODatabaseDocumentTx database = new ODatabaseDocumentTx(databaseURL);
-    database.create();
-
+    ctx = new OrientDB("memory:", OrientDBConfig.defaultConfig());
+    ctx.execute(
+        "create database liveIndexRebuild memory users(admin identified by 'adminpwd' role"
+            + " 'admin')");
+    pool = ctx.cachedPool("liveIndexRebuild", "admin", "adminpwd");
+    ODatabaseSession database = pool.acquire();
     final OClass clazz = database.getMetadata().getSchema().createClass(className);
     clazz.createProperty(propertyName, OType.INTEGER);
 
@@ -42,7 +47,7 @@ public class OLiveIndexRebuildTest {
     for (int i = 0; i < 1000000; i++) {
       ODocument document = new ODocument(className);
       document.field(propertyName, i);
-      document.save();
+      database.save(document);
     }
 
     ExecutorService executorService = Executors.newFixedThreadPool(6);
@@ -89,7 +94,7 @@ public class OLiveIndexRebuildTest {
         long rebuildCount = 0;
         while (!stop.get()) {
           for (int i = 0; i < 10; i++) {
-            final ODatabaseDocumentTx database = pool.acquire();
+            final ODatabaseDocument database = pool.acquire();
             try {
               long start = System.nanoTime();
               database.command("rebuild index " + indexName).close();
@@ -125,7 +130,7 @@ public class OLiveIndexRebuildTest {
       try {
 
         while (!stop.get()) {
-          ODatabaseDocumentTx database = pool.acquire();
+          ODatabaseDocument database = pool.acquire();
           try {
             long start = System.nanoTime();
 

@@ -1,8 +1,10 @@
 package com.orientechnologies.orient.core.storage.ridbag.sbtree;
 
 import com.orientechnologies.orient.core.config.OGlobalConfiguration;
+import com.orientechnologies.orient.core.db.ODatabaseSession;
+import com.orientechnologies.orient.core.db.OrientDB;
+import com.orientechnologies.orient.core.db.OrientDBConfig;
 import com.orientechnologies.orient.core.db.document.ODatabaseDocument;
-import com.orientechnologies.orient.core.db.document.ODatabaseDocumentTx;
 import com.orientechnologies.orient.core.db.record.OIdentifiable;
 import com.orientechnologies.orient.core.db.record.ridbag.ORidBag;
 import com.orientechnologies.orient.core.exception.OConcurrentModificationException;
@@ -36,6 +38,7 @@ public class OSBTreeRidBagConcurrencySingleRidBag {
 
   private int topThreshold;
   private int bottomThreshold;
+  private OrientDB orientDb;
 
   @Before
   public void beforeMethod() {
@@ -46,6 +49,15 @@ public class OSBTreeRidBagConcurrencySingleRidBag {
 
     OGlobalConfiguration.RID_BAG_EMBEDDED_TO_SBTREEBONSAI_THRESHOLD.setValue(30);
     OGlobalConfiguration.RID_BAG_SBTREEBONSAI_TO_EMBEDDED_THRESHOLD.setValue(20);
+    orientDb = new OrientDB("embedded:target/testdb/", OrientDBConfig.defaultConfig());
+    if (orientDb.exists("OSBTreeRidBagConcurrencySingleRidBag")) {
+      orientDb.drop("OSBTreeRidBagConcurrencySingleRidBag");
+    }
+    orientDb
+        .execute(
+            "create database OSBTreeRidBagConcurrencySingleRidBag plocal users (admin identified by"
+                + " 'adminpwd' role admin)")
+        .close();
   }
 
   @After
@@ -56,13 +68,8 @@ public class OSBTreeRidBagConcurrencySingleRidBag {
 
   @Test
   public void testConcurrency() throws Exception {
-    ODatabaseDocument db = new ODatabaseDocumentTx(URL);
-    if (db.exists()) {
-      db.open("admin", "admin");
-      db.drop();
-    }
-
-    db.create();
+    ODatabaseSession db =
+        orientDb.open("OSBTreeRidBagConcurrencySingleRidBag", "admin", "adminpwd");
 
     ODocument document = new ODocument();
     ORidBag ridBag = new ORidBag();
@@ -74,7 +81,7 @@ public class OSBTreeRidBagConcurrencySingleRidBag {
       ridBag.add(ridToAdd);
       ridTree.add(ridToAdd);
     }
-    document.save();
+    db.save(document);
 
     docContainerRid = document.getIdentity();
 
@@ -118,10 +125,8 @@ public class OSBTreeRidBagConcurrencySingleRidBag {
 
       int addedRecords = 0;
 
-      ODatabaseDocument db = new ODatabaseDocumentTx(URL);
-      db.open("admin", "admin");
-
-      try {
+      try (ODatabaseDocument db =
+          orientDb.open("OSBTreeRidBagConcurrencySingleRidBag", "admin", "adminpwd")) {
         while (cont) {
           List<ORID> ridsToAdd = new ArrayList<ORID>();
           for (int i = 0; i < 10; i++) {
@@ -136,7 +141,7 @@ public class OSBTreeRidBagConcurrencySingleRidBag {
             for (ORID rid : ridsToAdd) ridBag.add(rid);
 
             try {
-              document.save();
+              db.save(document);
             } catch (OConcurrentModificationException e) {
               continue;
             }
@@ -147,8 +152,6 @@ public class OSBTreeRidBagConcurrencySingleRidBag {
           ridTree.addAll(ridsToAdd);
           addedRecords += ridsToAdd.size();
         }
-      } finally {
-        db.close();
       }
 
       System.out.println(
@@ -171,10 +174,9 @@ public class OSBTreeRidBagConcurrencySingleRidBag {
       int deletedRecords = 0;
 
       Random rnd = new Random();
-      ODatabaseDocument db = new ODatabaseDocumentTx(URL);
-      db.open("admin", "admin");
 
-      try {
+      try (ODatabaseDocument db =
+          orientDb.open("OSBTreeRidBagConcurrencySingleRidBag", "admin", "adminpwd")) {
         while (cont) {
           while (true) {
             ODocument document = db.load(docContainerRid);
@@ -196,7 +198,7 @@ public class OSBTreeRidBagConcurrencySingleRidBag {
             }
 
             try {
-              document.save();
+              db.save(document);
             } catch (OConcurrentModificationException e) {
               continue;
             }
@@ -207,8 +209,6 @@ public class OSBTreeRidBagConcurrencySingleRidBag {
             break;
           }
         }
-      } finally {
-        db.close();
       }
 
       System.out.println(

@@ -1,8 +1,9 @@
 package com.orientechnologies.orient.core.storage.ridbag.sbtree;
 
 import com.orientechnologies.orient.core.config.OGlobalConfiguration;
-import com.orientechnologies.orient.core.db.document.ODatabaseDocument;
-import com.orientechnologies.orient.core.db.document.ODatabaseDocumentTx;
+import com.orientechnologies.orient.core.db.ODatabaseSession;
+import com.orientechnologies.orient.core.db.OrientDB;
+import com.orientechnologies.orient.core.db.OrientDBConfig;
 import com.orientechnologies.orient.core.db.record.OIdentifiable;
 import com.orientechnologies.orient.core.db.record.ridbag.ORidBag;
 import com.orientechnologies.orient.core.exception.OConcurrentModificationException;
@@ -48,6 +49,7 @@ public class OSBTreeRidBagConcurrencyMultiRidBag {
 
   private int topThreshold;
   private int bottomThreshold;
+  private OrientDB ctx;
 
   @Before
   public void beforeMethod() {
@@ -58,6 +60,17 @@ public class OSBTreeRidBagConcurrencyMultiRidBag {
 
     OGlobalConfiguration.RID_BAG_EMBEDDED_TO_SBTREEBONSAI_THRESHOLD.setValue(30);
     OGlobalConfiguration.RID_BAG_SBTREEBONSAI_TO_EMBEDDED_THRESHOLD.setValue(20);
+    ctx = new OrientDB("embedded:./target/testdb/", OrientDBConfig.defaultConfig());
+    if (ctx.exists("OSBTreeRidBagConcurrencyMultiRidBag")) {
+      ctx.drop("OSBTreeRidBagConcurrencyMultiRidBag");
+    }
+    ctx.execute(
+            "create database OSBTreeRidBagConcurrencyMultiRidBag plocal users(admin identified by"
+                + " 'adminpwd' role admin)")
+        .close();
+    ODatabaseSession db = ctx.open("OSBTreeRidBagConcurrencyMultiRidBag", "admin", "adminpwd");
+    db.createClass("WithRidbag");
+    db.close();
   }
 
   @After
@@ -68,19 +81,13 @@ public class OSBTreeRidBagConcurrencyMultiRidBag {
 
   @Test
   public void testConcurrency() throws Exception {
-    ODatabaseDocument db = new ODatabaseDocumentTx(URL);
-    if (db.exists()) {
-      db.open("admin", "admin");
-      db.drop();
-    }
-
-    db.create();
+    ODatabaseSession db = ctx.open("OSBTreeRidBagConcurrencyMultiRidBag", "admin", "adminpwd");
     for (int i = 0; i < 100; i++) {
-      ODocument document = new ODocument();
+      ODocument document = new ODocument("WithRidbag");
       ORidBag ridBag = new ORidBag();
       document.field("ridBag", ridBag);
 
-      document.save();
+      db.save(document);
 
       ridTreePerDocument.put(document.getIdentity(), new ConcurrentSkipListSet<ORID>());
       lastClusterPosition.set(document.getIdentity().getClusterPosition());
@@ -129,22 +136,21 @@ public class OSBTreeRidBagConcurrencyMultiRidBag {
     System.out.println(
         "Total  records added :  " + db.countClusterElements(db.getDefaultClusterId()));
     System.out.println("Total rids added : " + amountOfRids);
-
-    db.drop();
+    ctx.drop("");
+    ctx.close();
   }
 
   public final class DocumentAdder implements Runnable {
     @Override
     public void run() {
-      ODatabaseDocument db = new ODatabaseDocumentTx(URL);
-      db.open("admin", "admin");
 
-      try {
-        ODocument document = new ODocument();
+      try (ODatabaseSession db =
+          ctx.open("OSBTreeRidBagConcurrencyMultiRidBag", "admin", "adminpwd")) {
+        ODocument document = new ODocument("WithRidbag");
         ORidBag ridBag = new ORidBag();
         document.field("ridBag", ridBag);
 
-        document.save();
+        db.save(document);
         ridTreePerDocument.put(document.getIdentity(), new ConcurrentSkipListSet<ORID>());
 
         while (true) {
@@ -154,11 +160,6 @@ public class OSBTreeRidBagConcurrencyMultiRidBag {
                 position, document.getIdentity().getClusterPosition())) break;
           } else break;
         }
-      } catch (RuntimeException e) {
-        e.printStackTrace();
-        throw e;
-      } finally {
-        db.close();
       }
     }
   }
@@ -176,17 +177,16 @@ public class OSBTreeRidBagConcurrencyMultiRidBag {
       long addedRecords = 0;
       int retries = 0;
 
-      ODatabaseDocument db = new ODatabaseDocumentTx(URL);
-      db.open("admin", "admin");
-
-      final int defaultClusterId = db.getDefaultClusterId();
       latch.await();
-      try {
+      try (ODatabaseSession db =
+          ctx.open("OSBTreeRidBagConcurrencyMultiRidBag", "admin", "adminpwd")) {
         while (cont) {
           List<ORID> ridsToAdd = new ArrayList<ORID>();
           for (int i = 0; i < 10; i++) {
             ridsToAdd.add(new ORecordId(0, positionCounter.incrementAndGet()));
           }
+
+          final int defaultClusterId = db.getClass("WithRidbag").getDefaultClusterId();
 
           final long position = random.nextInt(lastClusterPosition.get().intValue());
           final ORID orid = new ORecordId(defaultClusterId, position);
@@ -212,11 +212,6 @@ public class OSBTreeRidBagConcurrencyMultiRidBag {
           ridTree.addAll(ridsToAdd);
           addedRecords += ridsToAdd.size();
         }
-      } catch (RuntimeException e) {
-        e.printStackTrace();
-        throw e;
-      } finally {
-        db.close();
       }
 
       System.out.println(
@@ -244,12 +239,10 @@ public class OSBTreeRidBagConcurrencyMultiRidBag {
       long deletedRecords = 0;
       int retries = 0;
 
-      ODatabaseDocument db = new ODatabaseDocumentTx(URL);
-      db.open("admin", "admin");
-
-      final int defaultClusterId = db.getDefaultClusterId();
       latch.await();
-      try {
+      try (ODatabaseSession db =
+          ctx.open("OSBTreeRidBagConcurrencyMultiRidBag", "admin", "adminpwd")) {
+        final int defaultClusterId = db.getClass("WithRidbag").getDefaultClusterId();
         while (cont) {
           final long position = random.nextInt(lastClusterPosition.get().intValue());
           final ORID orid = new ORecordId(defaultClusterId, position);
@@ -287,11 +280,6 @@ public class OSBTreeRidBagConcurrencyMultiRidBag {
             break;
           }
         }
-      } catch (RuntimeException e) {
-        e.printStackTrace();
-        throw e;
-      } finally {
-        db.close();
       }
 
       System.out.println(
