@@ -5,7 +5,6 @@ import static org.testng.AssertJUnit.assertNotNull;
 import static org.testng.AssertJUnit.assertNull;
 
 import com.orientechnologies.orient.core.db.document.ODatabaseDocument;
-import com.orientechnologies.orient.core.db.document.ODatabaseDocumentTx;
 import com.orientechnologies.orient.core.db.record.OIdentifiable;
 import com.orientechnologies.orient.core.id.ORID;
 import com.orientechnologies.orient.core.id.ORecordId;
@@ -18,49 +17,32 @@ import com.orientechnologies.orient.core.metadata.schema.OType;
 import com.orientechnologies.orient.core.record.ORecord;
 import com.orientechnologies.orient.core.record.impl.ODocument;
 import com.orientechnologies.orient.core.sql.executor.OResultSet;
+import com.orientechnologies.orient.test.database.BaseMemoryDatabase;
 import java.util.Date;
 import java.util.Set;
 import java.util.stream.Stream;
 import org.testng.Assert;
-import org.testng.annotations.AfterMethod;
-import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
 /**
  * @author Matan Shukry (matanshukry@gmail.com)
  * @since 3/3/2015
  */
-public class DefaultValuesTrivialTest {
+public class DefaultValuesTrivialTest extends BaseMemoryDatabase {
   private static final int DOCUMENT_COUNT = 50;
-
-  private ODatabaseDocument database;
-
-  @BeforeMethod
-  public void before() {
-    //noinspection deprecation
-    database = new ODatabaseDocumentTx("memory:" + DefaultValuesTrivialTest.class.getSimpleName());
-    //noinspection deprecation
-    database.create();
-  }
-
-  @AfterMethod
-  public void after() {
-    //noinspection deprecation
-    database.drop();
-  }
 
   @Test
   public void test() {
 
     // create example schema
-    OSchema schema = database.getMetadata().getSchema();
+    OSchema schema = db.getMetadata().getSchema();
     OClass classPerson = schema.createClass("Person");
 
     classPerson.createProperty("name", OType.STRING);
     classPerson.createProperty("join_date", OType.DATETIME).setDefaultValue("sysdate()");
     classPerson.createProperty("active", OType.BOOLEAN).setDefaultValue("true");
 
-    Date dtStart = getDatabaseSysdate(database);
+    Date dtStart = getDatabaseSysdate(db);
 
     ODocument[] docs = new ODocument[DOCUMENT_COUNT];
     for (int i = 0; i < DOCUMENT_COUNT; ++i) {
@@ -71,7 +53,7 @@ public class DefaultValuesTrivialTest {
       docs[i] = doc;
     }
 
-    Date dtAfter = getDatabaseSysdate(database);
+    Date dtAfter = getDatabaseSysdate(db);
     for (int i = 0; i < DOCUMENT_COUNT; ++i) {
       final ODocument doc = docs[i];
 
@@ -100,13 +82,13 @@ public class DefaultValuesTrivialTest {
 
   @Test
   public void testDefaultValueConversion() {
-    OSchema schema = database.getMetadata().getSchema();
+    OSchema schema = db.getMetadata().getSchema();
     OClass classPerson = schema.createClass("Person");
     classPerson.createProperty("users", OType.LINKSET).setDefaultValue("[#5:1]");
 
     ODocument doc = new ODocument("Person");
-    ORecord record = database.save(doc);
-    ODocument doc1 = database.load(record.getIdentity());
+    ORecord record = db.save(doc);
+    ODocument doc1 = db.load(record.getIdentity());
     Set<OIdentifiable> rids = doc1.field("users");
     assertEquals(rids.size(), 1);
     assertEquals(rids.iterator().next(), new ORecordId(5, 1));
@@ -115,7 +97,7 @@ public class DefaultValuesTrivialTest {
   @Test
   public void testPrepopulation() {
     // create example schema
-    OSchema schema = database.getMetadata().getSchema();
+    OSchema schema = db.getMetadata().getSchema();
     OClass classA = schema.createClass("ClassA");
 
     classA.createProperty("name", OType.STRING).setDefaultValue("default name");
@@ -155,7 +137,7 @@ public class DefaultValuesTrivialTest {
   @Test
   public void testPrepopulationIndex() {
     // create example schema
-    OSchema schema = database.getMetadata().getSchema();
+    OSchema schema = db.getMetadata().getSchema();
     OClass classA = schema.createClass("ClassA");
 
     OProperty prop = classA.createProperty("name", OType.STRING);
@@ -165,7 +147,7 @@ public class DefaultValuesTrivialTest {
     {
       ODocument doc = new ODocument(classA);
       assertEquals("default name", doc.field("name"));
-      database.save(doc);
+      db.save(doc);
       try (Stream<ORID> stream = index.getInternal().getRids("default name")) {
         assertEquals(1, stream.count());
       }
@@ -176,7 +158,7 @@ public class DefaultValuesTrivialTest {
   public void testPrepopulationIndexTx() {
 
     // create example schema
-    OSchema schema = database.getMetadata().getSchema();
+    OSchema schema = db.getMetadata().getSchema();
     OClass classA = schema.createClass("ClassA");
 
     OProperty prop = classA.createProperty("name", OType.STRING);
@@ -184,14 +166,14 @@ public class DefaultValuesTrivialTest {
     OIndex index = prop.createIndex(OClass.INDEX_TYPE.NOTUNIQUE);
 
     {
-      database.begin();
+      db.begin();
       ODocument doc = new ODocument(classA);
       assertEquals("default name", doc.field("name"));
-      database.save(doc);
+      db.save(doc);
       try (Stream<ORID> stream = index.getInternal().getRids("default name")) {
         assertEquals(1, stream.count());
       }
-      database.commit();
+      db.commit();
       try (Stream<ORID> stream = index.getInternal().getRids("default name")) {
         assertEquals(1, stream.count());
       }
@@ -202,7 +184,7 @@ public class DefaultValuesTrivialTest {
   public void testPrepopulationMultivalueIndex() {
 
     // create example schema
-    OSchema schema = database.getMetadata().getSchema();
+    OSchema schema = db.getMetadata().getSchema();
     OClass classA = schema.createClass("ClassA");
 
     OProperty prop = classA.createProperty("name", OType.STRING);
@@ -214,7 +196,7 @@ public class DefaultValuesTrivialTest {
       ODocument doc = new ODocument(classA);
       assertEquals("default name", doc.field("name"));
       doc.field("value", "1");
-      database.save(doc);
+      db.save(doc);
       try (Stream<ORID> stream = index.getInternal().getRids(new OCompositeKey("1"))) {
         assertEquals(1, stream.count());
       }
@@ -223,7 +205,7 @@ public class DefaultValuesTrivialTest {
       ODocument doc = new ODocument(classA);
       assertEquals("default name", doc.field("name"));
       doc.field("value", "2");
-      database.save(doc);
+      db.save(doc);
       try (Stream<ORID> stream = index.getInternal().getRids(new OCompositeKey("2"))) {
         assertEquals(1, stream.count());
       }

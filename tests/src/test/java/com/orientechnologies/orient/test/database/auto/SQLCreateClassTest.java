@@ -15,45 +15,31 @@
  */
 package com.orientechnologies.orient.test.database.auto;
 
-import com.orientechnologies.orient.core.db.document.ODatabaseDocument;
-import com.orientechnologies.orient.core.db.document.ODatabaseDocumentTx;
+import com.orientechnologies.orient.test.database.BaseMemoryDatabase;
 import org.testng.Assert;
 import org.testng.annotations.Test;
 
-public class SQLCreateClassTest {
+public class SQLCreateClassTest extends BaseMemoryDatabase {
   @Test
   public void testSimpleCreate() {
-    ODatabaseDocument db = new ODatabaseDocumentTx("memory:" + SQLCreateClassTest.class.getName());
-    db.create();
-    try {
-      Assert.assertFalse(db.getMetadata().getSchema().existsClass("testSimpleCreate"));
-      db.command("create class testSimpleCreate").close();
-      Assert.assertTrue(db.getMetadata().getSchema().existsClass("testSimpleCreate"));
-    } finally {
-      db.drop();
-    }
+    Assert.assertFalse(db.getMetadata().getSchema().existsClass("testSimpleCreate"));
+    db.command("create class testSimpleCreate").close();
+    Assert.assertTrue(db.getMetadata().getSchema().existsClass("testSimpleCreate"));
   }
 
   @Test
   public void testIfNotExists() {
-    ODatabaseDocument db =
-        new ODatabaseDocumentTx("memory:" + SQLCreateClassTest.class.getName() + "_ifNotExists");
-    db.create();
+    Assert.assertFalse(db.getMetadata().getSchema().existsClass("testIfNotExists"));
+    db.command("create class testIfNotExists if not exists").close();
+    db.getMetadata().getSchema().reload();
+    Assert.assertTrue(db.getMetadata().getSchema().existsClass("testIfNotExists"));
+    db.command("create class testIfNotExists if not exists").close();
+    db.getMetadata().getSchema().reload();
+    Assert.assertTrue(db.getMetadata().getSchema().existsClass("testIfNotExists"));
     try {
-      Assert.assertFalse(db.getMetadata().getSchema().existsClass("testIfNotExists"));
-      db.command("create class testIfNotExists if not exists").close();
-      db.getMetadata().getSchema().reload();
-      Assert.assertTrue(db.getMetadata().getSchema().existsClass("testIfNotExists"));
-      db.command("create class testIfNotExists if not exists").close();
-      db.getMetadata().getSchema().reload();
-      Assert.assertTrue(db.getMetadata().getSchema().existsClass("testIfNotExists"));
-      try {
-        db.command("create class testIfNotExists").close();
-        Assert.fail();
-      } catch (Exception e) {
-      }
-    } finally {
-      db.drop();
+      db.command("create class testIfNotExists").close();
+      Assert.fail();
+    } catch (Exception e) {
     }
   }
 }
