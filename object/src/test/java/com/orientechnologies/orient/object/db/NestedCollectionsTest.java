@@ -2,22 +2,17 @@ package com.orientechnologies.orient.object.db;
 
 import static org.junit.Assert.assertEquals;
 
-import com.orientechnologies.orient.core.db.object.ODatabaseObject;
 import com.orientechnologies.orient.object.db.entity.NestedContainer;
 import com.orientechnologies.orient.object.db.entity.NestedContent;
-import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 
 /** Created by tglman on 17/07/17. */
-public class NestedCollectionsTest {
-
-  private ODatabaseObject database;
+public class NestedCollectionsTest extends BaseObjectTest {
 
   @Before
   public void before() {
-    database = new OObjectDatabaseTx("memory:" + NestedCollectionsTest.class.getSimpleName());
-    database.create();
+    super.before();
     database.getEntityManager().registerEntityClass(NestedContainer.class);
     database.getEntityManager().registerEntityClass(NestedContent.class);
   }
@@ -30,10 +25,5 @@ public class NestedCollectionsTest {
 
     assertEquals(1, saved.getFoo().size());
     assertEquals(3, saved.getFoo().get("key-1").size());
-  }
-
-  @After
-  public void after() {
-    database.drop();
   }
 }

@@ -18,6 +18,7 @@ package com.orientechnologies.orient.test.database.auto;
 
 import com.orientechnologies.orient.core.db.ODatabaseDocumentInternal;
 import com.orientechnologies.orient.core.db.document.ODatabaseDocument;
+import com.orientechnologies.orient.core.db.object.ODatabaseObject;
 import com.orientechnologies.orient.core.exception.OConcurrentModificationException;
 import com.orientechnologies.orient.core.id.ORID;
 import com.orientechnologies.orient.core.metadata.schema.OClass;
@@ -712,7 +713,7 @@ public class TransactionConsistencyTest extends DocumentDBBaseTest {
       var v = database.newVertex();
 
       v.setProperty("purpose", "testQueryIsolation");
-      v.save();
+      database.save(v);
 
       var result =
           database
@@ -744,9 +745,8 @@ public class TransactionConsistencyTest extends DocumentDBBaseTest {
   @Test
   public void testRollbackWithRemove() {
     // check if the database exists and clean before running tests
-    OObjectDatabaseTx database = new OObjectDatabaseTx(url);
-    database.open("admin", "admin");
-
+    ODatabaseObject database =
+        new OObjectDatabaseTx((ODatabaseDocumentInternal) openSession("admin", "admin"));
     try {
       Account account = new Account();
       account.setName("John Grisham");
@@ -805,33 +805,26 @@ public class TransactionConsistencyTest extends DocumentDBBaseTest {
   }
 
   public void testTransactionsCache() throws Exception {
-    OObjectDatabaseTx database = new OObjectDatabaseTx(url);
-    database.open("admin", "admin");
+    reopendb("admin", "admin");
+    Assert.assertFalse(database.getTransaction().isActive());
+    OSchema schema = database.getMetadata().getSchema();
+    OClass classA = schema.createClass("TransA");
+    classA.createProperty("name", OType.STRING);
+    ODocument doc = new ODocument(classA);
+    doc.field("name", "test1");
+    database.save(doc);
+    ORID orid = doc.getIdentity();
+    database.begin();
+    Assert.assertTrue(database.getTransaction().isActive());
+    doc = orid.getRecord();
+    Assert.assertEquals("test1", doc.field("name"));
+    doc.field("name", "test2");
+    doc = orid.getRecord();
+    Assert.assertEquals("test2", doc.field("name"));
+    // There is NO SAVE!
+    database.commit();
 
-    try {
-      Assert.assertFalse(database.getTransaction().isActive());
-      OSchema schema = database.getMetadata().getSchema();
-      OClass classA = schema.createClass("TransA");
-      classA.createProperty("name", OType.STRING);
-      ODocument doc = new ODocument(classA);
-      doc.field("name", "test1");
-      doc.save();
-      ORID orid = doc.getIdentity();
-      database.begin();
-      Assert.assertTrue(database.getTransaction().isActive());
-      doc = orid.getRecord();
-      Assert.assertEquals("test1", doc.field("name"));
-      doc.field("name", "test2");
-      doc = orid.getRecord();
-      Assert.assertEquals("test2", doc.field("name"));
-      // There is NO SAVE!
-      database.commit();
-
-      doc = orid.getRecord();
-      Assert.assertEquals("test1", doc.field("name"));
-
-    } finally {
-      database.close();
-    }
+    doc = orid.getRecord();
+    Assert.assertEquals("test1", doc.field("name"));
   }
 }

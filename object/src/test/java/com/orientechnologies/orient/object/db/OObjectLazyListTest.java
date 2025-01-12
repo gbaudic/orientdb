@@ -3,31 +3,20 @@ package com.orientechnologies.orient.object.db;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 
-import com.orientechnologies.orient.core.db.object.ODatabaseObject;
 import java.util.ArrayList;
 import java.util.List;
-import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 
 /** Created by Anders Heintz on 20/06/15. */
-public class OObjectLazyListTest {
-  private ODatabaseObject database;
+public class OObjectLazyListTest extends BaseObjectTest {
   private int count;
 
   @Before
-  public void setUp() throws Exception {
-    database = new OObjectDatabaseTx("memory:OObjectEnumLazyListTest");
-    database.create();
-
+  public void before() {
+    super.before();
     database.getEntityManager().registerEntityClass(EntityObject.class);
     database.getEntityManager().registerEntityClass(EntityObjectWithList.class);
-  }
-
-  @After
-  public void tearDown() {
-
-    database.drop();
   }
 
   @Test

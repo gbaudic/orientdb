@@ -16,13 +16,11 @@
 package com.orientechnologies.orient.test.database.auto;
 
 import com.orientechnologies.common.collection.OMultiValue;
-import com.orientechnologies.orient.core.db.object.ODatabaseObject;
 import com.orientechnologies.orient.core.db.record.OIdentifiable;
 import com.orientechnologies.orient.core.id.ORID;
 import com.orientechnologies.orient.core.record.impl.ODocument;
 import com.orientechnologies.orient.core.record.impl.ODocumentHelper;
 import com.orientechnologies.orient.core.sql.executor.OResult;
-import com.orientechnologies.orient.object.db.OObjectDatabaseTx;
 import java.io.IOException;
 import java.util.List;
 import java.util.Locale;
@@ -64,12 +62,9 @@ public class SQLSelectProjectionsTest extends DocumentDBBaseTest {
 
   @Test
   public void queryProjectionObjectLevel() {
-    ODatabaseObject db = new OObjectDatabaseTx(url);
-    db.open("admin", "admin");
 
     List<OResult> result =
-        db.getUnderlying().query(" select nick, followings, followers from Profile ").stream()
-            .toList();
+        database.query(" select nick, followings, followers from Profile ").stream().toList();
 
     Assert.assertTrue(result.size() != 0);
 
@@ -77,8 +72,6 @@ public class SQLSelectProjectionsTest extends DocumentDBBaseTest {
       Assert.assertTrue(d.getPropertyNames().size() <= 3);
       Assert.assertFalse(d.getElement().isPresent());
     }
-
-    db.close();
   }
 
   @Test

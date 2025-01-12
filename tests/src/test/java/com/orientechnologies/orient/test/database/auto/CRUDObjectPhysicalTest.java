@@ -18,6 +18,8 @@ package com.orientechnologies.orient.test.database.auto;
 import com.orientechnologies.common.log.OLogManager;
 import com.orientechnologies.common.log.OLogger;
 import com.orientechnologies.orient.core.db.ODatabaseDocumentInternal;
+import com.orientechnologies.orient.core.db.OrientDBConfig;
+import com.orientechnologies.orient.core.db.object.ODatabaseObject;
 import com.orientechnologies.orient.core.db.object.OLazyObjectSetInterface;
 import com.orientechnologies.orient.core.db.record.ORecordLazyList;
 import com.orientechnologies.orient.core.db.record.ORecordLazyMap;
@@ -36,7 +38,7 @@ import com.orientechnologies.orient.core.record.impl.ODocument;
 import com.orientechnologies.orient.core.record.impl.ORecordBytes;
 import com.orientechnologies.orient.core.sql.OCommandSQLParsingException;
 import com.orientechnologies.orient.core.tx.OTransaction.TXTYPE;
-import com.orientechnologies.orient.object.db.OObjectDatabaseTx;
+import com.orientechnologies.orient.object.db.OrientDBObject;
 import com.orientechnologies.orient.test.domain.base.Agenda;
 import com.orientechnologies.orient.test.domain.base.EmbeddedChild;
 import com.orientechnologies.orient.test.domain.base.EnumTest;
@@ -2652,8 +2654,10 @@ public class CRUDObjectPhysicalTest extends ObjectDBBaseTest {
 
   @Test
   public void queryByIdNewApi() {
-    OObjectDatabaseTx db = new OObjectDatabaseTx("memory:queryByIdNewApi");
-    db.create();
+    OrientDBObject ctx = new OrientDBObject("memory:", OrientDBConfig.defaultConfig());
+    ctx.execute(
+        "create database queryByIdNewApi memory users(admin identified by 'adminpwd' role admin)");
+    ODatabaseObject db = ctx.open("queryByIdNewApi", "admin", "adminpwd");
     try {
       db.getEntityManager().registerEntityClasses("com.orientechnologies.orient.test.domain.whiz");
       db.command("insert into Profile set nick = 'foo', name='foo'");
@@ -2664,7 +2668,9 @@ public class CRUDObjectPhysicalTest extends ObjectDBBaseTest {
       Profile profile = result1.get(0);
       Assert.assertEquals(profile.getNick(), "foo");
     } finally {
-      db.drop();
+      db.close();
+      ctx.drop("queryByIdNewApi");
+      ctx.close();
     }
   }
 }

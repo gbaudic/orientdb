@@ -18,11 +18,9 @@ package com.orientechnologies.orient.object.enhancement;
 
 import com.orientechnologies.orient.core.annotation.OId;
 import com.orientechnologies.orient.core.annotation.OVersion;
-import com.orientechnologies.orient.core.db.object.ODatabaseObject;
 import com.orientechnologies.orient.core.id.ORID;
 import com.orientechnologies.orient.core.record.impl.ODocument;
-import com.orientechnologies.orient.object.db.OObjectDatabaseTx;
-import org.junit.After;
+import com.orientechnologies.orient.object.db.BaseObjectTest;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
@@ -31,23 +29,15 @@ import org.junit.Test;
  * @author Artem Orobets (enisher-at-gmail.com)
  * @since 12/14/12
  */
-public class OVersionSerializationTest {
-  private ODatabaseObject database;
+public class OVersionSerializationTest extends BaseObjectTest {
 
   @Before
-  public void setUp() throws Exception {
-    database = new OObjectDatabaseTx("memory:OVersionSerializationTest");
-    database.create();
-
+  public void before() {
+    super.before();
     database.getEntityManager().registerEntityClass(EntityLongVersion.class);
     database.getEntityManager().registerEntityClass(EntityStringVersion.class);
     database.getEntityManager().registerEntityClass(EntityObjectVersion.class);
     database.getEntityManager().registerEntityClass(EntityExactVersionType.class);
-  }
-
-  @After
-  public void tearDown() {
-    database.drop();
   }
 
   @Test

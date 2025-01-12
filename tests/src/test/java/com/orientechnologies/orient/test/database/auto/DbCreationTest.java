@@ -113,8 +113,7 @@ public class DbCreationTest extends ObjectDBBaseTest {
 
   @Test(dependsOnMethods = {"testDbOpenWithBackSlash"})
   public void testChangeLocale() throws IOException {
-    database = new OObjectDatabaseTx(url);
-    database.open("admin", "admin");
+    reopendb("admin", "admin");
     database.command(" ALTER DATABASE LOCALELANGUAGE  ?", Locale.GERMANY.getLanguage()).close();
     database.command(" ALTER DATABASE LOCALECOUNTRY  ?", Locale.GERMANY.getCountry()).close();
     database.reload();
@@ -128,15 +127,11 @@ public class DbCreationTest extends ObjectDBBaseTest {
         database.get(ODatabase.ATTRIBUTES.LOCALECOUNTRY), Locale.ENGLISH.getCountry());
     Assert.assertEquals(
         database.get(ODatabase.ATTRIBUTES.LOCALELANGUAGE), Locale.ENGLISH.getLanguage());
-    database.close();
   }
 
   @Test(dependsOnMethods = {"testChangeLocale"})
   public void testRoles() throws IOException {
-    database = new OObjectDatabaseTx(url);
-    database.open("admin", "admin");
     database.query("select from ORole where name = 'admin'").close();
-    database.close();
   }
 
   @Test(dependsOnMethods = {"testChangeLocale"})

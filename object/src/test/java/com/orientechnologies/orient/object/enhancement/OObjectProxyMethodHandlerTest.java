@@ -3,8 +3,7 @@ package com.orientechnologies.orient.object.enhancement;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
-import com.orientechnologies.orient.core.db.object.ODatabaseObject;
-import com.orientechnologies.orient.object.db.OObjectDatabaseTx;
+import com.orientechnologies.orient.object.db.BaseObjectTest;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
@@ -14,7 +13,6 @@ import java.util.Map;
 import javax.persistence.CascadeType;
 import javax.persistence.Embedded;
 import javax.persistence.OneToMany;
-import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -23,20 +21,18 @@ import org.junit.Test;
  * @author Nathan Brown (anecdotesoftware--at--gmail.com)
  * @since 18.08.2014
  */
-public class OObjectProxyMethodHandlerTest {
-  private ODatabaseObject databaseTx;
+public class OObjectProxyMethodHandlerTest extends BaseObjectTest {
 
   private Map<String, Object> fieldsAndThereDefaultValue;
 
   @Before
-  public void setUp() throws Exception {
-    databaseTx = new OObjectDatabaseTx("memory:OObjectEnumLazyListTest");
-    databaseTx.create();
+  public void before() {
+    super.before();
 
-    databaseTx.getEntityManager().registerEntityClass(EntityWithDifferentFieldTypes.class);
-    databaseTx.getEntityManager().registerEntityClass(EmbeddedType1.class);
-    databaseTx.getEntityManager().registerEntityClass(EmbeddedType2.class);
-    databaseTx.getEntityManager().registerEntityClass(EntityWithEmbeddedFields.class);
+    database.getEntityManager().registerEntityClass(EntityWithDifferentFieldTypes.class);
+    database.getEntityManager().registerEntityClass(EmbeddedType1.class);
+    database.getEntityManager().registerEntityClass(EmbeddedType2.class);
+    database.getEntityManager().registerEntityClass(EntityWithEmbeddedFields.class);
 
     fieldsAndThereDefaultValue = new HashMap<String, Object>();
     fieldsAndThereDefaultValue.put("byteField", Byte.valueOf("0"));
@@ -50,17 +46,12 @@ public class OObjectProxyMethodHandlerTest {
     fieldsAndThereDefaultValue.put("objectField", null);
   }
 
-  @After
-  public void tearDown() {
-    databaseTx.drop();
-  }
-
   @Test
   public void reloadTestForMapsInTarget() {
     EntityWithDifferentFieldTypes targetObject =
-        this.databaseTx.newInstance(EntityWithDifferentFieldTypes.class);
+        this.database.newInstance(EntityWithDifferentFieldTypes.class);
     EntityWithDifferentFieldTypes childObject =
-        this.databaseTx.newInstance(EntityWithDifferentFieldTypes.class);
+        this.database.newInstance(EntityWithDifferentFieldTypes.class);
 
     Map<String, String> map = new HashMap<String, String>();
     map.put("key", "value");
@@ -74,7 +65,7 @@ public class OObjectProxyMethodHandlerTest {
 
     targetObject.getListOfEntityWithDifferentFieldTypes().add(childObject);
 
-    targetObject = this.databaseTx.save(targetObject);
+    targetObject = this.database.save(targetObject);
 
     for (String key : targetObject.getStringStringMap().keySet()) {
       assertTrue(key.equals("key"));
@@ -82,7 +73,7 @@ public class OObjectProxyMethodHandlerTest {
     targetObject.getStringStringMap().put("key2", "value2");
 
     childObject.getStringStringMap().put("key3", "value3");
-    targetObject = this.databaseTx.save(targetObject);
+    targetObject = this.database.save(targetObject);
     //        targetObject = this.databaseTx.load(targetObject);
 
     targetObject.getStringStringMap().get("key");
@@ -124,7 +115,7 @@ public class OObjectProxyMethodHandlerTest {
 
     targetObject.setListOfEntityWithDifferentFieldTypes(entitieList);
 
-    targetObject = this.databaseTx.save(targetObject);
+    targetObject = this.database.save(targetObject);
 
     for (EntityWithDifferentFieldTypes entity :
         targetObject.getListOfEntityWithDifferentFieldTypes()) {
@@ -151,7 +142,7 @@ public class OObjectProxyMethodHandlerTest {
 
     for (EntityWithDifferentFieldTypes entity :
         targetObject.getListOfEntityWithDifferentFieldTypes()) {
-      this.databaseTx.reload(entity);
+      this.database.reload(entity);
       assertTrue(entity.isBooleanField() == true);
       assertTrue(entity.getByteField() == Byte.MIN_VALUE);
       assertTrue(entity.getDoubleField() == 1.1);
@@ -213,8 +204,8 @@ public class OObjectProxyMethodHandlerTest {
     EntityWithEmbeddedFields entity = new EntityWithEmbeddedFields();
     entity.setEmbeddedType1(new EmbeddedType1());
     entity.setEmbeddedType2(new EmbeddedType2());
-    EntityWithEmbeddedFields saved = databaseTx.save(entity);
-    databaseTx.detachAll(saved, true);
+    EntityWithEmbeddedFields saved = database.save(entity);
+    database.detachAll(saved, true);
   }
 
   public static class EmbeddedType1 {}

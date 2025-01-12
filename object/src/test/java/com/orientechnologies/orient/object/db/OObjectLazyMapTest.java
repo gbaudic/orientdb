@@ -4,10 +4,8 @@ import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
-import com.orientechnologies.orient.core.db.object.ODatabaseObject;
 import java.util.HashMap;
 import java.util.Map;
-import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -15,24 +13,16 @@ import org.junit.Test;
  * @author JN <a href="mailto:jn@brain-activit.com">Julian Neuhaus</a>
  * @since 21.08.2014
  */
-public class OObjectLazyMapTest {
+public class OObjectLazyMapTest extends BaseObjectTest {
   private final int idOfRootEntity = 0;
   private final int idOfFirstMapEntry = 1;
   private final int idOfSecondMapEntry = 2;
   private final int invalidId = 3;
-  private ODatabaseObject database;
 
   @Before
-  public void setUp() throws Exception {
-    database = new OObjectDatabaseTx("memory:OObjectLazyMapTest");
-    database.create();
-
+  public void before() {
+    super.before();
     database.getEntityManager().registerEntityClass(EntityWithMap.class);
-  }
-
-  @After
-  public void tearDown() {
-    database.drop();
   }
 
   @Test

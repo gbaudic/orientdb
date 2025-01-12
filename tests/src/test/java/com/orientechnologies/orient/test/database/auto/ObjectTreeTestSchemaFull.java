@@ -21,8 +21,6 @@ import com.orientechnologies.orient.core.iterator.object.OObjectIteratorClassInt
 import com.orientechnologies.orient.core.record.impl.ODocument;
 import com.orientechnologies.orient.core.serialization.serializer.object.OObjectSerializer;
 import com.orientechnologies.orient.core.sql.executor.OResult;
-import com.orientechnologies.orient.object.db.OObjectDatabasePool;
-import com.orientechnologies.orient.object.db.OObjectDatabaseTx;
 import com.orientechnologies.orient.object.enhancement.OObjectEntitySerializer;
 import com.orientechnologies.orient.object.serialization.OObjectSerializerContext;
 import com.orientechnologies.orient.object.serialization.OObjectSerializerHelper;
@@ -42,7 +40,6 @@ import com.orientechnologies.orient.test.domain.business.IdentityChild;
 import com.orientechnologies.orient.test.domain.customserialization.Sec;
 import com.orientechnologies.orient.test.domain.customserialization.SecurityRole;
 import com.orientechnologies.orient.test.domain.whiz.Profile;
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
@@ -195,18 +192,6 @@ public class ObjectTreeTestSchemaFull extends ObjectDBBaseTest {
     database
         .getEntityManager()
         .registerEntityClasses("com.orientechnologies.orient.test.domain.base");
-  }
-
-  @Test
-  public void testPool() throws IOException {
-    final OObjectDatabaseTx[] dbs =
-        new OObjectDatabaseTx[OObjectDatabasePool.global().getMaxSize()];
-
-    for (int i = 0; i < 10; ++i) {
-      for (int db = 0; db < dbs.length; ++db)
-        dbs[db] = OObjectDatabasePool.global().acquire(url, "admin", "admin");
-      for (int db = 0; db < dbs.length; ++db) dbs[db].close();
-    }
   }
 
   @Test
@@ -874,7 +859,7 @@ public class ObjectTreeTestSchemaFull extends ObjectDBBaseTest {
     database.delete(test);
   }
 
-  @Test(dependsOnMethods = "testPool")
+  @Test()
   public void testCustomTypes() {
     OObjectSerializerContext serializerContext = new OObjectSerializerContext();
     serializerContext.bind(

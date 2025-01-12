@@ -2,6 +2,9 @@ package com.orientechnologies.orient.test.server;
 
 import com.orientechnologies.common.log.OLogManager;
 import com.orientechnologies.common.log.OLogger;
+import com.orientechnologies.orient.core.db.ODatabaseDocumentInternal;
+import com.orientechnologies.orient.core.db.OrientDB;
+import com.orientechnologies.orient.core.db.object.ODatabaseObject;
 import com.orientechnologies.orient.object.db.OObjectDatabaseTx;
 import com.orientechnologies.orient.server.OServer;
 import java.io.File;
@@ -25,10 +28,15 @@ public class OServerTest {
       logger.info("Iteration %d", i);
       OServer server = new OServer(false).activate();
       // create database if does not exist
-      OObjectDatabaseTx database =
-          new OObjectDatabaseTx("plocal:" + System.getProperty("ORIENTDB_HOME") + "/test-db");
-      if (!database.exists()) database.create();
-      database.open("admin", "admin");
+      OrientDB ctx = server.getContext();
+      if (!ctx.exists("test-db")) {
+        ctx.execute(
+            "create database test-db plocal users(admin identified by 'adminpwd' role admin)");
+      }
+
+      ODatabaseObject database =
+          new OObjectDatabaseTx(
+              (ODatabaseDocumentInternal) ctx.open("test-db", "admin", "adminpwd"));
       database.countClass("ouser");
       database.close();
       server.shutdown();

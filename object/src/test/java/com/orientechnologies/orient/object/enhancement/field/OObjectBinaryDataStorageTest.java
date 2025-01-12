@@ -15,30 +15,22 @@
 package com.orientechnologies.orient.object.enhancement.field;
 
 import com.orientechnologies.orient.core.config.OGlobalConfiguration;
-import com.orientechnologies.orient.core.db.object.ODatabaseObject;
 import com.orientechnologies.orient.core.id.ORecordId;
-import com.orientechnologies.orient.object.db.OObjectDatabaseTx;
+import com.orientechnologies.orient.object.db.BaseObjectTest;
 import java.io.IOException;
 import java.util.Random;
-import org.junit.After;
 import org.junit.Assert;
+import org.junit.Before;
 import org.junit.Test;
 
 /** @author diegomtassis <a href="mailto:dta@compart.com">Diego Martin Tassis</a> */
-public class OObjectBinaryDataStorageTest {
-
-  private ODatabaseObject database;
-
-  @After
-  public void tearDown() {
-    database.drop();
-  }
+public class OObjectBinaryDataStorageTest extends BaseObjectTest {
 
   @Test
   public void testSaveAndLoad_BinaryFieldsSimpleRecordMapping() throws IOException {
 
     // setup
-    this.createDb(ODocumentFieldHandlingStrategyFactory.SIMPLE);
+    this.setStrategy(ODocumentFieldHandlingStrategyFactory.SIMPLE);
 
     Driver hunt = new Driver();
     hunt.setName("James Hunt");
@@ -61,7 +53,7 @@ public class OObjectBinaryDataStorageTest {
   public void testSaveAndLoad_BinaryFieldsSingleRecordMapping() throws IOException {
 
     // setup
-    this.createDb(ODocumentFieldHandlingStrategyFactory.SINGLE_ORECORD_BYTES);
+    this.setStrategy(ODocumentFieldHandlingStrategyFactory.SINGLE_ORECORD_BYTES);
 
     Driver lauda = new Driver();
     lauda.setName("Niki Lauda");
@@ -84,7 +76,7 @@ public class OObjectBinaryDataStorageTest {
   public void testSaveAndLoad_BinaryFieldsSplitRecordMapping() throws IOException {
 
     // setup
-    this.createDb(ODocumentFieldHandlingStrategyFactory.SPLIT_ORECORD_BYTES);
+    this.setStrategy(ODocumentFieldHandlingStrategyFactory.SPLIT_ORECORD_BYTES);
 
     Driver prost = new Driver();
     prost.setName("Alain Prost");
@@ -107,7 +99,7 @@ public class OObjectBinaryDataStorageTest {
   public void testSaveAndLoad_DefaultRecordMapping() throws IOException {
 
     // setup
-    this.createDb(-1);
+    this.setStrategy(-1);
 
     Driver monzasGorilla = new Driver();
     monzasGorilla.setName("Vittorio Brambilla");
@@ -131,7 +123,7 @@ public class OObjectBinaryDataStorageTest {
       throws IOException {
 
     // setup
-    this.createDb(ODocumentFieldHandlingStrategyFactory.SIMPLE);
+    this.setStrategy(ODocumentFieldHandlingStrategyFactory.SIMPLE);
 
     Driver ronnie = this.database.newInstance(Driver.class);
     ronnie.setName("Ronnie Peterson");
@@ -150,18 +142,17 @@ public class OObjectBinaryDataStorageTest {
     Assert.assertArrayEquals(ronniePicture, loadedRonnie.getImageData());
   }
 
-  private void createDb(int strategy) {
+  @Before
+  public void before() {
+    super.before();
+    database.getEntityManager().registerEntityClass(Driver.class);
+  }
 
+  private void setStrategy(int strategy) {
     // Store strategy setting
     if (strategy >= 0) {
       OGlobalConfiguration.DOCUMENT_BINARY_MAPPING.setValue(strategy);
     }
-
-    // Create
-    database = new OObjectDatabaseTx("memory:" + this.getClass().getSimpleName());
-    database.create();
-
-    database.getEntityManager().registerEntityClass(Driver.class);
   }
 
   private byte[] randomBytes(int size) {

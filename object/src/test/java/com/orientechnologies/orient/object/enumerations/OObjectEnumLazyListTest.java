@@ -3,11 +3,9 @@ package com.orientechnologies.orient.object.enumerations;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
-import com.orientechnologies.orient.core.db.object.ODatabaseObject;
-import com.orientechnologies.orient.object.db.OObjectDatabaseTx;
+import com.orientechnologies.orient.object.db.BaseObjectTest;
 import java.util.ArrayList;
 import java.util.List;
-import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -15,21 +13,12 @@ import org.junit.Test;
  * @author JN <a href="mailto:jn@brain-activit.com">Julian Neuhaus</a>
  * @since 15.08.2014
  */
-public class OObjectEnumLazyListTest {
-  private ODatabaseObject database;
+public class OObjectEnumLazyListTest extends BaseObjectTest {
 
   @Before
-  public void setUp() throws Exception {
-    database = new OObjectDatabaseTx("memory:OObjectEnumLazyListTest");
-    database.create();
-
+  public void before() {
+    super.before();
     database.getEntityManager().registerEntityClass(EntityWithEnumList.class);
-  }
-
-  @After
-  public void tearDown() {
-
-    database.drop();
   }
 
   @Test

@@ -1,62 +1,35 @@
 package com.orientechnologies.orient.object.db;
 
-import com.orientechnologies.orient.core.db.OPartitionedDatabasePool;
-import com.orientechnologies.orient.core.db.object.ODatabaseObject;
 import com.orientechnologies.orient.core.entity.OEntityManager;
 import com.orientechnologies.orient.object.db.entity.Car;
 import com.orientechnologies.orient.object.db.entity.Person;
 import java.util.HashMap;
 import java.util.Map;
-import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 
 /** Created by tglman on 16/12/15. */
-public class OPersistentEmbeddedMapTest {
-
-  private OPartitionedDatabasePool pool;
-  private ODatabaseObject createdDb;
+public class OPersistentEmbeddedMapTest extends BaseObjectTest {
 
   @Before
-  public void setup() {
-    final String url = "memory:tmpdb";
-    createdDb = new OObjectDatabaseTx(url);
-    createdDb.create();
+  public void before() {
+    super.before();
+    database.setAutomaticSchemaGeneration(true);
+    OEntityManager entityManager = database.getEntityManager();
+    entityManager.registerEntityClass(Car.class);
+    entityManager.registerEntityClass(Person.class);
 
-    pool = new OPartitionedDatabasePool(url, "admin", "admin");
-
-    OObjectDatabaseTx db = new OObjectDatabaseTx(pool.acquire());
-    try {
-      db.setAutomaticSchemaGeneration(true);
-      OEntityManager entityManager = db.getEntityManager();
-      entityManager.registerEntityClass(Car.class);
-      entityManager.registerEntityClass(Person.class);
-
-      db.getMetadata().getSchema().synchronizeSchema();
-    } finally {
-      db.close();
-    }
-  }
-
-  @After
-  public void destroy() {
-    pool.close();
-    createdDb.drop();
+    database.getMetadata().getSchema().synchronizeSchema();
   }
 
   @Test
   public void embeddedMapShouldContainCorrectValues() {
     Person person = createTestPerson();
     Person retrievedPerson;
-    OObjectDatabaseTx db = new OObjectDatabaseTx(pool.acquire());
-    try {
-      db.save(person);
-      retrievedPerson = db.browseClass(Person.class).next();
-      retrievedPerson = db.detachAll(retrievedPerson, true);
-    } finally {
-      db.close();
-    }
+    database.save(person);
+    retrievedPerson = database.browseClass(Person.class).next();
+    retrievedPerson = database.detachAll(retrievedPerson, true);
 
     Assert.assertEquals(person, retrievedPerson);
   }

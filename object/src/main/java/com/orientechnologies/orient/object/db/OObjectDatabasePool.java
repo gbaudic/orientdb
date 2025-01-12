@@ -30,18 +30,8 @@ public class OObjectDatabasePool extends ODatabasePoolBase<OObjectDatabaseTx> {
     super();
   }
 
-  public OObjectDatabasePool(
-      final String iURL, final String iUserName, final String iUserPassword) {
-    super(iURL, iUserName, iUserPassword);
-  }
-
   public static OObjectDatabasePool global() {
     globalInstance.setup();
-    return globalInstance;
-  }
-
-  public static OObjectDatabasePool global(final int iPoolMin, final int iPoolMax) {
-    globalInstance.setup(iPoolMin, iPoolMax);
     return globalInstance;
   }
 
