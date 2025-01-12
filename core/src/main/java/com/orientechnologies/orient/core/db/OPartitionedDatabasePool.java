@@ -73,6 +73,7 @@ import java.util.concurrent.atomic.AtomicInteger;
  * @author Andrey Lomakin (a.lomakin-at-orientdb.com)
  * @since 06/11/14
  */
+@Deprecated
 public class OPartitionedDatabasePool extends OOrientListenerAbstract {
   private static final OLogger logger =
       OLogManager.instance().logger(OPartitionedDatabasePool.class);
@@ -93,10 +94,12 @@ public class OPartitionedDatabasePool extends OOrientListenerAbstract {
   private volatile boolean closed = false;
   private boolean autoCreate = false;
 
+  @Deprecated
   public OPartitionedDatabasePool(String url, String userName, String password) {
     this(url, userName, password, Runtime.getRuntime().availableProcessors(), -1);
   }
 
+  @Deprecated
   public OPartitionedDatabasePool(
       String url, String userName, String password, int maxPartitionSize, int maxPoolSize) {
     this.url = url;
