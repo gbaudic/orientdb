@@ -1,14 +1,13 @@
 package com.orientechnologies.orient.test.database.speed;
 
-import com.orientechnologies.orient.core.db.ODatabaseDocumentInternal;
-import com.orientechnologies.orient.core.db.OPartitionedDatabasePool;
-import com.orientechnologies.orient.core.db.OPartitionedDatabasePoolFactory;
+import com.orientechnologies.orient.core.db.OrientDB;
+import com.orientechnologies.orient.core.db.OrientDBConfig;
 import com.orientechnologies.orient.core.db.document.ODatabaseDocument;
-import com.orientechnologies.orient.core.db.document.ODatabaseDocumentTx;
 import com.orientechnologies.orient.core.id.ORecordId;
 import com.orientechnologies.orient.core.metadata.security.OSecurity;
 import com.orientechnologies.orient.core.record.impl.ODocument;
-import com.orientechnologies.orient.core.serialization.serializer.record.binary.ORecordSerializerBinary;
+import com.orientechnologies.orient.core.util.OURLConnection;
+import com.orientechnologies.orient.core.util.OURLHelper;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -29,7 +28,8 @@ import org.testng.annotations.Test;
 @Test
 public class LocalMTCreateDocumentSpeedTest {
   private static final Random random = new Random();
-  private ODatabaseDocumentInternal database;
+  private OURLConnection data;
+  private ODatabaseDocument database;
   private Date date = new Date();
   private CountDownLatch latch = new CountDownLatch(1);
   private List<Future> futures;
@@ -38,19 +38,20 @@ public class LocalMTCreateDocumentSpeedTest {
 
   private final List<String> users = new ArrayList<String>();
 
-  private final OPartitionedDatabasePoolFactory poolFactory = new OPartitionedDatabasePoolFactory();
+  private OrientDB ctx;
 
   @BeforeClass
   public void init() {
-    database = new ODatabaseDocumentTx(System.getProperty("url"));
-    database.setSerializer(new ORecordSerializerBinary());
-
-    if (database.exists()) {
-      database.open("admin", "admin");
-      database.drop();
+    data = OURLHelper.parse(System.getProperty("url"));
+    ctx = new OrientDB(data.getType() + ":" + data.getPath(), OrientDBConfig.defaultConfig());
+    if (ctx.exists(data.getDbName())) {
+      ctx.drop(data.getDbName());
     }
+    ctx.execute(
+        "create database ? " + data.getDbType() + " users(admin identfied by 'admin' role admin)",
+        data.getDbName());
+    database = ctx.open(data.getDbName(), "admin", "admin");
 
-    database.create();
     database.getMetadata().getSchema().createClass("Account");
 
     final OSecurity security = database.getMetadata().getSecurity();
@@ -104,7 +105,7 @@ public class LocalMTCreateDocumentSpeedTest {
 
   @AfterClass
   public void deinit() {
-    if (database != null) database.drop();
+    ctx.drop(data.getDbName());
   }
 
   private final class Saver implements Callable<Long> {
@@ -122,9 +123,7 @@ public class LocalMTCreateDocumentSpeedTest {
 
         final String user = users.get(random.nextInt(users.size()));
 
-        final OPartitionedDatabasePool pool =
-            poolFactory.get(System.getProperty("url"), user, user);
-        final ODatabaseDocument database = pool.acquire();
+        final ODatabaseDocument database = ctx.open(data.getDbName(), user, user);
 
         ODocument record = new ODocument("Account");
         record.field("id", 1);
@@ -159,9 +158,7 @@ public class LocalMTCreateDocumentSpeedTest {
     public Long call() throws Exception {
 
       latch.await();
-      final OPartitionedDatabasePool pool =
-          poolFactory.get(System.getProperty("url"), "admin", "admin");
-      final ODatabaseDocument database = pool.acquire();
+      final ODatabaseDocument database = ctx.open(data.getDbName(), "admin", "admin");
 
       long counter = 0;
       long start = System.nanoTime();

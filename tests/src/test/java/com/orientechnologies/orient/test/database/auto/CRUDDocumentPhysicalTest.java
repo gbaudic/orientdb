@@ -18,10 +18,8 @@ package com.orientechnologies.orient.test.database.auto;
 import com.orientechnologies.orient.core.db.ODatabase.OPERATION_MODE;
 import com.orientechnologies.orient.core.db.ODatabaseDocumentInternal;
 import com.orientechnologies.orient.core.db.ODatabaseRecordThreadLocal;
-import com.orientechnologies.orient.core.db.OPartitionedDatabasePool;
 import com.orientechnologies.orient.core.db.document.ODatabaseDocument;
 import com.orientechnologies.orient.core.db.document.ODatabaseDocumentAbstract;
-import com.orientechnologies.orient.core.db.document.ODatabaseDocumentTx;
 import com.orientechnologies.orient.core.db.record.OIdentifiable;
 import com.orientechnologies.orient.core.exception.ORecordNotFoundException;
 import com.orientechnologies.orient.core.id.ORID;
@@ -70,23 +68,6 @@ public class CRUDDocumentPhysicalTest extends DocumentDBBaseTest {
   @Parameters(value = "url")
   public CRUDDocumentPhysicalTest(@Optional String url) {
     super(url);
-  }
-
-  @Test
-  public void testPool() {
-    OPartitionedDatabasePool pool = new OPartitionedDatabasePool(url, "admin", "admin");
-    @SuppressWarnings("deprecation")
-    final ODatabaseDocument[] dbs = new ODatabaseDocumentTx[pool.getMaxPartitonSize()];
-
-    for (int i = 0; i < 10; ++i) {
-      for (int db = 0; db < dbs.length; ++db)
-        //noinspection resource
-        dbs[db] = pool.acquire();
-      //noinspection deprecation
-      for (ODatabaseDocument oDatabaseDocumentTx : dbs) oDatabaseDocumentTx.close();
-    }
-
-    pool.close();
   }
 
   @Test

@@ -15,8 +15,6 @@
  */
 package com.orientechnologies.orient.test.database.auto;
 
-import com.orientechnologies.orient.core.db.OPartitionedDatabasePool;
-import com.orientechnologies.orient.core.db.document.ODatabaseDocument;
 import com.orientechnologies.orient.core.sql.executor.OResultSet;
 import org.testng.Assert;
 import org.testng.annotations.Optional;
@@ -51,25 +49,24 @@ public class SQLDeleteTest extends DocumentDBBaseTest {
   }
 
   @Test
-  public void deleteInPool() {
-    OPartitionedDatabasePool pool = new OPartitionedDatabasePool(url, "admin", "admin");
-    ODatabaseDocument db = pool.acquire();
+  public void delete() {
 
-    final Long total = db.countClass("Profile");
+    final Long total = database.countClass("Profile");
 
     OResultSet resultset =
-        db.query("select from Profile where sex = 'male' and salary > 120 and salary <= 133");
+        database.query("select from Profile where sex = 'male' and salary > 120 and salary <= 133");
 
     long queryCount = resultset.stream().count();
 
     OResultSet records =
-        db.command("delete from Profile where sex = 'male' and salary > 120 and salary <= 133");
+        database.command(
+            "delete from Profile where sex = 'male' and salary > 120 and salary <= 133");
 
     long count = records.next().getProperty("count");
     Assert.assertEquals(count, queryCount);
 
-    Assert.assertEquals(db.countClass("Profile"), total - count);
+    Assert.assertEquals(database.countClass("Profile"), total - count);
 
-    db.close();
+    database.close();
   }
 }

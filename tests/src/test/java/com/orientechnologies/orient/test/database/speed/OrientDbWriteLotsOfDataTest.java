@@ -15,7 +15,7 @@
  */
 package com.orientechnologies.orient.test.database.speed;
 
-import com.orientechnologies.orient.core.db.OPartitionedDatabasePool;
+import com.orientechnologies.orient.core.db.ODatabasePool;
 import com.orientechnologies.orient.core.db.document.ODatabaseDocument;
 import com.orientechnologies.orient.core.metadata.schema.OClass;
 import com.orientechnologies.orient.core.metadata.schema.OSchema;
@@ -46,7 +46,7 @@ public class OrientDbWriteLotsOfDataTest {
   public void testThreaded(int numthreads, TXTYPE txtype) throws InterruptedException {
 
     // create document pool
-    OPartitionedDatabasePool pool = new OPartitionedDatabasePool(DBURI, DBUSR, DBPWD);
+    ODatabasePool pool = new ODatabasePool(DBURI, DBUSR, DBPWD);
 
     // create the schema for the test class if it doesn't exist
     ODatabaseDocument db = pool.acquire();
@@ -102,7 +102,7 @@ public class OrientDbWriteLotsOfDataTest {
     private double statTotalSecs;
     private TXTYPE txtype;
 
-    public RunTest(OPartitionedDatabasePool pool, TXTYPE txtype) {
+    public RunTest(ODatabasePool pool, TXTYPE txtype) {
       this.txtype = txtype;
       this.db = pool.acquire();
     }

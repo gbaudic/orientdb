@@ -149,11 +149,9 @@
             <class name="com.orientechnologies.orient.test.database.auto.MultipleDBTest"/>
             <class name="com.orientechnologies.orient.test.database.auto.ConcurrentUpdatesTest"/>
             <class name="com.orientechnologies.orient.test.database.auto.ConcurrentQueriesTest"/>
-            <class name="com.orientechnologies.orient.test.database.auto.DatabaseThreadFactoryTest"/>
             <class name="com.orientechnologies.orient.test.database.auto.CollateTest"/>
             <class name="com.orientechnologies.orient.test.database.auto.OEmbeddedRidBagTest"/>
             <class name="com.orientechnologies.orient.test.database.auto.OSBTreeRidBagTest"/>
-            <class name="com.orientechnologies.orient.test.database.auto.PoolTest"/>
             <class name="com.orientechnologies.orient.test.database.auto.RemoteProtocolCommandsTest"/>
             <class name="com.orientechnologies.orient.test.database.auto.RecordReloadTest"/>
         </classes>

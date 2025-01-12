@@ -2,7 +2,7 @@ package com.orientechnologies.orient.server;
 
 import com.orientechnologies.common.io.OFileUtils;
 import com.orientechnologies.orient.core.Orient;
-import com.orientechnologies.orient.core.db.OPartitionedDatabasePool;
+import com.orientechnologies.orient.core.db.ODatabasePool;
 import com.orientechnologies.orient.core.db.OrientDB;
 import com.orientechnologies.orient.core.db.OrientDBConfig;
 import com.orientechnologies.orient.core.db.document.ODatabaseDocument;
@@ -100,8 +100,7 @@ public class HookInstallServerTest {
   public void test() {
     final int initValue = count;
 
-    OPartitionedDatabasePool pool =
-        new OPartitionedDatabasePool("remote:localhost/test", "admin", "adminpwd");
+    ODatabasePool pool = new ODatabasePool("remote:localhost/test", "admin", "adminpwd");
     for (int i = 0; i < 10; i++) {
       ODatabaseDocument some = pool.acquire();
       try {

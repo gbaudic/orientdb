@@ -902,7 +902,7 @@ public class ObjectTreeTest extends ObjectDBBaseTest {
     database.delete(test);
   }
 
-  @Test(dependsOnMethods = "testPool")
+  @Test()
   public void testCustomTypes() {
     OObjectSerializerContext serializerContext = new OObjectSerializerContext();
     serializerContext.bind(

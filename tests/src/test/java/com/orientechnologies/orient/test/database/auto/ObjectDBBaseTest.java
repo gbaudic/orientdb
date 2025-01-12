@@ -44,6 +44,24 @@ public class ObjectDBBaseTest extends BaseTest<ODatabaseObject> {
     return session;
   }
 
+  protected ODatabaseSession rawSession(String suffix, String user, String password) {
+    ODatabaseDocumentTx session = new ODatabaseDocumentTx(this.url + suffix);
+    session.open(user, password);
+    return session;
+  }
+
+  protected ODatabaseObject session(String suffix, String user, String password) {
+    OObjectDatabaseTx session = new OObjectDatabaseTx(this.url + suffix);
+    session.open(user, password);
+    return session;
+  }
+
+  protected void dropAndCreateDatabase(String suffix) throws IOException {
+    ODatabaseObject database = new OObjectDatabaseTx(url + suffix);
+    ODatabaseHelper.dropDatabase(database, getStorageType());
+    ODatabaseHelper.createDatabase(database, url + suffix, getStorageType());
+  }
+
   protected void reopendb(String user, String password) {
     if (!database.isClosed() && !database.isActiveOnCurrentThread()) {
       database = new OObjectDatabaseTx(this.url);

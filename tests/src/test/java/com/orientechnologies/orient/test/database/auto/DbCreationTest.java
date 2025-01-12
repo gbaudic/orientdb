@@ -18,9 +18,7 @@ package com.orientechnologies.orient.test.database.auto;
 import com.orientechnologies.orient.client.db.ODatabaseHelper;
 import com.orientechnologies.orient.core.Orient;
 import com.orientechnologies.orient.core.db.ODatabase;
-import com.orientechnologies.orient.core.db.OPartitionedDatabasePool;
 import com.orientechnologies.orient.core.db.document.ODatabaseDocument;
-import com.orientechnologies.orient.core.db.document.ODatabaseDocumentPool;
 import com.orientechnologies.orient.core.db.document.ODatabaseDocumentTx;
 import com.orientechnologies.orient.core.exception.ODatabaseException;
 import com.orientechnologies.orient.core.exception.OStorageException;
@@ -40,8 +38,6 @@ import org.testng.annotations.Test;
 @Test(groups = "db")
 public class DbCreationTest extends ObjectDBBaseTest {
 
-  private OPartitionedDatabasePool pool;
-
   @Parameters(value = "url")
   public DbCreationTest(@Optional String url) {
     super(url);
@@ -52,15 +48,11 @@ public class DbCreationTest extends ObjectDBBaseTest {
 
   @BeforeClass
   @Override
-  public void beforeClass() throws Exception {
-    pool = new OPartitionedDatabasePool(url, "admin", "admin");
-  }
+  public void beforeClass() throws Exception {}
 
   @AfterClass
   @Override
-  public void afterClass() throws Exception {
-    pool.close();
-  }
+  public void afterClass() throws Exception {}
 
   @BeforeMethod
   @Override
@@ -71,9 +63,7 @@ public class DbCreationTest extends ObjectDBBaseTest {
   public void afterMethod() throws Exception {}
 
   @AfterMethod
-  public void tearDown() {
-    if (url.contains("remote:")) ODatabaseDocumentPool.global().close();
-  }
+  public void tearDown() {}
 
   @Test
   public void testDbCreationDefault() throws IOException {
@@ -153,72 +143,6 @@ public class DbCreationTest extends ObjectDBBaseTest {
     db.close();
 
     ODatabaseHelper.dropDatabase(db, getStorageType());
-  }
-
-  @Test(dependsOnMethods = {"testChangeLocale"})
-  public void testSubFolderDbCreateConnPool() throws IOException {
-    int pos = url.lastIndexOf("/");
-
-    final String u;
-    if (pos > -1) u = url.substring(0, pos) + "/sub/subTest";
-    else {
-      pos = url.lastIndexOf(":");
-      u = url.substring(0, pos + 1) + "sub/subTest";
-    }
-
-    ODatabaseDocument db = new ODatabaseDocumentTx(u);
-
-    ODatabaseHelper.dropDatabase(db, getStorageType());
-    ODatabaseHelper.createDatabase(db, u, getStorageType());
-
-    db = ODatabaseDocumentPool.global().acquire(u, "admin", "admin");
-    if (u.startsWith("remote:")) db.close();
-
-    ODatabaseHelper.dropDatabase(db, getStorageType());
-  }
-
-  @Test(dependsOnMethods = "testSubFolderDbCreateConnPool")
-  public void testCreateAndConnectionPool() throws IOException {
-    ODatabaseDocument db = new ODatabaseDocumentTx(url);
-
-    db.activateOnCurrentThread();
-    ODatabaseHelper.dropDatabase(db, getStorageType());
-
-    ODatabaseHelper.createDatabase(db, url, getStorageType());
-
-    if (pool != null) {
-      pool.close();
-    }
-    pool = new OPartitionedDatabasePool(url, "admin", "admin");
-
-    // Get connection from pool
-    db = pool.acquire();
-    db.close();
-
-    // Destroy db in the back of the pool
-    db = new ODatabaseDocumentTx(url);
-    ODatabaseHelper.dropDatabase(db, getStorageType());
-
-    // Re-create it so that the db exists for the pool
-    db = new ODatabaseDocumentTx(url);
-    ODatabaseHelper.createDatabase(db, url, getStorageType());
-  }
-
-  @Test(dependsOnMethods = {"testCreateAndConnectionPool"})
-  public void testOpenCloseConnectionPool() throws IOException {
-    ODatabaseDocument db = new ODatabaseDocumentTx(url);
-    if (!ODatabaseHelper.existsDatabase(db, null)) {
-      ODatabaseHelper.createDatabase(db, url, getStorageType());
-      db.close();
-    }
-    if (pool != null) {
-      pool.close();
-    }
-    pool = new OPartitionedDatabasePool(url, "admin", "admin");
-
-    for (int i = 0; i < 500; i++) {
-      pool.acquire().close();
-    }
   }
 
   @Test(dependsOnMethods = {"testChangeLocale"})

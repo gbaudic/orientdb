@@ -6,7 +6,7 @@ import com.orientechnologies.common.io.OFileUtils;
 import com.orientechnologies.orient.core.command.OCommandOutputListener;
 import com.orientechnologies.orient.core.config.OGlobalConfiguration;
 import com.orientechnologies.orient.core.db.ODatabaseDocumentInternal;
-import com.orientechnologies.orient.core.db.OPartitionedDatabasePool;
+import com.orientechnologies.orient.core.db.ODatabasePool;
 import com.orientechnologies.orient.core.db.document.ODatabaseDocument;
 import com.orientechnologies.orient.core.db.document.ODatabaseDocumentTx;
 import com.orientechnologies.orient.core.db.record.ridbag.ORidBag;
@@ -59,7 +59,7 @@ public class StorageBackupMTStateTest {
   private File backupDir;
   private volatile boolean stop = false;
 
-  private volatile OPartitionedDatabasePool pool;
+  private volatile ODatabasePool pool;
 
   @Test
   @Ignore
@@ -97,7 +97,7 @@ public class StorageBackupMTStateTest {
 
     databaseDocumentTx.close();
 
-    pool = new OPartitionedDatabasePool(dbURL, "admin", "admin");
+    pool = new ODatabasePool(dbURL, "admin", "admin");
 
     System.out.println("Start data modification");
     final ExecutorService executor = Executors.newFixedThreadPool(5);

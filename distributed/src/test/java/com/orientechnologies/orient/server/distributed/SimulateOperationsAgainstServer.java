@@ -16,12 +16,15 @@
 package com.orientechnologies.orient.server.distributed;
 
 import com.orientechnologies.orient.core.config.OGlobalConfiguration;
-import com.orientechnologies.orient.core.db.OPartitionedDatabasePoolFactory;
+import com.orientechnologies.orient.core.db.OrientDB;
+import com.orientechnologies.orient.core.db.OrientDBConfig;
 import com.orientechnologies.orient.core.db.document.ODatabaseDocument;
 import com.orientechnologies.orient.core.exception.OConcurrentModificationException;
 import com.orientechnologies.orient.core.exception.ORecordNotFoundException;
 import com.orientechnologies.orient.core.record.impl.ODocument;
 import com.orientechnologies.orient.core.sql.executor.OResult;
+import com.orientechnologies.orient.core.util.OURLConnection;
+import com.orientechnologies.orient.core.util.OURLHelper;
 import java.util.List;
 import java.util.Random;
 import java.util.concurrent.ExecutorService;
@@ -41,7 +44,7 @@ public class SimulateOperationsAgainstServer {
   protected String userName = "admin";
   protected String userPassword = "admin";
 
-  private final OPartitionedDatabasePoolFactory poolFactory = new OPartitionedDatabasePoolFactory();
+  private OrientDB ctx;
 
   public static void main(String[] args) {
     new SimulateOperationsAgainstServer().randomExecute();
@@ -257,6 +260,10 @@ public class SimulateOperationsAgainstServer {
   }
 
   protected ODatabaseDocument getDatabase(final String dbUrl) {
-    return poolFactory.get(dbUrl, userName, userPassword).acquire();
+    OURLConnection data = OURLHelper.parse(dbUrl);
+    if (ctx == null) {
+      ctx = new OrientDB(data.getType() + ":" + data.getPath(), OrientDBConfig.defaultConfig());
+    }
+    return ctx.open(data.getDbName(), userName, userPassword);
   }
 }
