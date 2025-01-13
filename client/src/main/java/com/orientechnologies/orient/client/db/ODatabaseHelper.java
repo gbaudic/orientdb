@@ -126,35 +126,6 @@ public class ODatabaseHelper {
   }
 
   @Deprecated
-  public static void freezeDatabase(final ODatabase database) throws IOException {
-    database.activateOnCurrentThread();
-    if (database.getURL().startsWith("remote")) {
-      final OServerAdmin serverAdmin = new OServerAdmin(database.getURL());
-      serverAdmin.connect("root", getServerRootPassword()).freezeDatabase("plocal");
-      serverAdmin.close();
-    } else {
-      database.freeze();
-    }
-  }
-
-  @Deprecated
-  public static void releaseDatabase(final ODatabase database) throws IOException {
-    database.activateOnCurrentThread();
-    if (database.getURL().startsWith("remote")) {
-      final OServerAdmin serverAdmin = new OServerAdmin(database.getURL());
-      serverAdmin.connect("root", getServerRootPassword()).releaseDatabase("plocal");
-      serverAdmin.close();
-    } else {
-      database.release();
-    }
-  }
-
-  @Deprecated
-  public static File getConfigurationFile() {
-    return getConfigurationFile(null);
-  }
-
-  @Deprecated
   public static String getServerRootPassword() throws IOException {
     return getServerRootPassword("server");
   }

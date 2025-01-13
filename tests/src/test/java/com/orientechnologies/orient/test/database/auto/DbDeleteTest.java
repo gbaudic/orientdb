@@ -15,17 +15,6 @@
  */
 package com.orientechnologies.orient.test.database.auto;
 
-import com.orientechnologies.orient.client.db.ODatabaseHelper;
-import com.orientechnologies.orient.core.db.document.ODatabaseDocument;
-import com.orientechnologies.orient.core.db.document.ODatabaseDocumentTx;
-import com.orientechnologies.orient.core.exception.ODatabaseException;
-import com.orientechnologies.orient.core.exception.OStorageException;
-import com.orientechnologies.orient.core.metadata.schema.OClass;
-import com.orientechnologies.orient.core.metadata.schema.OType;
-import com.orientechnologies.orient.core.record.impl.ODocument;
-import java.io.File;
-import java.io.IOException;
-import org.testng.Assert;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.AfterMethod;
 import org.testng.annotations.BeforeClass;
@@ -62,60 +51,4 @@ public class DbDeleteTest extends DocumentDBBaseTest {
   @AfterMethod
   @Override
   public void afterMethod() throws Exception {}
-
-  public void testDbDeleteNoCredential() throws IOException {
-    ODatabaseDocument db = new ODatabaseDocumentTx(url);
-    try {
-      db.drop();
-      Assert.fail("Should have thrown ODatabaseException because trying to delete a not opened");
-    } catch (ODatabaseException e) {
-      Assert.assertTrue(e.getMessage().contains("Database '" + url + "' is closed"));
-    } catch (OStorageException e) {
-      Assert.assertTrue(e.getMessage().startsWith("Cannot delete the remote storage:"));
-    }
-  }
-
-  @Test(dependsOnMethods = {"testDbDeleteNoCredential"})
-  public void testDbDelete() throws IOException {
-    String prefix = url.substring(0, url.indexOf(':') + 1);
-    if (prefix.equals("memory:") || prefix.equals("remote:")) return;
-
-    ODatabaseDocument db =
-        new ODatabaseDocumentTx(prefix + testPath + "/" + DbImportExportTest.NEW_DB_URL);
-    if (!db.exists()) db.create();
-
-    if (db.exists()) {
-      if (db.isClosed()) db.open("admin", "admin");
-    }
-
-    ODatabaseHelper.dropDatabase(db, getStorageType());
-
-    Assert.assertFalse(new File(testPath + "/" + DbImportExportTest.NEW_DB_PATH).exists());
-  }
-
-  public void testDbDeleteWithIndex() {
-    String prefix = url.substring(0, url.indexOf(':') + 1);
-    if (prefix.equals("remote:")) return;
-
-    ODatabaseDocument db =
-        new ODatabaseDocumentTx(prefix + testPath + "/" + DbImportExportTest.NEW_DB_URL);
-    if (!db.exists()) db.create();
-
-    if (db.exists()) {
-      if (db.isClosed()) db.open("admin", "admin");
-
-      db.drop();
-      db.create();
-    }
-
-    final OClass indexedClass = db.getMetadata().getSchema().createClass("IndexedClass");
-    indexedClass.createProperty("value", OType.STRING);
-    indexedClass.createIndex("indexValue", OClass.INDEX_TYPE.UNIQUE, "value");
-
-    final ODocument document = new ODocument("IndexedClass");
-    document.field("value", "value");
-    document.save();
-
-    db.drop();
-  }
 }

@@ -4,9 +4,12 @@ import static org.junit.Assert.assertEquals;
 
 import com.orientechnologies.common.exception.OException;
 import com.orientechnologies.orient.core.config.OGlobalConfiguration;
-import com.orientechnologies.orient.core.db.*;
+import com.orientechnologies.orient.core.db.ODatabaseSession;
+import com.orientechnologies.orient.core.db.OLiveQueryMonitor;
+import com.orientechnologies.orient.core.db.OLiveQueryResultListener;
+import com.orientechnologies.orient.core.db.OrientDB;
+import com.orientechnologies.orient.core.db.OrientDBConfig;
 import com.orientechnologies.orient.core.db.document.ODatabaseDocument;
-import com.orientechnologies.orient.core.db.document.ODatabaseDocumentTx;
 import com.orientechnologies.orient.core.record.OElement;
 import com.orientechnologies.orient.core.sql.executor.OResult;
 import com.orientechnologies.orient.setup.SetupConfig;
@@ -74,7 +77,6 @@ public class SimpleLiveQueryDistributedIT {
   @After
   public void after() throws InterruptedException {
     setup.teardown();
-    ODatabaseDocumentTx.closeAll();
   }
 
   private static class EventListener implements OLiveQueryResultListener {

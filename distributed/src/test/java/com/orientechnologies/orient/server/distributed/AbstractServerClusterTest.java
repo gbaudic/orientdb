@@ -26,7 +26,6 @@ import com.orientechnologies.orient.core.db.ODatabaseDocumentInternal;
 import com.orientechnologies.orient.core.db.OrientDB;
 import com.orientechnologies.orient.core.db.OrientDBConfig;
 import com.orientechnologies.orient.core.db.document.ODatabaseDocument;
-import com.orientechnologies.orient.core.db.document.ODatabaseDocumentTx;
 import com.orientechnologies.orient.core.id.ORID;
 import com.orientechnologies.orient.core.record.OVertex;
 import com.orientechnologies.orient.core.record.impl.ODocument;
@@ -59,8 +58,6 @@ public abstract class AbstractServerClusterTest {
   protected final List<ServerRun> serverInstance = new ArrayList<ServerRun>();
 
   public void init(final int servers) {
-    ODatabaseDocumentTx.closeAll();
-
     Orient.setRegisterDatabaseByPath(true);
     for (int i = 0; i < servers; ++i) serverInstance.add(new ServerRun(rootDirectory, "" + i));
   }
@@ -95,7 +92,6 @@ public abstract class AbstractServerClusterTest {
         else server.shutdownServer();
       }
 
-      ODatabaseDocumentTx.closeAll();
       onTestEnded();
 
       banner("Terminate HZ...");

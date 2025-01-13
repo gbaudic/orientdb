@@ -6,7 +6,6 @@ import static org.junit.Assert.assertTrue;
 import com.orientechnologies.orient.core.db.ODatabaseSession;
 import com.orientechnologies.orient.core.db.OrientDB;
 import com.orientechnologies.orient.core.db.OrientDBConfig;
-import com.orientechnologies.orient.core.db.document.ODatabaseDocumentTx;
 import com.orientechnologies.orient.core.sql.executor.OResultSet;
 import com.orientechnologies.orient.setup.SetupConfig;
 import com.orientechnologies.orient.setup.TestSetup;
@@ -57,7 +56,6 @@ public class SimpleDistributedMetadataFetchIT {
       }
     } finally {
       setup.teardown();
-      ODatabaseDocumentTx.closeAll();
     }
   }
 }

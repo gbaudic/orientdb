@@ -2,7 +2,6 @@ package com.orientechnologies.orient.server.distributed.asynch;
 
 import com.orientechnologies.common.io.OFileUtils;
 import com.orientechnologies.orient.core.Orient;
-import com.orientechnologies.orient.core.db.document.ODatabaseDocumentTx;
 import java.io.File;
 import junit.framework.TestCase;
 
@@ -31,7 +30,6 @@ public abstract class BareBoneBase1ClientTest extends TestCase {
 
   @Override
   protected void tearDown() throws Exception {
-    ODatabaseDocumentTx.closeAll();
     OFileUtils.deleteRecursively(new File(DB1_DIR));
   }
 

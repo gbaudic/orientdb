@@ -5,7 +5,6 @@ import static org.junit.Assert.assertTrue;
 import com.orientechnologies.orient.core.db.ODatabaseSession;
 import com.orientechnologies.orient.core.db.OrientDB;
 import com.orientechnologies.orient.core.db.OrientDBConfig;
-import com.orientechnologies.orient.core.db.document.ODatabaseDocumentTx;
 import com.orientechnologies.orient.core.metadata.schema.OClass;
 import com.orientechnologies.orient.core.metadata.schema.OType;
 import com.orientechnologies.orient.core.record.OElement;
@@ -71,7 +70,6 @@ public class SimpleIndexDistributedIT {
       remote.close();
     } finally {
       setup.teardown();
-      ODatabaseDocumentTx.closeAll();
     }
   }
 }

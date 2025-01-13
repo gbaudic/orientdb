@@ -5,8 +5,9 @@ import static org.junit.Assert.assertEquals;
 import com.orientechnologies.orient.core.db.ODatabaseSession;
 import com.orientechnologies.orient.core.db.OrientDB;
 import com.orientechnologies.orient.core.db.OrientDBConfig;
-import com.orientechnologies.orient.core.db.document.ODatabaseDocumentTx;
-import com.orientechnologies.orient.setup.*;
+import com.orientechnologies.orient.setup.SetupConfig;
+import com.orientechnologies.orient.setup.TestSetup;
+import com.orientechnologies.orient.setup.TestSetupUtil;
 import com.orientechnologies.orient.setup.configs.SimpleDServerConfig;
 import org.junit.After;
 import org.junit.Before;
@@ -80,7 +81,6 @@ public class BasicSyncIT {
       remote.close();
     } finally {
       setup.teardown();
-      ODatabaseDocumentTx.closeAll();
     }
   }
 }

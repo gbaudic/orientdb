@@ -13,7 +13,6 @@ import com.orientechnologies.orient.core.db.ODatabasePool;
 import com.orientechnologies.orient.core.db.ODatabaseSession;
 import com.orientechnologies.orient.core.db.OrientDB;
 import com.orientechnologies.orient.core.db.OrientDBConfig;
-import com.orientechnologies.orient.core.db.document.ODatabaseDocumentTx;
 import com.orientechnologies.orient.setup.LocalTestSetup;
 import com.orientechnologies.orient.setup.ServerRun;
 import com.orientechnologies.orient.setup.SetupConfig;
@@ -55,7 +54,6 @@ public class SimpleConnectionStrategiesIT {
     remote.close();
 
     setup.teardown();
-    ODatabaseDocumentTx.closeAll();
   }
 
   @Test

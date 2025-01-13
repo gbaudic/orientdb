@@ -24,13 +24,11 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
 import com.orientechnologies.orient.core.db.document.ODatabaseDocument;
-import com.orientechnologies.orient.core.db.document.ODatabaseDocumentTx;
 import com.orientechnologies.orient.core.id.ORID;
 import com.orientechnologies.orient.core.index.OIndex;
 import com.orientechnologies.orient.core.metadata.schema.OClass;
 import com.orientechnologies.orient.core.metadata.schema.OType;
 import com.orientechnologies.orient.core.record.impl.ODocument;
-import java.io.File;
 import java.util.HashSet;
 import java.util.Random;
 import java.util.Set;
@@ -48,22 +46,10 @@ import org.junit.Test;
 /** @author Sergey Sitnikov */
 public class FreezeAndRecordInsertAtomicityTest {
 
-  private static final String URL;
   private static final int THREADS = Runtime.getRuntime().availableProcessors() * 2;
   private static final int ITERATIONS = 100;
-
-  static {
-    String buildDirectory = System.getProperty("buildDirectory");
-    if (buildDirectory == null) buildDirectory = "./target";
-
-    URL =
-        "plocal:"
-            + buildDirectory
-            + File.separator
-            + FreezeAndRecordInsertAtomicityTest.class.getSimpleName();
-  }
-
   private Random random;
+  private OrientDB ctx;
   private ODatabaseDocument db;
   private ExecutorService executorService;
   private CountDownLatch countDownLatch;
@@ -73,13 +59,19 @@ public class FreezeAndRecordInsertAtomicityTest {
     final long seed = System.currentTimeMillis();
     System.out.println(FreezeAndRecordInsertAtomicityTest.class.getSimpleName() + " seed: " + seed);
     random = new Random(seed);
-
-    db = new ODatabaseDocumentTx(URL);
-    if (db.exists()) {
-      db.open("admin", "admin");
-      db.drop();
+    String buildDirectory = System.getProperty("buildDirectory");
+    if (buildDirectory == null) buildDirectory = "./target";
+    ctx = new OrientDB("embedded:" + buildDirectory, OrientDBConfig.defaultConfig());
+    String dbName = FreezeAndRecordInsertAtomicityTest.class.getSimpleName();
+    if (ctx.exists(dbName)) {
+      ctx.drop(dbName);
     }
-    db.create();
+    ctx.execute(
+            "create database "
+                + dbName
+                + " plocal users(admin identified by 'adminpwd' role admin)")
+        .close();
+    db = ctx.open(dbName, "admin", "adminpwd");
     db.getMetadata()
         .getSchema()
         .createClass("Person")
@@ -95,8 +87,9 @@ public class FreezeAndRecordInsertAtomicityTest {
   public void after() throws InterruptedException {
     executorService.shutdown();
     assertTrue(executorService.awaitTermination(5, TimeUnit.SECONDS));
-
-    db.drop();
+    String dbName = FreezeAndRecordInsertAtomicityTest.class.getSimpleName();
+    ctx.drop(dbName);
+    ctx.close();
   }
 
   @Test
@@ -110,8 +103,12 @@ public class FreezeAndRecordInsertAtomicityTest {
           executorService.submit(
               () -> {
                 try {
-                  final ODatabaseDocumentInternal db = new ODatabaseDocumentTx(URL);
-                  db.open("admin", "admin");
+                  final ODatabaseDocumentInternal db =
+                      (ODatabaseDocumentInternal)
+                          ctx.open(
+                              FreezeAndRecordInsertAtomicityTest.class.getSimpleName(),
+                              "admin",
+                              "adminpwd");
                   final OIndex index =
                       db.getMetadata().getIndexManagerInternal().getIndex(db, "Person.name");
 

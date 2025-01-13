@@ -30,7 +30,6 @@ import com.orientechnologies.orient.core.db.ODatabasePool;
 import com.orientechnologies.orient.core.db.OrientDB;
 import com.orientechnologies.orient.core.db.OrientDBConfig;
 import com.orientechnologies.orient.core.db.document.ODatabaseDocument;
-import com.orientechnologies.orient.core.db.document.ODatabaseDocumentTx;
 import com.orientechnologies.orient.core.exception.OSchemaException;
 import com.orientechnologies.orient.core.record.ODirection;
 import com.orientechnologies.orient.core.record.OEdge;
@@ -58,8 +57,6 @@ public class OrientdbEdgeIT {
   @AfterClass
   public static void tearDownClass() {
     if (server != null) server.shutdown();
-
-    ODatabaseDocumentTx.closeAll();
 
     Orient.instance().shutdown();
     Orient.instance().startup();

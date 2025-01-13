@@ -3,7 +3,6 @@ package com.orientechnologies.orient.server.distributed;
 import com.orientechnologies.orient.core.db.ODatabaseSession;
 import com.orientechnologies.orient.core.db.OrientDB;
 import com.orientechnologies.orient.core.db.OrientDBConfig;
-import com.orientechnologies.orient.core.db.document.ODatabaseDocumentTx;
 import com.orientechnologies.orient.core.sql.executor.OResultSet;
 import com.orientechnologies.orient.setup.TestSetup;
 import com.orientechnologies.orient.setup.TestSetupUtil;
@@ -53,6 +52,5 @@ public class SimpleDDLRestartDistributedIT {
     remote.drop("test");
     remote.close();
     setup.teardown();
-    ODatabaseDocumentTx.closeAll();
   }
 }

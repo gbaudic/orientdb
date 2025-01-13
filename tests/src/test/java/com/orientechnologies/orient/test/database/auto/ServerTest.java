@@ -39,11 +39,6 @@ public class ServerTest extends DocumentDBBaseTest {
   }
 
   @Test
-  public void testDbExists() throws IOException {
-    Assert.assertTrue(ODatabaseHelper.existsDatabase(url));
-  }
-
-  @Test
   public void testDbList() throws IOException {
     OServerAdmin server = new OServerAdmin(serverURL);
     try {

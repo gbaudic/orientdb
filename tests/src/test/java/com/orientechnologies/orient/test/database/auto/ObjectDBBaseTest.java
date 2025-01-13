@@ -63,7 +63,7 @@ public class ObjectDBBaseTest extends BaseTest<ODatabaseObject> {
   }
 
   protected void reopendb(String user, String password) {
-    if (!database.isClosed() && !database.isActiveOnCurrentThread()) {
+    if (database == null || !database.isClosed() && !database.isActiveOnCurrentThread()) {
       database = new OObjectDatabaseTx(this.url);
     }
     database.open(user, password);

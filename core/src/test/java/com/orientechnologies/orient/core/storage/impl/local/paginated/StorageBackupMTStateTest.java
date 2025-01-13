@@ -7,8 +7,11 @@ import com.orientechnologies.orient.core.command.OCommandOutputListener;
 import com.orientechnologies.orient.core.config.OGlobalConfiguration;
 import com.orientechnologies.orient.core.db.ODatabaseDocumentInternal;
 import com.orientechnologies.orient.core.db.ODatabasePool;
+import com.orientechnologies.orient.core.db.ODatabaseType;
+import com.orientechnologies.orient.core.db.OrientDB;
+import com.orientechnologies.orient.core.db.OrientDBConfig;
+import com.orientechnologies.orient.core.db.OrientDBInternal;
 import com.orientechnologies.orient.core.db.document.ODatabaseDocument;
-import com.orientechnologies.orient.core.db.document.ODatabaseDocumentTx;
 import com.orientechnologies.orient.core.db.record.ridbag.ORidBag;
 import com.orientechnologies.orient.core.db.tool.ODatabaseCompare;
 import com.orientechnologies.orient.core.exception.OConcurrentModificationException;
@@ -85,19 +88,26 @@ public class StorageBackupMTStateTest {
     dbURL = "plocal:" + dbDirectory;
 
     System.out.println("Create database");
-    ODatabaseDocumentInternal databaseDocumentTx = new ODatabaseDocumentTx(dbURL);
-    databaseDocumentTx.create();
-
+    OrientDB ctx = new OrientDB("embedded:" + buildDirectory, OrientDBConfig.defaultConfig());
+    ctx.execute(
+            "create database "
+                + StorageBackupMTStateTest.class.getSimpleName()
+                + " plocal users(admin identified by 'adminpwd' role admin)")
+        .close();
+    ODatabaseDocumentInternal database =
+        (ODatabaseDocumentInternal)
+            ctx.open(StorageBackupMTStateTest.class.getSimpleName(), "admin", "adminpwd");
     System.out.println("Create schema");
-    final OSchema schema = databaseDocumentTx.getMetadata().getSchema();
+    final OSchema schema = database.getMetadata().getSchema();
 
     for (int i = 0; i < 3; i++) {
       createClass(schema);
     }
 
-    databaseDocumentTx.close();
+    database.close();
 
-    pool = new ODatabasePool(dbURL, "admin", "admin");
+    pool =
+        new ODatabasePool(ctx, StorageBackupMTStateTest.class.getSimpleName(), "admin", "adminpwd");
 
     System.out.println("Start data modification");
     final ExecutorService executor = Executors.newFixedThreadPool(5);
@@ -149,32 +159,38 @@ public class StorageBackupMTStateTest {
     pool.close();
 
     System.out.println("Final incremental  backup");
-    databaseDocumentTx = new ODatabaseDocumentTx(dbURL);
-    databaseDocumentTx.open("admin", "admin");
-    databaseDocumentTx.incrementalBackup(backupDir.getAbsolutePath());
 
-    OStorage storage = ((ODatabaseDocumentInternal) databaseDocumentTx).getStorage();
-    databaseDocumentTx.close();
+    database =
+        (ODatabaseDocumentInternal)
+            ctx.open(StorageBackupMTStateTest.class.getSimpleName(), "admin", "adminpwd");
+    database.incrementalBackup(backupDir.getAbsolutePath());
+
+    OStorage storage = ((ODatabaseDocumentInternal) database).getStorage();
+    database.close();
 
     storage.shutdown();
 
     System.out.println("Create backup database");
-    final ODatabaseDocumentInternal backedUpDb =
-        new ODatabaseDocumentTx("plocal:" + backedUpDbDirectory);
-    backedUpDb.create(backupDir.getAbsolutePath());
-
-    final OStorage backupStorage = ((ODatabaseDocumentInternal) backedUpDb).getStorage();
-    backedUpDb.close();
-
-    backupStorage.shutdown();
+    OrientDBInternal internal = OrientDBInternal.extract(ctx);
+    internal.restore(
+        StorageBackupMTStateTest.class.getSimpleName() + "BackUp",
+        null,
+        null,
+        ODatabaseType.PLOCAL,
+        backupDir.getAbsolutePath(),
+        OrientDBConfig.defaultConfig());
 
     System.out.println("Compare databases");
-    databaseDocumentTx.open("admin", "admin");
-    backedUpDb.open("admin", "admin");
+    database =
+        (ODatabaseDocumentInternal)
+            ctx.open(StorageBackupMTStateTest.class.getSimpleName(), "admin", "admin");
+    ODatabaseDocumentInternal backedUpDb =
+        (ODatabaseDocumentInternal)
+            ctx.open(StorageBackupMTStateTest.class.getSimpleName() + "BackUp", "admin", "admin");
 
     final ODatabaseCompare compare =
         new ODatabaseCompare(
-            databaseDocumentTx,
+            database,
             backedUpDb,
             new OCommandOutputListener() {
               @Override
@@ -187,11 +203,8 @@ public class StorageBackupMTStateTest {
 
     System.out.println("Drop databases and backup directory");
 
-    databaseDocumentTx.open("admin", "admin");
-    databaseDocumentTx.drop();
-
-    backedUpDb.open("admin", "admin");
-    backedUpDb.drop();
+    ctx.drop(StorageBackupMTStateTest.class.getSimpleName());
+    ctx.drop(StorageBackupMTStateTest.class.getSimpleName() + "BackUp");
 
     OFileUtils.deleteRecursively(backupDir);
   }
@@ -342,7 +355,7 @@ public class StorageBackupMTStateTest {
       }
 
       doc.field("linkedDocuments", linkedDocuments);
-      doc.save();
+      db.save(doc);
 
       if (docId % 10000 == 0) {
         System.out.println(docId + " documents of class " + className + " were inserted");
@@ -353,8 +366,7 @@ public class StorageBackupMTStateTest {
   private final class IncrementalBackupThread implements Runnable {
     @Override
     public void run() {
-      ODatabaseDocument db = new ODatabaseDocumentTx(dbURL);
-      db.open("admin", "admin");
+      ODatabaseDocument db = pool.acquire();
       try {
         flowLock.acquireReadLock();
         try {
@@ -375,8 +387,7 @@ public class StorageBackupMTStateTest {
   private final class ClassAdder implements Runnable {
     @Override
     public void run() {
-      ODatabaseDocument databaseDocumentTx = new ODatabaseDocumentTx(dbURL);
-      databaseDocumentTx.open("admin", "admin");
+      ODatabaseDocument databaseDocumentTx = pool.acquire();
       try {
         flowLock.acquireReadLock();
         try {

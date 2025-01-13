@@ -5,7 +5,8 @@ import com.orientechnologies.orient.core.command.OCommandOutputListener;
 import com.orientechnologies.orient.core.config.OGlobalConfiguration;
 import com.orientechnologies.orient.core.db.ODatabaseDocumentInternal;
 import com.orientechnologies.orient.core.db.ODatabaseRecordThreadLocal;
-import com.orientechnologies.orient.core.db.document.ODatabaseDocumentTx;
+import com.orientechnologies.orient.core.db.OrientDB;
+import com.orientechnologies.orient.core.db.OrientDBConfig;
 import com.orientechnologies.orient.core.db.tool.ODatabaseCompare;
 import com.orientechnologies.orient.core.id.ORID;
 import com.orientechnologies.orient.core.metadata.schema.OClass;
@@ -46,9 +47,14 @@ import org.junit.Test;
  */
 public class LocalPaginatedStorageRestoreFromWALAndAddAdditionalRecords {
   private static File buildDir;
+  private OrientDB ctx;
   private ODatabaseDocumentInternal testDocumentTx;
   private ODatabaseDocumentInternal baseDocumentTx;
   private ExecutorService executorService = Executors.newCachedThreadPool();
+  private static final String DB_NAME =
+      "baseLocalPaginatedStorageRestoreFromWALAndAddAdditionalRecords";
+  private static final String DB_NAME_TEST =
+      "testLocalPaginatedStorageRestoreFromWALAndAddAdditionalRecords";
 
   @BeforeClass
   public static void beforeClass() {
@@ -73,29 +79,22 @@ public class LocalPaginatedStorageRestoreFromWALAndAddAdditionalRecords {
   @Before
   public void beforeMethod() throws IOException {
     OFileUtils.deleteRecursively(buildDir);
-
-    baseDocumentTx =
-        new ODatabaseDocumentTx(
-            "plocal:"
-                + buildDir.getAbsolutePath()
-                + "/baseLocalPaginatedStorageRestoreFromWALAndAddAdditionalRecords");
-    if (baseDocumentTx.exists()) {
-      baseDocumentTx.open("admin", "admin");
-      baseDocumentTx.drop();
+    ctx = new OrientDB("embedded:" + buildDir.getAbsolutePath(), OrientDBConfig.defaultConfig());
+    if (ctx.exists(DB_NAME)) {
+      ctx.drop(DB_NAME);
     }
-
-    baseDocumentTx.create();
-
+    ctx.execute(
+            "create database ? plocal users (admin identified by 'adminpwd' role admin)", DB_NAME)
+        .close();
+    baseDocumentTx = (ODatabaseDocumentInternal) ctx.open(DB_NAME, "admin", "adminpwd");
     createSchema(baseDocumentTx);
   }
 
   @After
   public void afterMethod() {
-    testDocumentTx.open("admin", "admin");
-    testDocumentTx.drop();
-
-    baseDocumentTx.open("admin", "admin");
-    baseDocumentTx.drop();
+    ctx.drop(DB_NAME_TEST);
+    ctx.drop(DB_NAME);
+    ctx.close();
   }
 
   @Test
@@ -123,12 +122,7 @@ public class LocalPaginatedStorageRestoreFromWALAndAddAdditionalRecords {
     baseDocumentTx.close();
     storage.close();
 
-    testDocumentTx =
-        new ODatabaseDocumentTx(
-            "plocal:"
-                + buildDir.getAbsolutePath()
-                + "/testLocalPaginatedStorageRestoreFromWALAndAddAdditionalRecords");
-    testDocumentTx.open("admin", "admin");
+    testDocumentTx = (ODatabaseDocumentInternal) ctx.open(DB_NAME_TEST, "admin", "adminpwd");
     testDocumentTx.close();
 
     long dataAddSeed = random.nextLong();
@@ -273,12 +267,10 @@ public class LocalPaginatedStorageRestoreFromWALAndAddAdditionalRecords {
     public DataPropagationTask(long seed) {
       this.seed = seed;
 
-      baseDB = new ODatabaseDocumentTx(baseDocumentTx.getURL());
-      baseDB.open("admin", "admin");
+      baseDB = (ODatabaseDocumentInternal) ctx.open(DB_NAME, "admin", "adminpwd");
 
       if (testDocumentTx != null) {
-        testDB = new ODatabaseDocumentTx(testDocumentTx.getURL());
-        testDB.open("admin", "admin");
+        testDB = (ODatabaseDocumentInternal) ctx.open(DB_NAME_TEST, "admin", "adminpwd");
       }
     }
 

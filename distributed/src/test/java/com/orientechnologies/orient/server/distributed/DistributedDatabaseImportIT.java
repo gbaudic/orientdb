@@ -5,7 +5,6 @@ import static org.junit.Assert.assertTrue;
 import com.orientechnologies.orient.core.db.ODatabaseDocumentInternal;
 import com.orientechnologies.orient.core.db.ODatabaseSession;
 import com.orientechnologies.orient.core.db.OrientDB;
-import com.orientechnologies.orient.core.db.document.ODatabaseDocumentTx;
 import com.orientechnologies.orient.core.db.tool.ODatabaseExport;
 import com.orientechnologies.orient.core.db.tool.ODatabaseImport;
 import com.orientechnologies.orient.setup.LocalTestSetup;
@@ -73,7 +72,6 @@ public class DistributedDatabaseImportIT {
       setup.teardown();
       File file = new File(exportFileName);
       if (file.exists()) file.delete();
-      ODatabaseDocumentTx.closeAll();
     }
   }
 }
