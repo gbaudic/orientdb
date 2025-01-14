@@ -10,7 +10,7 @@ LoginModule.controller("LoginController", ['$scope', '$rootScope', '$routeParams
 
   $scope.server = "http://localhost:2480"
 
-  var doc = "https://www.orientdb.com/docs/" + Database.getVersion() + "/security/Security.html"
+  var doc = "https://orientdb.dev/docs/" + Database.getVersion() + "/security/Security.html"
   $scope.link = {link: doc};
 
   $scope.sso = false;

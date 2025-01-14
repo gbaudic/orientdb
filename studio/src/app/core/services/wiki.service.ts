@@ -14,7 +14,7 @@ class WikiService {
   constructor() {
     this.version =
       STUDIO_VERSION.indexOf("SNAPSHOT") == -1 ? STUDIO_VERSION : "last";
-    this.wikiBase = "https://www.orientdb.com/docs/" + this.version + "/";
+    this.wikiBase = "https://orientdb.dev/docs/" + this.version + "/";
   }
 
   resolveWiki(urlWiki) {
