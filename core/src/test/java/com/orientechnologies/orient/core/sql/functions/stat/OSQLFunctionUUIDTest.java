@@ -24,6 +24,7 @@ import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
 
+import com.orientechnologies.orient.core.command.OBasicCommandContext;
 import com.orientechnologies.orient.core.db.OrientDB;
 import com.orientechnologies.orient.core.db.OrientDBConfig;
 import com.orientechnologies.orient.core.db.document.ODatabaseDocument;
@@ -43,7 +44,7 @@ public class OSQLFunctionUUIDTest {
 
   @Test
   public void testEmpty() {
-    Object result = uuid.getResult();
+    Object result = uuid.getResult(new OBasicCommandContext());
     assertNull(result);
   }
 

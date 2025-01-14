@@ -60,7 +60,7 @@ public class OSQLFunctionCount extends OSQLFunctionMathAbstract {
   }
 
   @Override
-  public Object getResult() {
+  public Object getResult(OCommandContext ctx) {
     return total;
   }
 

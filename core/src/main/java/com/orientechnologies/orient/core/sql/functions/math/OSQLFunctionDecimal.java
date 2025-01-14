@@ -75,7 +75,7 @@ public class OSQLFunctionDecimal extends OSQLFunctionMathAbstract {
     } catch (Exception ignore) {
       result = null;
     }
-    return getResult();
+    return getResult(iContext);
   }
 
   public boolean aggregateResults() {
@@ -87,7 +87,7 @@ public class OSQLFunctionDecimal extends OSQLFunctionMathAbstract {
   }
 
   @Override
-  public Object getResult() {
+  public Object getResult(OCommandContext ctx) {
     return result;
   }
 

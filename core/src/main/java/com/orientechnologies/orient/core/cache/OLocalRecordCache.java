@@ -23,8 +23,7 @@ import com.orientechnologies.common.profiler.OAbstractProfiler.OProfilerHookValu
 import com.orientechnologies.common.profiler.OProfiler.METRIC_TYPE;
 import com.orientechnologies.orient.core.Orient;
 import com.orientechnologies.orient.core.config.OGlobalConfiguration;
-import com.orientechnologies.orient.core.db.ODatabaseRecordThreadLocal;
-import com.orientechnologies.orient.core.db.document.ODatabaseDocument;
+import com.orientechnologies.orient.core.db.ODatabaseSession;
 import com.orientechnologies.orient.core.id.ORID;
 import com.orientechnologies.orient.core.record.ORecord;
 import com.orientechnologies.orient.core.record.ORecordVersionHelper;
@@ -52,8 +51,7 @@ public class OLocalRecordCache {
             .newInstance(OGlobalConfiguration.CACHE_LOCAL_IMPL.getValueAsString());
   }
 
-  public void startup() {
-    ODatabaseDocument db = ODatabaseRecordThreadLocal.instance().get();
+  public void startup(ODatabaseSession db) {
 
     profilerPrefix = "db." + db.getName() + ".cache.level1.";
     profilerMetadataPrefix = "db.*.cache.level1.";

@@ -4356,7 +4356,7 @@ public class OSelectStatementExecutionTest extends BaseMemoryDatabase {
               }
 
               @Override
-              public Object getResult() {
+              public Object getResult(OCommandContext ctx) {
                 return null;
               }
 

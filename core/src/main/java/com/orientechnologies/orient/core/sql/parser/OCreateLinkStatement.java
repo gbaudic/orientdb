@@ -64,7 +64,7 @@ public class OCreateLinkStatement extends OSimpleExecStatement {
   /** Execute the CREATE LINK. */
   private Object execute(OCommandContext ctx) {
 
-    final ODatabaseDocumentInternal database = getDatabase();
+    final ODatabaseDocumentInternal database = (ODatabaseDocumentInternal) ctx.getDatabase();
     if (!(database.getDatabaseOwner() instanceof ODatabaseDocument))
       throw new OCommandSQLParsingException(
           "This command supports only the database type ODatabaseDocumentTx and type '"

@@ -4,7 +4,6 @@ import com.orientechnologies.common.log.OLogManager;
 import com.orientechnologies.common.log.OLogger;
 import com.orientechnologies.orient.core.config.OGlobalConfiguration;
 import com.orientechnologies.orient.core.db.ODatabaseDocumentInternal;
-import com.orientechnologies.orient.core.db.ODatabaseRecordThreadLocal;
 import com.orientechnologies.orient.core.db.OrientDBInternal;
 import com.orientechnologies.orient.core.sql.OCommandSQLParsingException;
 import java.io.ByteArrayInputStream;
@@ -61,11 +60,11 @@ public class OStatementCache {
    */
   public static OStatement get(String statement, ODatabaseDocumentInternal db) {
     if (db == null) {
-      return parse(statement);
+      return parse(statement, db);
     }
 
     OStatementCache resource = db.getSharedContext().getStatementCache();
-    return resource.get(statement);
+    return resource.getStatement(statement, db);
   }
 
   /**
@@ -86,9 +85,9 @@ public class OStatementCache {
    * @param statement an SQL statement
    * @return the corresponding executor, taking it from the internal cache, if it exists
    */
-  public OStatement get(String statement) {
+  public OStatement getStatement(String statement, ODatabaseDocumentInternal db) {
     if (OGlobalConfiguration.STATEMENT_CACHE_SIZE.getValueAsInteger() == 0) {
-      return parse(statement);
+      return parse(statement, db);
     }
 
     OStatement result;
@@ -100,7 +99,7 @@ public class OStatementCache {
       }
     }
     if (result == null) {
-      result = parse(statement);
+      result = parse(statement, db);
       synchronized (map) {
         map.put(statement, result);
       }
@@ -112,12 +111,13 @@ public class OStatementCache {
    * parses an SQL statement and returns the corresponding executor
    *
    * @param statement the SQL statement
+   * @param db TODO
    * @return the corresponding executor
    * @throws OCommandSQLParsingException if the input parameter is not a valid SQL statement
    */
-  protected static OStatement parse(String statement) throws OCommandSQLParsingException {
+  protected static OStatement parse(String statement, ODatabaseDocumentInternal db)
+      throws OCommandSQLParsingException {
     try {
-      ODatabaseDocumentInternal db = ODatabaseRecordThreadLocal.instance().getIfDefined();
       InputStream is;
 
       if (db == null) {

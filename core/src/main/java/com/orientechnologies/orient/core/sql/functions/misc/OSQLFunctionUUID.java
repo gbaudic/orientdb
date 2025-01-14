@@ -56,7 +56,7 @@ public class OSQLFunctionUUID extends OSQLFunctionAbstract {
   }
 
   @Override
-  public Object getResult() {
+  public Object getResult(OCommandContext ctx) {
     return null;
   }
 }

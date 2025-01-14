@@ -103,14 +103,14 @@ public class OSQLFunctionSymmetricDifference extends OSQLFunctionMultiValueAbstr
   }
 
   @Override
-  public Set<Object> getResult() {
+  public Set<Object> getResult(OCommandContext ctx) {
     if (returnDistributedResult()) {
       final Map<String, Object> doc = new HashMap<String, Object>();
       doc.put("result", context);
       doc.put("rejected", rejected);
       return Collections.<Object>singleton(doc);
     } else {
-      return super.getResult();
+      return super.getResult(ctx);
     }
   }
 

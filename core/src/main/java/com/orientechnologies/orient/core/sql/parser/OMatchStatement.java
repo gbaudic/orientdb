@@ -300,7 +300,7 @@ public class OMatchStatement extends OStatement {
         if (previousClass == null) {
           aliasClasses.put(alias, clazz);
         } else {
-          String lower = getLowerSubclass(clazz, previousClass);
+          String lower = getLowerSubclass(clazz, previousClass, context);
           if (lower == null) {
             throw new OCommandExecutionException(
                 "classes defined for alias "
@@ -317,8 +317,8 @@ public class OMatchStatement extends OStatement {
     }
   }
 
-  private String getLowerSubclass(String className1, String className2) {
-    OSchema schema = getDatabase().getMetadata().getSchema();
+  private String getLowerSubclass(String className1, String className2, OCommandContext ctx) {
+    OSchema schema = ctx.getDatabase().getMetadata().getSchema();
     OClass class1 = schema.getClass(className1);
     OClass class2 = schema.getClass(className2);
     if (class1 == null) {

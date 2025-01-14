@@ -3,7 +3,6 @@ package com.orientechnologies.orient.core.command;
 import com.orientechnologies.orient.core.command.script.OAbstractScriptExecutor;
 import com.orientechnologies.orient.core.command.script.OScriptManager;
 import com.orientechnologies.orient.core.db.ODatabaseDocumentInternal;
-import com.orientechnologies.orient.core.db.ODatabaseRecordThreadLocal;
 import com.orientechnologies.orient.core.exception.OCommandExecutionException;
 import com.orientechnologies.orient.core.metadata.function.OFunction;
 import com.orientechnologies.orient.core.metadata.security.ORole;
@@ -137,9 +136,6 @@ public class OSqlScriptExecutor extends OAbstractScriptExecutor {
       OCommandContext context, final String functionName, final Map<Object, Object> iArgs) {
 
     ODatabaseDocumentInternal db = (ODatabaseDocumentInternal) context.getDatabase();
-    if (db == null) {
-      db = ODatabaseRecordThreadLocal.instance().get();
-    }
 
     OFunction function = db.getMetadata().getFunctionLibrary().getFunction(functionName);
 

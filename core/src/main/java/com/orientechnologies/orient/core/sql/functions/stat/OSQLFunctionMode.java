@@ -62,11 +62,11 @@ public class OSQLFunctionMode extends OSQLFunctionAbstract {
     } else {
       max = evaluate(iParams[0], 1, seen, maxElems, max);
     }
-    return getResult();
+    return getResult(iContext);
   }
 
   @Override
-  public Object getResult() {
+  public Object getResult(OCommandContext ctx) {
     if (returnDistributedResult()) {
       return seen;
     } else {

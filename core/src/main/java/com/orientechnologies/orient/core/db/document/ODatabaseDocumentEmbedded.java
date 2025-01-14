@@ -207,7 +207,7 @@ public class ODatabaseDocumentEmbedded extends ODatabaseDocumentAbstract
         throw new ODatabaseException(
             "Persistent record serializer version is not support by the current implementation");
 
-      localCache.startup();
+      localCache.startup(this);
 
       loadMetadata();
 

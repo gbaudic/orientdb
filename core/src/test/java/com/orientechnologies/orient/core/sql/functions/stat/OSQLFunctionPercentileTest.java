@@ -3,6 +3,7 @@ package com.orientechnologies.orient.core.sql.functions.stat;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNull;
 
+import com.orientechnologies.orient.core.command.OBasicCommandContext;
 import java.util.List;
 import org.junit.Before;
 import org.junit.Test;
@@ -24,20 +25,20 @@ public class OSQLFunctionPercentileTest {
 
   @Test
   public void testEmpty() {
-    Object result = percentile.getResult();
+    Object result = percentile.getResult(new OBasicCommandContext());
     assertNull(result);
   }
 
   @Test
   public void testSingleValueLower() {
     percentile.execute(null, null, null, new Object[] {10, .25}, null);
-    assertEquals(10, percentile.getResult());
+    assertEquals(10, percentile.getResult(new OBasicCommandContext()));
   }
 
   @Test
   public void testSingleValueUpper() {
     percentile.execute(null, null, null, new Object[] {10, .75}, null);
-    assertEquals(10, percentile.getResult());
+    assertEquals(10, percentile.getResult(new OBasicCommandContext()));
   }
 
   @Test
@@ -48,7 +49,7 @@ public class OSQLFunctionPercentileTest {
       percentile.execute(null, null, null, new Object[] {s, .5}, null);
     }
 
-    Object result = percentile.getResult();
+    Object result = percentile.getResult(new OBasicCommandContext());
     assertEquals(3.0, result);
   }
 
@@ -60,7 +61,7 @@ public class OSQLFunctionPercentileTest {
       percentile.execute(null, null, null, new Object[] {s, .5}, null);
     }
 
-    Object result = percentile.getResult();
+    Object result = percentile.getResult(new OBasicCommandContext());
     assertEquals(3.0, result);
   }
 
@@ -72,7 +73,7 @@ public class OSQLFunctionPercentileTest {
       percentile.execute(null, null, null, new Object[] {s, .5}, null);
     }
 
-    Object result = percentile.getResult();
+    Object result = percentile.getResult(new OBasicCommandContext());
     assertEquals(3.0, result);
   }
 
@@ -84,7 +85,7 @@ public class OSQLFunctionPercentileTest {
       percentile.execute(null, null, null, new Object[] {s, .25}, null);
     }
 
-    Object result = percentile.getResult();
+    Object result = percentile.getResult(new OBasicCommandContext());
     assertEquals(1.5, result);
   }
 
@@ -96,7 +97,7 @@ public class OSQLFunctionPercentileTest {
       percentile.execute(null, null, null, new Object[] {s, .75}, null);
     }
 
-    Object result = percentile.getResult();
+    Object result = percentile.getResult(new OBasicCommandContext());
     assertEquals(4.5, result);
   }
 
@@ -108,7 +109,7 @@ public class OSQLFunctionPercentileTest {
       percentile.execute(null, null, null, new Object[] {s, .25, .75}, null);
     }
 
-    List<Number> result = (List<Number>) percentile.getResult();
+    List<Number> result = (List<Number>) percentile.getResult(new OBasicCommandContext());
     assertEquals(1.5, result.get(0).doubleValue(), 0);
     assertEquals(4.5, result.get(1).doubleValue(), 0);
   }

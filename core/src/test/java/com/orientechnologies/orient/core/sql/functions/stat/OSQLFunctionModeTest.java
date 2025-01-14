@@ -4,6 +4,7 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 
+import com.orientechnologies.orient.core.command.OBasicCommandContext;
 import java.util.Arrays;
 import java.util.List;
 import org.junit.Before;
@@ -26,7 +27,7 @@ public class OSQLFunctionModeTest {
 
   @Test
   public void testEmpty() {
-    Object result = mode.getResult();
+    Object result = mode.getResult(new OBasicCommandContext());
     assertNull(result);
   }
 
@@ -38,7 +39,7 @@ public class OSQLFunctionModeTest {
       mode.execute(null, null, null, new Object[] {s}, null);
     }
 
-    Object result = mode.getResult();
+    Object result = mode.getResult(new OBasicCommandContext());
     assertEquals(3, (int) ((List<Integer>) result).get(0));
   }
 
@@ -50,7 +51,7 @@ public class OSQLFunctionModeTest {
       mode.execute(null, null, null, new Object[] {s}, null);
     }
 
-    Object result = mode.getResult();
+    Object result = mode.getResult(new OBasicCommandContext());
     List<Integer> modes = (List<Integer>) result;
     assertEquals(2, modes.size());
     assertTrue(modes.contains(2));
@@ -67,7 +68,7 @@ public class OSQLFunctionModeTest {
       mode.execute(null, null, null, new Object[] {s}, null);
     }
 
-    Object result = mode.getResult();
+    Object result = mode.getResult(new OBasicCommandContext());
     assertEquals(1, (int) ((List<Integer>) result).get(0));
   }
 }

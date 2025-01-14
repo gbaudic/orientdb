@@ -103,7 +103,7 @@ public class OSQLFunctionIntersect extends OSQLFunctionMultiValueAbstract<Object
   }
 
   @Override
-  public Object getResult() {
+  public Object getResult(OCommandContext ctx) {
     return OMultiValue.toSet(context);
   }
 

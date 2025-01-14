@@ -24,8 +24,8 @@ public class OFunctionAggregationContext implements AggregationContext {
   }
 
   @Override
-  public Object getFinalValue() {
-    return aggregateFunction.getResult();
+  public Object getFinalValue(OCommandContext ctx) {
+    return aggregateFunction.getResult(ctx);
   }
 
   @Override

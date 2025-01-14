@@ -61,7 +61,7 @@ public class OSQLFunctionAverage extends OSQLFunctionMathAbstract {
       for (int i = 0; i < iParams.length; ++i) sum((Number) iParams[i]);
     }
 
-    return getResult();
+    return getResult(iContext);
   }
 
   protected void sum(Number value) {
@@ -79,7 +79,7 @@ public class OSQLFunctionAverage extends OSQLFunctionMathAbstract {
   }
 
   @Override
-  public Object getResult() {
+  public Object getResult(OCommandContext ctx) {
     if (returnDistributedResult()) {
       final Map<String, Object> doc = new HashMap<String, Object>();
       doc.put("sum", sum);

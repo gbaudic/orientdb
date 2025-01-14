@@ -3,8 +3,6 @@
 package com.orientechnologies.orient.core.sql.parser;
 
 import com.orientechnologies.orient.core.command.OCommandContext;
-import com.orientechnologies.orient.core.db.ODatabaseDocumentInternal;
-import com.orientechnologies.orient.core.db.ODatabaseRecordThreadLocal;
 import com.orientechnologies.orient.core.db.record.OIdentifiable;
 import com.orientechnologies.orient.core.exception.OCommandExecutionException;
 import com.orientechnologies.orient.core.sql.OSQLEngine;
@@ -255,10 +253,6 @@ public class OMethodCall extends SimpleNode {
     }
 
     throw new UnsupportedOperationException("Invalid reverse traversal: " + methodName);
-  }
-
-  public static ODatabaseDocumentInternal getDatabase() {
-    return ODatabaseRecordThreadLocal.instance().get();
   }
 
   public boolean needsAliases(Set<String> aliases) {

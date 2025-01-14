@@ -86,7 +86,7 @@ public class ODatabaseFunction implements OSQLFunction {
   }
 
   @Override
-  public Object getResult() {
+  public Object getResult(OCommandContext ctx) {
     return null;
   }
 

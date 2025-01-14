@@ -4,7 +4,6 @@ import com.orientechnologies.common.collection.OMultiValue;
 import com.orientechnologies.common.io.OIOUtils;
 import com.orientechnologies.common.util.OCallable;
 import com.orientechnologies.orient.core.command.OCommandContext;
-import com.orientechnologies.orient.core.db.ODatabaseRecordThreadLocal;
 import com.orientechnologies.orient.core.db.ODatabaseSession;
 import com.orientechnologies.orient.core.db.record.OIdentifiable;
 import com.orientechnologies.orient.core.record.ODirection;
@@ -41,10 +40,7 @@ public abstract class OSQLFunctionMove extends OSQLFunctionConfigurableAbstract 
       final Object[] iParameters,
       final OCommandContext iContext) {
 
-    ODatabaseSession db =
-        iContext != null
-            ? iContext.getDatabase()
-            : ODatabaseRecordThreadLocal.instance().getIfDefined();
+    ODatabaseSession db = iContext.getDatabase();
 
     final String[] labels;
     if (iParameters != null && iParameters.length > 0 && iParameters[0] != null)

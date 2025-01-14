@@ -19,6 +19,7 @@
  */
 package com.orientechnologies.orient.core.sql.functions.stat;
 
+import com.orientechnologies.orient.core.command.OCommandContext;
 import java.util.List;
 
 /**
@@ -35,8 +36,8 @@ public class OSQLFunctionStandardDeviation extends OSQLFunctionVariance {
   }
 
   @Override
-  public Object getResult() {
-    return this.evaluate(super.getResult());
+  public Object getResult(OCommandContext ctx) {
+    return this.evaluate(super.getResult(ctx));
   }
 
   @Override

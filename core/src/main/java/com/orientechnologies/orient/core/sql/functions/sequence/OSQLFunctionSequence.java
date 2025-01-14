@@ -1,7 +1,6 @@
 package com.orientechnologies.orient.core.sql.functions.sequence;
 
 import com.orientechnologies.orient.core.command.OCommandContext;
-import com.orientechnologies.orient.core.db.ODatabaseRecordThreadLocal;
 import com.orientechnologies.orient.core.db.record.OIdentifiable;
 import com.orientechnologies.orient.core.exception.OCommandExecutionException;
 import com.orientechnologies.orient.core.metadata.sequence.OSequence;
@@ -31,11 +30,7 @@ public class OSQLFunctionSequence extends OSQLFunctionConfigurableAbstract {
     seqName = "" + iParams[0];
 
     OSequence result =
-        ODatabaseRecordThreadLocal.instance()
-            .get()
-            .getMetadata()
-            .getSequenceLibrary()
-            .getSequence(seqName);
+        iContext.getDatabase().getMetadata().getSequenceLibrary().getSequence(seqName);
     if (result == null) {
       throw new OCommandExecutionException("Sequence not found: " + seqName);
     }
@@ -43,7 +38,7 @@ public class OSQLFunctionSequence extends OSQLFunctionConfigurableAbstract {
   }
 
   @Override
-  public Object getResult() {
+  public Object getResult(OCommandContext ctx) {
     return null;
   }
 

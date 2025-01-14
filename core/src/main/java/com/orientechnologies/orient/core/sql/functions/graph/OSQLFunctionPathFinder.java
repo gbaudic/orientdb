@@ -122,7 +122,7 @@ public abstract class OSQLFunctionPathFinder extends OSQLFunctionMathAbstract {
   }
 
   @Override
-  public Object getResult() {
+  public Object getResult(OCommandContext ctx) {
     return getPath();
   }
 

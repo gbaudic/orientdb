@@ -66,7 +66,7 @@ public class AggregateProjectionCalculationStep extends ProjectionCalculationSte
       for (String name : item.getTemporaryProperties()) {
         Object prevVal = item.getTemporaryProperty(name);
         if (prevVal instanceof AggregationContext) {
-          item.setTemporaryProperty(name, ((AggregationContext) prevVal).getFinalValue());
+          item.setTemporaryProperty(name, ((AggregationContext) prevVal).getFinalValue(ctx));
         }
       }
     }

@@ -20,7 +20,9 @@
 package com.orientechnologies.orient.core.sql.functions;
 
 import com.orientechnologies.common.collection.OMultiValue;
-import com.orientechnologies.orient.core.db.ODatabaseRecordThreadLocal;
+import com.orientechnologies.orient.core.command.OCommandContext;
+import com.orientechnologies.orient.core.db.ODatabaseDocumentInternal;
+import com.orientechnologies.orient.core.db.ODatabaseSession;
 import com.orientechnologies.orient.core.db.OScenarioThreadLocal;
 import com.orientechnologies.orient.core.sql.executor.OResult;
 import java.util.List;
@@ -78,7 +80,7 @@ public abstract class OSQLFunctionAbstract implements OSQLFunction {
   }
 
   @Override
-  public Object getResult() {
+  public Object getResult(OCommandContext ctx) {
     return null;
   }
 
@@ -99,8 +101,8 @@ public abstract class OSQLFunctionAbstract implements OSQLFunction {
     return OScenarioThreadLocal.INSTANCE.isRunModeDistributed();
   }
 
-  protected String getDistributedStorageId() {
-    return ODatabaseRecordThreadLocal.instance().get().getStorageId();
+  protected String getDistributedStorageId(OCommandContext ctx) {
+    return ((ODatabaseDocumentInternal) ctx.getDatabase()).getStorageId();
   }
 
   /**
@@ -149,5 +151,9 @@ public abstract class OSQLFunctionAbstract implements OSQLFunction {
       return result.getProperty(propertyNames.iterator().next());
     }
     return source;
+  }
+
+  protected ODatabaseSession getDatabase(OCommandContext ctx) {
+    return ctx.getDatabase();
   }
 }

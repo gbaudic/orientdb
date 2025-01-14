@@ -3,6 +3,7 @@ package com.orientechnologies.orient.core.sql.functions.stat;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNull;
 
+import com.orientechnologies.orient.core.command.OBasicCommandContext;
 import com.orientechnologies.orient.core.db.OrientDB;
 import com.orientechnologies.orient.core.db.OrientDBConfig;
 import com.orientechnologies.orient.core.db.document.ODatabaseDocument;
@@ -23,21 +24,21 @@ public class OSQLFunctionDecimalTest {
 
   @Test
   public void testEmpty() {
-    Object result = function.getResult();
+    Object result = function.getResult(new OBasicCommandContext());
     assertNull(result);
   }
 
   @Test
   public void testFromInteger() {
     function.execute(null, null, null, new Object[] {12}, null);
-    Object result = function.getResult();
+    Object result = function.getResult(new OBasicCommandContext());
     assertEquals(result, new BigDecimal(12));
   }
 
   @Test
   public void testFromLong() {
     function.execute(null, null, null, new Object[] {1287623847384l}, null);
-    Object result = function.getResult();
+    Object result = function.getResult(new OBasicCommandContext());
     assertEquals(result, new BigDecimal(1287623847384l));
   }
 
@@ -45,7 +46,7 @@ public class OSQLFunctionDecimalTest {
   public void testFromString() {
     String initial = "12324124321234543256758654.76543212345676543254356765434567654";
     function.execute(null, null, null, new Object[] {initial}, null);
-    Object result = function.getResult();
+    Object result = function.getResult(new OBasicCommandContext());
     assertEquals(result, new BigDecimal(initial));
   }
 

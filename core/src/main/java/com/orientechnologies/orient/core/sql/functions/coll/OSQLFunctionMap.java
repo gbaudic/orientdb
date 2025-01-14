@@ -80,7 +80,7 @@ public class OSQLFunctionMap extends OSQLFunctionMultiValueAbstract<Map<Object, 
         }
       }
 
-    return prepareResult(context);
+    return prepareResult(context, iContext);
   }
 
   public String getSyntax() {
@@ -97,16 +97,16 @@ public class OSQLFunctionMap extends OSQLFunctionMultiValueAbstract<Map<Object, 
   }
 
   @Override
-  public Map<Object, Object> getResult() {
+  public Map<Object, Object> getResult(OCommandContext ctx) {
     final Map<Object, Object> res = context;
     context = null;
-    return prepareResult(res);
+    return prepareResult(res, ctx);
   }
 
-  protected Map<Object, Object> prepareResult(final Map<Object, Object> res) {
+  protected Map<Object, Object> prepareResult(final Map<Object, Object> res, OCommandContext ctx) {
     if (returnDistributedResult()) {
       final Map<String, Object> doc = new HashMap<String, Object>();
-      doc.put("node", getDistributedStorageId());
+      doc.put("node", getDistributedStorageId(ctx));
       doc.put("context", res);
       return Collections.<Object, Object>singletonMap("doc", doc);
     } else {

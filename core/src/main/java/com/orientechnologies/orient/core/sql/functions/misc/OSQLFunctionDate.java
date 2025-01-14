@@ -21,7 +21,7 @@ package com.orientechnologies.orient.core.sql.functions.misc;
 
 import com.orientechnologies.common.exception.OException;
 import com.orientechnologies.orient.core.command.OCommandContext;
-import com.orientechnologies.orient.core.db.ODatabaseRecordThreadLocal;
+import com.orientechnologies.orient.core.db.ODatabaseDocumentInternal;
 import com.orientechnologies.orient.core.db.record.OIdentifiable;
 import com.orientechnologies.orient.core.exception.OQueryParsingException;
 import com.orientechnologies.orient.core.sql.functions.OSQLFunctionAbstract;
@@ -68,7 +68,9 @@ public class OSQLFunctionDate extends OSQLFunctionAbstract {
         format = new SimpleDateFormat((String) iParams[1]);
         format.setTimeZone(ODateHelper.getDatabaseTimeZone());
       } else
-        format = ODateHelper.getDateTimeFormatInstance(ODatabaseRecordThreadLocal.instance().get());
+        format =
+            ODateHelper.getDateTimeFormatInstance(
+                (ODatabaseDocumentInternal) iContext.getDatabase());
 
       if (iParams.length == 3) format.setTimeZone(TimeZone.getTimeZone(iParams[2].toString()));
     }
@@ -95,7 +97,7 @@ public class OSQLFunctionDate extends OSQLFunctionAbstract {
   }
 
   @Override
-  public Object getResult() {
+  public Object getResult(OCommandContext ctx) {
     format = null;
     return null;
   }

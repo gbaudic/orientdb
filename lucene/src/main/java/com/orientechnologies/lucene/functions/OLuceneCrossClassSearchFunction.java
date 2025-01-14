@@ -10,7 +10,6 @@ import com.orientechnologies.lucene.index.OLuceneFullTextIndex;
 import com.orientechnologies.lucene.query.OLuceneKeyAndMetadata;
 import com.orientechnologies.orient.core.command.OCommandContext;
 import com.orientechnologies.orient.core.db.ODatabaseDocumentInternal;
-import com.orientechnologies.orient.core.db.ODatabaseRecordThreadLocal;
 import com.orientechnologies.orient.core.db.record.OIdentifiable;
 import com.orientechnologies.orient.core.id.ORID;
 import com.orientechnologies.orient.core.index.OIndex;
@@ -53,7 +52,7 @@ public class OLuceneCrossClassSearchFunction extends OSQLFunctionAbstract
       OCommandContext ctx,
       OExpression... args) {
 
-    OLuceneFullTextIndex fullTextIndex = searchForIndex();
+    OLuceneFullTextIndex fullTextIndex = searchForIndex(ctx);
 
     OExpression expression = args[0];
     String query = (String) expression.execute((OResult) null, ctx);
@@ -115,9 +114,13 @@ public class OLuceneCrossClassSearchFunction extends OSQLFunctionAbstract
     return false;
   }
 
-  protected OLuceneFullTextIndex searchForIndex() {
+  protected OLuceneFullTextIndex searchForIndex(OCommandContext ctx) {
 
-    Collection<? extends OIndex> indexes = getDb().getMetadata().getIndexManager().getIndexes();
+    Collection<? extends OIndex> indexes =
+        ((ODatabaseDocumentInternal) ctx.getDatabase())
+            .getMetadata()
+            .getIndexManager()
+            .getIndexes();
     for (OIndex index : indexes) {
       if (index.getInternal() instanceof OLuceneFullTextIndex) {
         if (index.getAlgorithm().equalsIgnoreCase(LUCENE_CROSS_CLASS)) {
@@ -126,10 +129,6 @@ public class OLuceneCrossClassSearchFunction extends OSQLFunctionAbstract
       }
     }
     return null;
-  }
-
-  protected ODatabaseDocumentInternal getDb() {
-    return ODatabaseRecordThreadLocal.instance().get();
   }
 
   private ODocument getMetadata(OExpression[] args) {
@@ -147,7 +146,7 @@ public class OLuceneCrossClassSearchFunction extends OSQLFunctionAbstract
       Object[] params,
       OCommandContext ctx) {
 
-    OLuceneFullTextIndex fullTextIndex = searchForIndex();
+    OLuceneFullTextIndex fullTextIndex = searchForIndex(ctx);
 
     String query = (String) params[0];
 

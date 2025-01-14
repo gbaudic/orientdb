@@ -69,7 +69,7 @@ public class OSQLFunctionAbsoluteValue extends OSQLFunctionMathAbstract {
       throw new IllegalArgumentException("Argument to absolute value must be a number.");
     }
 
-    return getResult();
+    return getResult(iContext);
   }
 
   public boolean aggregateResults() {
@@ -81,7 +81,7 @@ public class OSQLFunctionAbsoluteValue extends OSQLFunctionMathAbstract {
   }
 
   @Override
-  public Object getResult() {
+  public Object getResult(OCommandContext ctx) {
     return result;
   }
 

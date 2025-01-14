@@ -76,7 +76,7 @@ public class OSQLFunctionSum extends OSQLFunctionMathAbstract {
   }
 
   @Override
-  public Object getResult() {
+  public Object getResult(OCommandContext ctx) {
     return sum == null ? 0 : sum;
   }
 

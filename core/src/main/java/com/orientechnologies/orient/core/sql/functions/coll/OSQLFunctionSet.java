@@ -65,7 +65,7 @@ public class OSQLFunctionSet extends OSQLFunctionMultiValueAbstract<Set<Object>>
       }
     }
 
-    return prepareResult(context);
+    return prepareResult(context, iContext);
   }
 
   public String getSyntax() {
@@ -77,10 +77,10 @@ public class OSQLFunctionSet extends OSQLFunctionMultiValueAbstract<Set<Object>>
   }
 
   @Override
-  public Set<Object> getResult() {
+  public Set<Object> getResult(OCommandContext ctx) {
     final Set<Object> res = context;
     context = null;
-    return prepareResult(res);
+    return prepareResult(res, ctx);
   }
 
   @SuppressWarnings("unchecked")
@@ -101,10 +101,10 @@ public class OSQLFunctionSet extends OSQLFunctionMultiValueAbstract<Set<Object>>
     return null;
   }
 
-  protected Set<Object> prepareResult(Set<Object> res) {
+  protected Set<Object> prepareResult(Set<Object> res, OCommandContext ctx) {
     if (returnDistributedResult()) {
       final Map<String, Object> doc = new HashMap<String, Object>();
-      doc.put("node", getDistributedStorageId());
+      doc.put("node", getDistributedStorageId(ctx));
       doc.put("context", context);
       return Collections.<Object>singleton(doc);
     } else {

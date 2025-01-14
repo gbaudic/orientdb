@@ -296,7 +296,7 @@ public class OSQLFunctionAstar extends OSQLFunctionHeuristicPathFinderAbstract {
   }
 
   @Override
-  public Object getResult() {
+  public Object getResult(OCommandContext ctx) {
     return getPath();
   }
 

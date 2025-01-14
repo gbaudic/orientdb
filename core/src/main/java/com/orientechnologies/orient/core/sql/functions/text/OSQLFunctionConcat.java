@@ -29,7 +29,7 @@ public class OSQLFunctionConcat extends OSQLFunctionConfigurableAbstract {
   }
 
   @Override
-  public Object getResult() {
+  public Object getResult(OCommandContext ctx) {
     return sb != null ? sb.toString() : null;
   }
 

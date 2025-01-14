@@ -59,7 +59,7 @@ public class OSQLFunctionInterval extends OSQLFunctionMathAbstract {
   }
 
   @Override
-  public Object getResult() {
+  public Object getResult(OCommandContext ctx) {
     return null;
   }
 

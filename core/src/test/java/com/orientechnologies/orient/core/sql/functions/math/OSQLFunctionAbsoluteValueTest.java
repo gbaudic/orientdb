@@ -5,6 +5,7 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 
+import com.orientechnologies.orient.core.command.OBasicCommandContext;
 import com.orientechnologies.orient.core.db.OrientDB;
 import com.orientechnologies.orient.core.db.OrientDBConfig;
 import com.orientechnologies.orient.core.db.document.ODatabaseDocument;
@@ -31,21 +32,21 @@ public class OSQLFunctionAbsoluteValueTest {
 
   @Test
   public void testEmpty() {
-    Object result = function.getResult();
+    Object result = function.getResult(new OBasicCommandContext());
     assertNull(result);
   }
 
   @Test
   public void testNull() {
     function.execute(null, null, null, new Object[] {null}, null);
-    Object result = function.getResult();
+    Object result = function.getResult(new OBasicCommandContext());
     assertNull(result);
   }
 
   @Test
   public void testPositiveInteger() {
     function.execute(null, null, null, new Object[] {10}, null);
-    Object result = function.getResult();
+    Object result = function.getResult(new OBasicCommandContext());
     assertTrue(result instanceof Integer);
     assertEquals(result, 10);
   }
@@ -53,7 +54,7 @@ public class OSQLFunctionAbsoluteValueTest {
   @Test
   public void testNegativeInteger() {
     function.execute(null, null, null, new Object[] {-10}, null);
-    Object result = function.getResult();
+    Object result = function.getResult(new OBasicCommandContext());
     assertTrue(result instanceof Integer);
     assertEquals(result, 10);
   }
@@ -61,7 +62,7 @@ public class OSQLFunctionAbsoluteValueTest {
   @Test
   public void testPositiveLong() {
     function.execute(null, null, null, new Object[] {10L}, null);
-    Object result = function.getResult();
+    Object result = function.getResult(new OBasicCommandContext());
     assertTrue(result instanceof Long);
     assertEquals(result, 10L);
   }
@@ -69,7 +70,7 @@ public class OSQLFunctionAbsoluteValueTest {
   @Test
   public void testNegativeLong() {
     function.execute(null, null, null, new Object[] {-10L}, null);
-    Object result = function.getResult();
+    Object result = function.getResult(new OBasicCommandContext());
     assertTrue(result instanceof Long);
     assertEquals(result, 10L);
   }
@@ -77,7 +78,7 @@ public class OSQLFunctionAbsoluteValueTest {
   @Test
   public void testPositiveShort() {
     function.execute(null, null, null, new Object[] {(short) 10}, null);
-    Object result = function.getResult();
+    Object result = function.getResult(new OBasicCommandContext());
     assertTrue(result instanceof Short);
     assertEquals(result, (short) 10);
   }
@@ -85,7 +86,7 @@ public class OSQLFunctionAbsoluteValueTest {
   @Test
   public void testNegativeShort() {
     function.execute(null, null, null, new Object[] {(short) -10}, null);
-    Object result = function.getResult();
+    Object result = function.getResult(new OBasicCommandContext());
     assertTrue(result instanceof Short);
     assertEquals(result, (short) 10);
   }
@@ -93,7 +94,7 @@ public class OSQLFunctionAbsoluteValueTest {
   @Test
   public void testPositiveDouble() {
     function.execute(null, null, null, new Object[] {10.5D}, null);
-    Object result = function.getResult();
+    Object result = function.getResult(new OBasicCommandContext());
     assertTrue(result instanceof Double);
     assertEquals(result, 10.5D);
   }
@@ -101,7 +102,7 @@ public class OSQLFunctionAbsoluteValueTest {
   @Test
   public void testNegativeDouble() {
     function.execute(null, null, null, new Object[] {-10.5D}, null);
-    Object result = function.getResult();
+    Object result = function.getResult(new OBasicCommandContext());
     assertTrue(result instanceof Double);
     assertEquals(result, 10.5D);
   }
@@ -109,7 +110,7 @@ public class OSQLFunctionAbsoluteValueTest {
   @Test
   public void testPositiveFloat() {
     function.execute(null, null, null, new Object[] {10.5F}, null);
-    Object result = function.getResult();
+    Object result = function.getResult(new OBasicCommandContext());
     assertTrue(result instanceof Float);
     assertEquals(result, 10.5F);
   }
@@ -117,7 +118,7 @@ public class OSQLFunctionAbsoluteValueTest {
   @Test
   public void testNegativeFloat() {
     function.execute(null, null, null, new Object[] {-10.5F}, null);
-    Object result = function.getResult();
+    Object result = function.getResult(new OBasicCommandContext());
     assertTrue(result instanceof Float);
     assertEquals(result, 10.5F);
   }
@@ -125,7 +126,7 @@ public class OSQLFunctionAbsoluteValueTest {
   @Test
   public void testPositiveBigDecimal() {
     function.execute(null, null, null, new Object[] {new BigDecimal(10.5D)}, null);
-    Object result = function.getResult();
+    Object result = function.getResult(new OBasicCommandContext());
     assertTrue(result instanceof BigDecimal);
     assertEquals(result, new BigDecimal(10.5D));
   }
@@ -133,7 +134,7 @@ public class OSQLFunctionAbsoluteValueTest {
   @Test
   public void testNegativeBigDecimal() {
     function.execute(null, null, null, new Object[] {new BigDecimal(-10.5D)}, null);
-    Object result = function.getResult();
+    Object result = function.getResult(new OBasicCommandContext());
     assertTrue(result instanceof BigDecimal);
     assertEquals(result, new BigDecimal(10.5D));
   }
@@ -141,7 +142,7 @@ public class OSQLFunctionAbsoluteValueTest {
   @Test
   public void testPositiveBigInteger() {
     function.execute(null, null, null, new Object[] {new BigInteger("10")}, null);
-    Object result = function.getResult();
+    Object result = function.getResult(new OBasicCommandContext());
     assertTrue(result instanceof BigInteger);
     assertEquals(result, new BigInteger("10"));
   }
@@ -149,7 +150,7 @@ public class OSQLFunctionAbsoluteValueTest {
   @Test
   public void testNegativeBigInteger() {
     function.execute(null, null, null, new Object[] {new BigInteger("-10")}, null);
-    Object result = function.getResult();
+    Object result = function.getResult(new OBasicCommandContext());
     assertTrue(result instanceof BigInteger);
     assertEquals(result, new BigInteger("10"));
   }

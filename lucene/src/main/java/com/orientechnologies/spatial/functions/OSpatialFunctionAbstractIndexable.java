@@ -17,8 +17,6 @@ package com.orientechnologies.spatial.functions;
 
 import com.orientechnologies.lucene.collections.OLuceneResultSetEmpty;
 import com.orientechnologies.orient.core.command.OCommandContext;
-import com.orientechnologies.orient.core.db.ODatabaseDocumentInternal;
-import com.orientechnologies.orient.core.db.ODatabaseRecordThreadLocal;
 import com.orientechnologies.orient.core.db.record.OIdentifiable;
 import com.orientechnologies.orient.core.exception.OCommandExecutionException;
 import com.orientechnologies.orient.core.index.OIndex;
@@ -54,8 +52,9 @@ public abstract class OSpatialFunctionAbstractIndexable extends OSpatialFunction
     super(iName, iMinParams, iMaxParams);
   }
 
-  protected OLuceneSpatialIndex searchForIndex(OFromClause target, OExpression[] args) {
-    OMetadataInternal dbMetadata = getDb().getMetadata();
+  protected OLuceneSpatialIndex searchForIndex(
+      OFromClause target, OExpression[] args, OCommandContext ctx) {
+    OMetadataInternal dbMetadata = (OMetadataInternal) ctx.getDatabase().getMetadata();
 
     OFromItem item = target.getItem();
     OIdentifier identifier = item.getIdentifier();
@@ -77,13 +76,9 @@ public abstract class OSpatialFunctionAbstractIndexable extends OSpatialFunction
     return indices.size() == 0 ? null : indices.get(0);
   }
 
-  protected ODatabaseDocumentInternal getDb() {
-    return ODatabaseRecordThreadLocal.instance().get();
-  }
-
   protected Iterable<OIdentifiable> results(
       OFromClause target, OExpression[] args, OCommandContext ctx, Object rightValue) {
-    OIndex oIndex = searchForIndex(target, args);
+    OIndex oIndex = searchForIndex(target, args, ctx);
 
     if (oIndex == null) {
       return null;
@@ -170,7 +165,7 @@ public abstract class OSpatialFunctionAbstractIndexable extends OSpatialFunction
     if (!isValidBinaryOperator(operator)) {
       return false;
     }
-    OLuceneSpatialIndex index = searchForIndex(target, args);
+    OLuceneSpatialIndex index = searchForIndex(target, args, ctx);
 
     return index != null;
   }
@@ -193,7 +188,7 @@ public abstract class OSpatialFunctionAbstractIndexable extends OSpatialFunction
       OCommandContext ctx,
       OExpression... args) {
 
-    OLuceneSpatialIndex index = searchForIndex(target, args);
+    OLuceneSpatialIndex index = searchForIndex(target, args, ctx);
 
     return index == null ? -1 : index.size();
   }

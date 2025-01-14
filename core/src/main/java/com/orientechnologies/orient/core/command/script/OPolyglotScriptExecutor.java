@@ -8,7 +8,6 @@ import com.orientechnologies.orient.core.command.OCommandContext;
 import com.orientechnologies.orient.core.command.script.transformer.OScriptTransformer;
 import com.orientechnologies.orient.core.config.OGlobalConfiguration;
 import com.orientechnologies.orient.core.db.ODatabaseDocumentInternal;
-import com.orientechnologies.orient.core.db.ODatabaseRecordThreadLocal;
 import com.orientechnologies.orient.core.db.record.OIdentifiable;
 import com.orientechnologies.orient.core.metadata.function.OFunction;
 import com.orientechnologies.orient.core.metadata.security.ORole;
@@ -151,9 +150,6 @@ public class OPolyglotScriptExecutor extends OAbstractScriptExecutor
       OCommandContext context, final String functionName, final Map<Object, Object> iArgs) {
 
     ODatabaseDocumentInternal database = (ODatabaseDocumentInternal) context.getDatabase();
-    if (database == null) {
-      database = ODatabaseRecordThreadLocal.instance().get();
-    }
     final OFunction f = database.getMetadata().getFunctionLibrary().getFunction(functionName);
 
     database.checkSecurity(ORule.ResourceGeneric.FUNCTION, ORole.PERMISSION_READ, f.getName());

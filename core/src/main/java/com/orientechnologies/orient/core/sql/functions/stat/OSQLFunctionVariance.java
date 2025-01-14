@@ -97,7 +97,7 @@ public class OSQLFunctionVariance extends OSQLFunctionAbstract {
   }
 
   @Override
-  public Object getResult() {
+  public Object getResult(OCommandContext ctx) {
     if (returnDistributedResult()) {
       final Map<String, Object> doc = new HashMap<String, Object>();
       doc.put("n", n);

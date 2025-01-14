@@ -28,7 +28,7 @@ public class ORebuildIndexStatement extends OSimpleExecStatement {
     OResultInternal result = new OResultInternal();
     result.setProperty("operation", "rebuild index");
 
-    final ODatabaseDocumentInternal database = getDatabase();
+    final ODatabaseDocumentInternal database = (ODatabaseDocumentInternal) ctx.getDatabase();
     if (all) {
       long totalIndexed = 0;
       for (OIndex idx : database.getMetadata().getIndexManagerInternal().getIndexes(database)) {

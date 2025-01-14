@@ -53,7 +53,7 @@ public class OSQLFunctionTraversedElement extends OSQLFunctionConfigurableAbstra
   }
 
   @Override
-  public Object getResult() {
+  public Object getResult(OCommandContext ctx) {
     return null;
   }
 

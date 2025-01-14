@@ -18,8 +18,6 @@ package com.orientechnologies.lucene.operator;
 
 import com.orientechnologies.common.log.OLogManager;
 import com.orientechnologies.common.log.OLogger;
-import com.orientechnologies.orient.core.db.ODatabaseDocumentInternal;
-import com.orientechnologies.orient.core.db.ODatabaseRecordThreadLocal;
 import com.orientechnologies.orient.core.sql.operator.OQueryTargetOperator;
 
 public class OLuceneTextOperator extends OQueryTargetOperator {
@@ -32,9 +30,5 @@ public class OLuceneTextOperator extends OQueryTargetOperator {
 
   public OLuceneTextOperator(String iKeyword, int iPrecedence, boolean iLogical) {
     super(iKeyword, iPrecedence, iLogical);
-  }
-
-  protected static ODatabaseDocumentInternal getDatabase() {
-    return ODatabaseRecordThreadLocal.instance().get();
   }
 }

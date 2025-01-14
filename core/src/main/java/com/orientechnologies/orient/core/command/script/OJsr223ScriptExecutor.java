@@ -5,7 +5,6 @@ import com.orientechnologies.common.util.OCommonConst;
 import com.orientechnologies.orient.core.command.OCommandContext;
 import com.orientechnologies.orient.core.command.script.transformer.OScriptTransformer;
 import com.orientechnologies.orient.core.db.ODatabaseDocumentInternal;
-import com.orientechnologies.orient.core.db.ODatabaseRecordThreadLocal;
 import com.orientechnologies.orient.core.exception.OCommandExecutionException;
 import com.orientechnologies.orient.core.metadata.function.OFunction;
 import com.orientechnologies.orient.core.metadata.security.ORole;
@@ -99,9 +98,6 @@ public class OJsr223ScriptExecutor extends OAbstractScriptExecutor {
       OCommandContext context, final String functionName, final Map<Object, Object> iArgs) {
 
     ODatabaseDocumentInternal db = (ODatabaseDocumentInternal) context.getDatabase();
-    if (db == null) {
-      db = ODatabaseRecordThreadLocal.instance().get();
-    }
     final OFunction f = db.getMetadata().getFunctionLibrary().getFunction(functionName);
 
     db.checkSecurity(ORule.ResourceGeneric.FUNCTION, ORole.PERMISSION_READ, f.getName());

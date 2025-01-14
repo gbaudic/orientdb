@@ -19,6 +19,7 @@
  */
 package com.orientechnologies.orient.core.sql.functions.coll;
 
+import com.orientechnologies.orient.core.command.OCommandContext;
 import com.orientechnologies.orient.core.sql.functions.OSQLFunctionConfigurableAbstract;
 
 /**
@@ -41,7 +42,7 @@ public abstract class OSQLFunctionMultiValueAbstract<T> extends OSQLFunctionConf
   }
 
   @Override
-  public T getResult() {
+  public T getResult(OCommandContext ctx) {
     return context;
   }
 

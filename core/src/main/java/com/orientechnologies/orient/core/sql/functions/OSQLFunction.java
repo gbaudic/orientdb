@@ -67,7 +67,7 @@ public interface OSQLFunction {
    *
    * <p>Example of such function : sum, count, max, min ...
    *
-   * <p>The final result of the aggregation is obtain by calling {@link #getResult() }
+   * <p>The final result of the aggregation is obtain by calling {@link #getResult(OCommandContext) }
    *
    * @return true if function aggregate results
    */
@@ -123,10 +123,11 @@ public interface OSQLFunction {
   /**
    * Only called when function aggregates results after all records have been passed to the
    * function.
-   *
+   * @param ctx TODO
+   * @param ctx
    * @return Aggregation result
    */
-  public Object getResult();
+  public Object getResult(OCommandContext ctx);
 
   /**
    * Called by OCommandExecutor, given parameter is the number of results. ??? strange ???

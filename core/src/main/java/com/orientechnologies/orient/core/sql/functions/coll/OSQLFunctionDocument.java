@@ -77,7 +77,7 @@ public class OSQLFunctionDocument extends OSQLFunctionMultiValueAbstract<ODocume
         }
       }
 
-    return prepareResult(context);
+    return prepareResult(context, iContext);
   }
 
   public String getSyntax() {
@@ -89,16 +89,16 @@ public class OSQLFunctionDocument extends OSQLFunctionMultiValueAbstract<ODocume
   }
 
   @Override
-  public ODocument getResult() {
+  public ODocument getResult(OCommandContext ctx) {
     final ODocument res = context;
     context = null;
-    return prepareResult(res);
+    return prepareResult(res, ctx);
   }
 
-  protected ODocument prepareResult(ODocument res) {
+  protected ODocument prepareResult(ODocument res, OCommandContext ctx) {
     if (returnDistributedResult()) {
       final ODocument doc = new ODocument();
-      doc.field("node", getDistributedStorageId());
+      doc.field("node", getDistributedStorageId(ctx));
       doc.field("context", res);
       return doc;
     } else {

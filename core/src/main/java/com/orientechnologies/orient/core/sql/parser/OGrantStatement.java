@@ -29,7 +29,7 @@ public class OGrantStatement extends OSimpleExecStatement {
 
   @Override
   public OExecutionStream executeSimple(OCommandContext ctx) {
-    ODatabaseDocumentInternal db = getDatabase();
+    ODatabaseDocumentInternal db = (ODatabaseDocumentInternal) ctx.getDatabase();
     ORole role = db.getMetadata().getSecurity().getRole(actor.getStringValue());
     if (role == null)
       throw new OCommandExecutionException("Invalid role: " + actor.getStringValue());

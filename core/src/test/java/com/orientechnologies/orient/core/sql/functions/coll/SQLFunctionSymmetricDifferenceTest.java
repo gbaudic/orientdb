@@ -49,7 +49,7 @@ public class SQLFunctionSymmetricDifferenceTest {
       differenceFunction.execute(null, null, null, new Object[] {i}, null);
     }
 
-    final Set<Object> actualResult = differenceFunction.getResult();
+    final Set<Object> actualResult = differenceFunction.getResult(new OBasicCommandContext());
 
     assertSetEquals(actualResult, expectedResult);
   }
@@ -94,9 +94,9 @@ public class SQLFunctionSymmetricDifferenceTest {
         (Set<Object>)
             merger.mergeDistributedResult(
                 Arrays.asList(
-                    (Object) differences.get(0).getResult(),
-                    differences.get(1).getResult(),
-                    differences.get(2).getResult()));
+                    (Object) differences.get(0).getResult(new OBasicCommandContext()),
+                    differences.get(1).getResult(new OBasicCommandContext()),
+                    differences.get(2).getResult(new OBasicCommandContext())));
 
     assertSetEquals(actualResult, expectedResult);
   }

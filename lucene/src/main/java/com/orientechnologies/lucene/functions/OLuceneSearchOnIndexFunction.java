@@ -192,7 +192,7 @@ public class OLuceneSearchOnIndexFunction extends OLuceneSearchFunctionTemplate 
   }
 
   @Override
-  public Object getResult() {
-    return super.getResult();
+  public Object getResult(OCommandContext ctx) {
+    return super.getResult(ctx);
   }
 }

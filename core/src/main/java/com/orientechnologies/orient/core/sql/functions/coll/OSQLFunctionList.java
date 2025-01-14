@@ -62,7 +62,7 @@ public class OSQLFunctionList extends OSQLFunctionMultiValueAbstract<List<Object
         else OMultiValue.add(context, value);
       }
     }
-    return prepareResult(context);
+    return prepareResult(context, iContext);
   }
 
   public String getSyntax() {
@@ -74,10 +74,10 @@ public class OSQLFunctionList extends OSQLFunctionMultiValueAbstract<List<Object
   }
 
   @Override
-  public List<Object> getResult() {
+  public List<Object> getResult(OCommandContext ctx) {
     final List<Object> res = context;
     context = null;
-    return prepareResult(res);
+    return prepareResult(res, ctx);
   }
 
   @SuppressWarnings("unchecked")
@@ -98,10 +98,10 @@ public class OSQLFunctionList extends OSQLFunctionMultiValueAbstract<List<Object
     return null;
   }
 
-  protected List<Object> prepareResult(List<Object> res) {
+  protected List<Object> prepareResult(List<Object> res, OCommandContext iContext) {
     if (returnDistributedResult()) {
       final Map<String, Object> doc = new HashMap<String, Object>();
-      doc.put("node", getDistributedStorageId());
+      doc.put("node", getDistributedStorageId(iContext));
       doc.put("context", res);
       return Collections.<Object>singletonList(doc);
     } else {

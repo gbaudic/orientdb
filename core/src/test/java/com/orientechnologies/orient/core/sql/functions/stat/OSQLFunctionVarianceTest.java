@@ -3,6 +3,7 @@ package com.orientechnologies.orient.core.sql.functions.stat;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNull;
 
+import com.orientechnologies.orient.core.command.OBasicCommandContext;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -27,7 +28,7 @@ public class OSQLFunctionVarianceTest {
 
   @Test
   public void testEmpty() {
-    Object result = variance.getResult();
+    Object result = variance.getResult(new OBasicCommandContext());
     assertNull(result);
   }
 
@@ -39,7 +40,7 @@ public class OSQLFunctionVarianceTest {
       variance.execute(null, null, null, new Object[] {s}, null);
     }
 
-    Object result = variance.getResult();
+    Object result = variance.getResult(new OBasicCommandContext());
     assertEquals(22.1875, result);
   }
 
@@ -51,7 +52,7 @@ public class OSQLFunctionVarianceTest {
       variance.execute(null, null, null, new Object[] {s}, null);
     }
 
-    Object result = variance.getResult();
+    Object result = variance.getResult(new OBasicCommandContext());
     assertEquals(2.25, result);
   }
 
@@ -63,7 +64,7 @@ public class OSQLFunctionVarianceTest {
       variance.execute(null, null, null, new Object[] {s}, null);
     }
 
-    Object result = variance.getResult();
+    Object result = variance.getResult(new OBasicCommandContext());
     assertEquals(36.0, result);
   }
 

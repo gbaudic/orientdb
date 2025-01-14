@@ -286,7 +286,7 @@ public class ODatabaseDocumentRemote extends ODatabaseDocumentAbstract {
 
     ORecordSerializerFactory serializerFactory = ORecordSerializerFactory.instance();
     serializer = serializerFactory.getFormat(ORecordSerializerNetworkV37Client.NAME);
-    localCache.startup();
+    localCache.startup(this);
     componentsFactory = getStorageRemote().getComponentsFactory();
     user = null;
 
