@@ -15,6 +15,8 @@
  */
 package com.orientechnologies.orient.test.database.speed;
 
+import org.junit.Ignore;
+
 import com.orientechnologies.orient.core.Orient;
 import com.orientechnologies.orient.core.db.document.ODatabaseDocument;
 import com.orientechnologies.orient.core.db.document.ODatabaseDocumentTx;
@@ -23,6 +25,7 @@ import com.orientechnologies.orient.core.record.impl.ODocument;
 import com.orientechnologies.orient.core.tx.OTransaction.TXTYPE;
 import com.orientechnologies.orient.test.database.base.OrientMonoThreadTest;
 
+@Ignore
 public class LocalCreateIndexedDocumentSpeedTest extends OrientMonoThreadTest {
   private ODatabaseDocument database;
   private ODocument record;

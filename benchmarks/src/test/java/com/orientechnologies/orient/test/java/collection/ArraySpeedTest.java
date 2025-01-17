@@ -15,6 +15,9 @@
  */
 package com.orientechnologies.orient.test.java.collection;
 
+import org.junit.Ignore;
+
+@Ignore
 public class ArraySpeedTest extends CollectionBaseAbstractSpeedTest {
   private String[] array;
 

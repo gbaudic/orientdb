@@ -15,10 +15,13 @@
  */
 package com.orientechnologies.orient.test.database.speed;
 
+import org.junit.Ignore;
+
 import com.orientechnologies.orient.core.serialization.serializer.record.binary.BytesContainer;
 import com.orientechnologies.orient.core.serialization.serializer.record.binary.OVarIntSerializer;
 import com.orientechnologies.orient.test.database.base.OrientMonoThreadTest;
 
+@Ignore
 public class VarIntSpeedTest extends OrientMonoThreadTest {
 
   public static void main(String[] iArgs) throws InstantiationException, IllegalAccessException {

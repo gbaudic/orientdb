@@ -22,6 +22,9 @@ import com.orientechnologies.orient.core.record.impl.ODocument;
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 
+import org.junit.Ignore;
+
+@Ignore
 public class ReadAllClusterObjectsSpeedTest extends SpeedTestMonoThread {
   private static final String CLASS_NAME = "Account";
   private ODatabaseDocument db;

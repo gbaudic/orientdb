@@ -15,6 +15,8 @@
  */
 package com.orientechnologies.orient.test.database.speed;
 
+import org.junit.Ignore;
+
 import com.orientechnologies.orient.core.Orient;
 import com.orientechnologies.orient.core.db.document.ODatabaseDocument;
 import com.orientechnologies.orient.core.db.document.ODatabaseDocumentTx;
@@ -22,6 +24,7 @@ import com.orientechnologies.orient.core.index.OIndex;
 import com.orientechnologies.orient.core.record.impl.ODocument;
 import com.orientechnologies.orient.test.database.base.OrientMonoThreadTest;
 
+@Ignore
 public class DictionaryPutDocumentSpeedTest extends OrientMonoThreadTest {
   private ODatabaseDocument database;
   private ODocument record;

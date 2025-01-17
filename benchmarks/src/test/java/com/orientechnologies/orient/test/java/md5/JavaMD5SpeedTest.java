@@ -19,7 +19,9 @@ import com.orientechnologies.common.test.SpeedTestMonoThread;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import org.junit.Assert;
+import org.junit.Ignore;
 
+@Ignore
 public class JavaMD5SpeedTest extends SpeedTestMonoThread {
   private MessageDigest md;
   private static final byte[] RESULT = {

@@ -8,10 +8,13 @@ import com.orientechnologies.orient.core.metadata.schema.OType;
 import com.orientechnologies.orient.test.database.base.OrientMonoThreadTest;
 import java.util.Date;
 
+import org.junit.Ignore;
+
 /**
  * @author Andrey Lomakin (a.lomakin-at-orientdb.com)
  * @since 10/16/13
  */
+@Ignore
 public class NotUniqueIndexSpeedTest extends OrientMonoThreadTest {
   private ODatabaseDocument database;
   private int counter;

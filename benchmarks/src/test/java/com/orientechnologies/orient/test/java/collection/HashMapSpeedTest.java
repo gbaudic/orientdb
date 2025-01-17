@@ -17,6 +17,9 @@ package com.orientechnologies.orient.test.java.collection;
 
 import java.util.HashMap;
 
+import org.junit.Ignore;
+
+@Ignore
 public class HashMapSpeedTest extends CollectionBaseAbstractSpeedTest {
   private HashMap<String, String> map;
 

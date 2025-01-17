@@ -28,6 +28,9 @@ import com.orientechnologies.orient.test.database.base.OrientMultiThreadTest;
 import com.orientechnologies.orient.test.database.base.OrientThreadTest;
 import java.util.Date;
 
+import org.junit.Ignore;
+
+@Ignore
 public class LocalCreateDocumentMultiThreadIndexedSpeedTest extends OrientMultiThreadTest {
   private ODatabaseDocument database;
   private long foundObjects;

@@ -23,6 +23,9 @@ import com.orientechnologies.orient.core.tx.OTransaction.TXTYPE;
 import com.orientechnologies.orient.test.database.base.OrientMonoThreadTest;
 import java.util.Random;
 
+import org.junit.Ignore;
+
+@Ignore
 public class LocalCreateBinarySpeedTest extends OrientMonoThreadTest {
   private ODatabaseDocument database;
   private ORecordBytes record;

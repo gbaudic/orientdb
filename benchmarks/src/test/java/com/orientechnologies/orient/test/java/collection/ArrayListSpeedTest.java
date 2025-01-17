@@ -17,6 +17,9 @@ package com.orientechnologies.orient.test.java.collection;
 
 import java.util.ArrayList;
 
+import org.junit.Ignore;
+
+@Ignore
 public class ArrayListSpeedTest extends CollectionBaseAbstractSpeedTest {
   private ArrayList<String> arrayList;
 

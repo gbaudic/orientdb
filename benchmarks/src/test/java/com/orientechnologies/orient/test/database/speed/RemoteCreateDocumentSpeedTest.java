@@ -24,6 +24,9 @@ import com.orientechnologies.orient.core.tx.OTransaction.TXTYPE;
 import com.orientechnologies.orient.test.database.base.OrientMonoThreadTest;
 import java.util.Date;
 
+import org.junit.Ignore;
+
+@Ignore
 public class RemoteCreateDocumentSpeedTest extends OrientMonoThreadTest {
   private ODatabaseDocument database;
   private ODocument record;

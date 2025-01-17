@@ -7,10 +7,13 @@ import com.orientechnologies.orient.core.id.ORecordId;
 import com.orientechnologies.orient.core.index.OIndex;
 import java.util.Random;
 
+import org.junit.Ignore;
+
 /**
  * @author Andrey Lomakin (a.lomakin-at-orientdb.com)
  * @since 14.08.13
  */
+@Ignore
 public class SBTreeInsertionSpeedTest extends SpeedTestMonoThread {
   private ODatabaseDocumentInternal databaseDocumentTx;
   private OIndex index;

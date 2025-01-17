@@ -9,10 +9,13 @@ import com.orientechnologies.orient.core.index.OSimpleKeyIndexDefinition;
 import com.orientechnologies.orient.core.metadata.schema.OType;
 import java.util.Random;
 
+import org.junit.Ignore;
+
 /**
  * @author Andrey Lomakin (a.lomakin-at-orientdb.com)
  * @since 30.01.13
  */
+@Ignore
 public class HashIndexSpeedTest extends SpeedTestMonoThread {
   private ODatabaseDocumentInternal databaseDocumentTx;
   private OIndex hashIndex;

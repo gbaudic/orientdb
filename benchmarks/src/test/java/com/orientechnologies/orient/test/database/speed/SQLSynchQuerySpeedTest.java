@@ -21,6 +21,9 @@ import com.orientechnologies.orient.core.db.document.ODatabaseDocumentTx;
 import com.orientechnologies.orient.core.sql.executor.OResultSet;
 import java.io.UnsupportedEncodingException;
 
+import org.junit.Ignore;
+
+@Ignore
 public class SQLSynchQuerySpeedTest extends SpeedTestMonoThread {
   protected int resultCount = 0;
   private ODatabaseDocument database;

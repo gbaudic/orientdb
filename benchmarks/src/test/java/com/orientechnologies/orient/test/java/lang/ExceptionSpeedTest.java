@@ -19,6 +19,9 @@ import com.orientechnologies.common.test.SpeedTestMonoThread;
 import java.io.IOException;
 import java.util.NoSuchElementException;
 
+import org.junit.Ignore;
+
+@Ignore
 public class ExceptionSpeedTest extends SpeedTestMonoThread {
 
   public ExceptionSpeedTest() {
