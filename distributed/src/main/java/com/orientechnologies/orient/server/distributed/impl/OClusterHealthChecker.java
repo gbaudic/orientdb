@@ -21,7 +21,6 @@ package com.orientechnologies.orient.server.distributed.impl;
 
 import com.hazelcast.core.HazelcastInstanceNotActiveException;
 import com.orientechnologies.orient.core.config.OGlobalConfiguration;
-import com.orientechnologies.orient.core.db.OSystemDatabase;
 import com.orientechnologies.orient.core.record.impl.ODocument;
 import com.orientechnologies.orient.core.tx.OTransactionSequenceStatus;
 import com.orientechnologies.orient.distributed.db.OrientDBDistributed;
@@ -98,6 +97,9 @@ public class OClusterHealthChecker implements Runnable {
     // NO NODES CONFIGURED: CHECK IF THERE IS ANY MISCONFIGURATION BY CHECKING THE DATABASE STATUSES
     OrientDBDistributed context = (OrientDBDistributed) manager.getServerInstance().getDatabases();
     for (String databaseName : manager.getDatabases()) {
+      if (manager.isSyncronizing(databaseName)) {
+        continue;
+      }
       final ODistributedConfiguration cfg = context.getDistributedConfiguration(databaseName);
       if (cfg == null) {
         continue;
@@ -203,13 +205,13 @@ public class OClusterHealthChecker implements Runnable {
 
     OrientDBDistributed context = (OrientDBDistributed) server.getDatabases();
     for (String dbName : manager.getDatabases()) {
+      if (manager.isSyncronizing(dbName)) {
+        continue;
+      }
       final ODistributedServerManager.DB_STATUS localNodeStatus =
           manager.getDatabaseStatus(manager.getLocalNodeName(), dbName);
       if (localNodeStatus != ODistributedServerManager.DB_STATUS.NOT_AVAILABLE)
         // ONLY NOT_AVAILABLE NODE/DB CAN BE RECOVERED
-        continue;
-      if (OSystemDatabase.SYSTEM_DB_NAME.equalsIgnoreCase(dbName))
-        // SKIP SYSTEM DATABASE FROM HEALTH CHECK
         continue;
 
       final Set<String> servers = manager.getAvailableNodeNames(dbName);
@@ -257,6 +259,9 @@ public class OClusterHealthChecker implements Runnable {
       return;
 
     for (String dbName : manager.getDatabases()) {
+      if (manager.isSyncronizing(dbName)) {
+        continue;
+      }
       final ODistributedServerManager.DB_STATUS localNodeStatus =
           manager.getDatabaseStatus(manager.getLocalNodeName(), dbName);
       if (localNodeStatus != ODistributedServerManager.DB_STATUS.ONLINE)
@@ -300,13 +305,13 @@ public class OClusterHealthChecker implements Runnable {
     if (!manager.getServerInstance().isActive()) return;
 
     for (String dbName : manager.getDatabases()) {
+      if (manager.isSyncronizing(dbName)) {
+        continue;
+      }
       final ODistributedServerManager.DB_STATUS localNodeStatus =
           manager.getDatabaseStatus(manager.getLocalNodeName(), dbName);
       if (localNodeStatus != ODistributedServerManager.DB_STATUS.ONLINE)
         // ONLY NOT_AVAILABLE NODE/DB CAN BE RECOVERED
-        continue;
-      if (OSystemDatabase.SYSTEM_DB_NAME.equalsIgnoreCase(dbName))
-        // SKIP SYSTEM DATABASE FROM HEALTH CHECK
         continue;
 
       final List<String> servers = manager.getOnlineNodesNotLocal(dbName);

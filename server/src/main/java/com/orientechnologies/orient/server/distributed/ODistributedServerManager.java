@@ -301,4 +301,6 @@ public interface ODistributedServerManager {
   ODocument getOnlineDatabaseConfiguration(String databaseName);
 
   Set<String> getDatabases();
+
+  boolean isSyncronizing(String databaseName);
 }
