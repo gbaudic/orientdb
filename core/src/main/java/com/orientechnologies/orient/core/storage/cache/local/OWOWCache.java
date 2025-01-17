@@ -2380,7 +2380,7 @@ public final class OWOWCache extends OAbstractWriteCache
           assert buffer.position() == 0;
           assert buffer.order() == ByteOrder.nativeOrder();
 
-          fileClassic.read(pagePosition, buffer, true);
+          fileClassic.read(pagePosition, buffer, false);
 
           if (verifyChecksums
               && (checksumMode == OChecksumMode.StoreAndVerify
