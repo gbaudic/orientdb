@@ -20,7 +20,6 @@ import com.orientechnologies.orient.core.db.document.ODatabaseDocument;
 import com.orientechnologies.orient.core.db.document.ODatabaseDocumentTx;
 import com.orientechnologies.orient.core.sql.executor.OResultSet;
 import java.io.UnsupportedEncodingException;
-
 import org.junit.Ignore;
 
 @Ignore

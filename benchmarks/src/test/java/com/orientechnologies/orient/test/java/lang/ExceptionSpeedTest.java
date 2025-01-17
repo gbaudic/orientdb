@@ -18,7 +18,6 @@ package com.orientechnologies.orient.test.java.lang;
 import com.orientechnologies.common.test.SpeedTestMonoThread;
 import java.io.IOException;
 import java.util.NoSuchElementException;
-
 import org.junit.Ignore;
 
 @Ignore

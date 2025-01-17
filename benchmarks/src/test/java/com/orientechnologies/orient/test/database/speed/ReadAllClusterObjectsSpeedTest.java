@@ -21,7 +21,6 @@ import com.orientechnologies.orient.core.db.document.ODatabaseDocumentTx;
 import com.orientechnologies.orient.core.record.impl.ODocument;
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
-
 import org.junit.Ignore;
 
 @Ignore

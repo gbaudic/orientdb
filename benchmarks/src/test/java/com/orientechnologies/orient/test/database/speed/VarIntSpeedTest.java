@@ -15,11 +15,10 @@
  */
 package com.orientechnologies.orient.test.database.speed;
 
-import org.junit.Ignore;
-
 import com.orientechnologies.orient.core.serialization.serializer.record.binary.BytesContainer;
 import com.orientechnologies.orient.core.serialization.serializer.record.binary.OVarIntSerializer;
 import com.orientechnologies.orient.test.database.base.OrientMonoThreadTest;
+import org.junit.Ignore;
 
 @Ignore
 public class VarIntSpeedTest extends OrientMonoThreadTest {

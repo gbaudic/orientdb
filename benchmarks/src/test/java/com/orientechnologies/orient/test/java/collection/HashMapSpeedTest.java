@@ -16,7 +16,6 @@
 package com.orientechnologies.orient.test.java.collection;
 
 import java.util.HashMap;
-
 import org.junit.Ignore;
 
 @Ignore

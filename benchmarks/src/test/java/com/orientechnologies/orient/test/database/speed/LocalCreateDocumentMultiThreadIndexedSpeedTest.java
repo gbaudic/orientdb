@@ -27,7 +27,6 @@ import com.orientechnologies.orient.core.tx.OTransaction.TXTYPE;
 import com.orientechnologies.orient.test.database.base.OrientMultiThreadTest;
 import com.orientechnologies.orient.test.database.base.OrientThreadTest;
 import java.util.Date;
-
 import org.junit.Ignore;
 
 @Ignore

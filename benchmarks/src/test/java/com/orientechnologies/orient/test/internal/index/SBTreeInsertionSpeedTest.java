@@ -6,7 +6,6 @@ import com.orientechnologies.orient.core.db.document.ODatabaseDocumentTx;
 import com.orientechnologies.orient.core.id.ORecordId;
 import com.orientechnologies.orient.core.index.OIndex;
 import java.util.Random;
-
 import org.junit.Ignore;
 
 /**

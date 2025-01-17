@@ -8,7 +8,6 @@ import com.orientechnologies.orient.core.index.OIndexUnique;
 import com.orientechnologies.orient.core.index.OSimpleKeyIndexDefinition;
 import com.orientechnologies.orient.core.metadata.schema.OType;
 import java.util.Random;
-
 import org.junit.Ignore;
 
 /**

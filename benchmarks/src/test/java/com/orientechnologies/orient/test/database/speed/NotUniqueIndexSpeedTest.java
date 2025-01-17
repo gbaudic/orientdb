@@ -7,7 +7,6 @@ import com.orientechnologies.orient.core.metadata.schema.OSchema;
 import com.orientechnologies.orient.core.metadata.schema.OType;
 import com.orientechnologies.orient.test.database.base.OrientMonoThreadTest;
 import java.util.Date;
-
 import org.junit.Ignore;
 
 /**
