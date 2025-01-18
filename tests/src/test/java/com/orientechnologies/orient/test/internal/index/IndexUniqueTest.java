@@ -20,8 +20,9 @@
 package com.orientechnologies.orient.test.internal.index;
 
 import com.orientechnologies.orient.core.db.ODatabase;
+import com.orientechnologies.orient.core.db.OrientDB;
+import com.orientechnologies.orient.core.db.OrientDBConfig;
 import com.orientechnologies.orient.core.db.document.ODatabaseDocument;
-import com.orientechnologies.orient.core.db.document.ODatabaseDocumentTx;
 import com.orientechnologies.orient.core.metadata.schema.OClass;
 import com.orientechnologies.orient.core.metadata.schema.OSchema;
 import com.orientechnologies.orient.core.metadata.schema.OType;
@@ -40,6 +41,7 @@ import java.util.concurrent.Future;
 import java.util.concurrent.Phaser;
 import java.util.concurrent.atomic.AtomicInteger;
 import org.testng.Assert;
+import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
 @Test
@@ -47,6 +49,19 @@ public class IndexUniqueTest {
   private final AtomicInteger[] propValues = new AtomicInteger[10];
   private final Random random = new Random();
   private static final int ATTEMPTS = 100000;
+  private OrientDB ctx;
+
+  @BeforeMethod
+  public void before() {
+    ctx = new OrientDB("embeded:./target/", OrientDBConfig.defaultConfig());
+    if (ctx.exists("uniqueIndexTest")) {
+      ctx.drop("uniqueIndexTest");
+    }
+    ctx.execute(
+            "create database uniqueIndexTest plocal users(admin identified by 'adminpwd' role"
+                + " admin)")
+        .close();
+  }
 
   private final Phaser phaser =
       new Phaser() {
@@ -72,17 +87,10 @@ public class IndexUniqueTest {
       indexNames[i] = nm;
     }
 
-    ODatabaseDocument db = new ODatabaseDocumentTx("plocal:./uniqueIndexTest");
+    ODatabaseDocument db = ctx.open("uniqueIndexTest", "admin", "adminpwd");
     final int cores = Runtime.getRuntime().availableProcessors();
 
-    if (db.exists()) {
-      db.open("admin", "admin");
-      db.drop();
-    }
-
     for (int i = 0; i < propValues.length; i++) propValues[i] = new AtomicInteger();
-
-    db.create();
 
     db.set(ODatabase.ATTRIBUTES.MINIMUMCLUSTERS, cores);
 
@@ -133,11 +141,10 @@ public class IndexUniqueTest {
 
     @Override
     public Integer call() throws Exception {
-      ODatabaseDocument db = new ODatabaseDocumentTx(url);
+      ODatabaseDocument db = ctx.open("uniqueIndexTest", "admin", "adminpwd");
       int i = 0;
       int success = 0;
       while (i < ATTEMPTS) {
-        db.open("admin", "admin");
         try {
           i++;
 

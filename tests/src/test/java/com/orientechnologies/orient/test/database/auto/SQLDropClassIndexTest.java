@@ -16,10 +16,13 @@
 package com.orientechnologies.orient.test.database.auto;
 
 import com.orientechnologies.orient.core.db.ODatabaseDocumentInternal;
-import com.orientechnologies.orient.core.db.document.ODatabaseDocumentTx;
+import com.orientechnologies.orient.core.db.OrientDB;
+import com.orientechnologies.orient.core.db.OrientDBConfig;
 import com.orientechnologies.orient.core.metadata.schema.OClass;
 import com.orientechnologies.orient.core.metadata.schema.OSchema;
 import com.orientechnologies.orient.core.metadata.schema.OType;
+import com.orientechnologies.orient.core.util.OURLConnection;
+import com.orientechnologies.orient.core.util.OURLHelper;
 import org.testng.Assert;
 import org.testng.annotations.AfterMethod;
 import org.testng.annotations.BeforeClass;
@@ -35,6 +38,7 @@ public class SQLDropClassIndexTest {
 
   private ODatabaseDocumentInternal database;
   private final String url;
+  private OrientDB ctx;
 
   @Parameters(value = "url")
   public SQLDropClassIndexTest(@Optional final String url) {
@@ -43,9 +47,21 @@ public class SQLDropClassIndexTest {
 
   @BeforeClass
   public void beforeClass() {
-    database = new ODatabaseDocumentTx(url);
-
-    if (database.isClosed()) database.open("admin", "admin");
+    OURLConnection urlData = OURLHelper.parse(url);
+    ctx =
+        new OrientDB(
+            urlData.getType() + ":" + urlData.getPath(),
+            "root",
+            "root",
+            OrientDBConfig.defaultConfig());
+    if (!ctx.exists(urlData.getDbName())) {
+      ctx.execute(
+              "create database "
+                  + urlData.getDbName()
+                  + " plocal users(admin identified by 'admin' role admin)")
+          .close();
+    }
+    database = (ODatabaseDocumentInternal) ctx.open(urlData.getDbName(), "admin", "admin");
 
     final OSchema schema = database.getMetadata().getSchema();
     final OClass oClass = schema.createClass("SQLDropClassTestClass");
@@ -57,7 +73,10 @@ public class SQLDropClassIndexTest {
 
   @BeforeMethod
   public void beforeMethod() {
-    if (database.isClosed()) database.open("admin", "admin");
+    if (database.isClosed()) {
+      OURLConnection urlData = OURLHelper.parse(url);
+      database = (ODatabaseDocumentInternal) ctx.open(urlData.getDbName(), "admin", "admin");
+    }
   }
 
   @AfterMethod
@@ -91,7 +110,8 @@ public class SQLDropClassIndexTest {
             .getIndexManagerInternal()
             .getIndex(database, "SQLDropClassCompositeIndex"));
     database.close();
-    database.open("admin", "admin");
+    OURLConnection urlData = OURLHelper.parse(url);
+    database = (ODatabaseDocumentInternal) ctx.open(urlData.getDbName(), "admin", "admin");
     Assert.assertNull(database.getMetadata().getSchema().getClass("SQLDropClassTestClass"));
     Assert.assertNull(
         database

@@ -16,13 +16,16 @@
 package com.orientechnologies.orient.test.database.auto;
 
 import com.orientechnologies.orient.core.db.ODatabaseDocumentInternal;
+import com.orientechnologies.orient.core.db.OrientDB;
+import com.orientechnologies.orient.core.db.OrientDBConfig;
 import com.orientechnologies.orient.core.db.document.ODatabaseDocument;
-import com.orientechnologies.orient.core.db.document.ODatabaseDocumentTx;
 import com.orientechnologies.orient.core.index.OIndex;
 import com.orientechnologies.orient.core.metadata.OMetadataDefault;
 import com.orientechnologies.orient.core.metadata.schema.OClass;
 import com.orientechnologies.orient.core.metadata.schema.OSchema;
 import com.orientechnologies.orient.core.metadata.schema.OType;
+import com.orientechnologies.orient.core.util.OURLConnection;
+import com.orientechnologies.orient.core.util.OURLHelper;
 import org.testng.Assert;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.AfterMethod;
@@ -35,6 +38,7 @@ import org.testng.annotations.Test;
 @Test(groups = {"index"})
 public class SQLDropIndexTest {
 
+  private OrientDB ctx;
   private ODatabaseDocument database;
   private static final OType EXPECTED_PROP1_TYPE = OType.DOUBLE;
   private static final OType EXPECTED_PROP2_TYPE = OType.INTEGER;
@@ -47,9 +51,21 @@ public class SQLDropIndexTest {
 
   @BeforeClass
   public void beforeClass() {
-    database = new ODatabaseDocumentTx(url);
-
-    if (database.isClosed()) database.open("admin", "admin");
+    OURLConnection urlData = OURLHelper.parse(url);
+    ctx =
+        new OrientDB(
+            urlData.getType() + ":" + urlData.getPath(),
+            "root",
+            "root",
+            OrientDBConfig.defaultConfig());
+    if (!ctx.exists(urlData.getDbName())) {
+      ctx.execute(
+              "create database "
+                  + urlData.getDbName()
+                  + " plocal users(admin identified by 'admin' role admin)")
+          .close();
+    }
+    database = ctx.open(urlData.getDbName(), "admin", "admin");
 
     final OSchema schema = database.getMetadata().getSchema();
     final OClass oClass = schema.createClass("SQLDropIndexTestClass");
@@ -59,16 +75,23 @@ public class SQLDropIndexTest {
 
   @AfterClass
   public void afterClass() throws Exception {
-    if (database.isClosed()) database.open("admin", "admin");
+    OURLConnection urlData = OURLHelper.parse(url);
+    if (database.isClosed()) {
+      database = ctx.open(urlData.getDbName(), "admin", "admin");
+    }
     database.command("delete from SQLDropIndexTestClass").close();
     database.command("drop class SQLDropIndexTestClass").close();
     database.reload();
     database.close();
+    ctx.close();
   }
 
   @BeforeMethod
   public void beforeMethod() {
-    if (database.isClosed()) database.open("admin", "admin");
+    if (database.isClosed()) {
+      OURLConnection urlData = OURLHelper.parse(url);
+      database = ctx.open(urlData.getDbName(), "admin", "admin");
+    }
   }
 
   @AfterMethod

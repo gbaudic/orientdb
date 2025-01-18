@@ -2,7 +2,8 @@ package com.orientechnologies.orient.test.internal;
 
 import com.orientechnologies.orient.core.db.ODatabaseDocumentInternal;
 import com.orientechnologies.orient.core.db.ODatabaseRecordThreadLocal;
-import com.orientechnologies.orient.core.db.document.ODatabaseDocumentTx;
+import com.orientechnologies.orient.core.db.OrientDB;
+import com.orientechnologies.orient.core.db.OrientDBConfig;
 import com.orientechnologies.orient.core.exception.OConcurrentModificationException;
 import com.orientechnologies.orient.core.record.impl.ODocument;
 import com.orientechnologies.orient.core.sql.executor.OResultSet;
@@ -27,6 +28,7 @@ public class LockMultithreadingTest {
   private static final int DELETOR_THREAD_COUNT = 10;
   private static final int DOCUMENT_COUNT = 10000000;
   private static final String URL = "plocal:megatest1";
+  private OrientDB ctx;
   private ODatabaseDocumentInternal db;
 
   private static final String STUDENT_CLASS_NAME = "Student";
@@ -149,15 +151,17 @@ public class LockMultithreadingTest {
 
   @BeforeMethod
   public void setUp() throws Exception {
+    ctx = new OrientDB("embedded:./target/", OrientDBConfig.defaultConfig());
     System.out.println("Create db");
-    ODatabaseDocumentTx database = new ODatabaseDocumentTx(URL);
 
-    if (database.exists()) {
-      database.open("admin", "admin").drop();
+    if (ctx.exists("megatest1")) {
+      ctx.drop("megatest1");
     }
+    ctx.execute("create database megatest1 plocal users(admin identified by 'adminpwd' role admin)")
+        .close();
 
-    database.create();
-
+    ODatabaseDocumentInternal database =
+        (ODatabaseDocumentInternal) ctx.open("megatest1", "admin", "adminpwd");
     database.getMetadata().getSchema().createClass(STUDENT_CLASS_NAME);
 
     database.getMetadata().getSchema().createClass(TRANSACTIONAL_WORD + STUDENT_CLASS_NAME);
