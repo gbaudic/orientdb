@@ -96,7 +96,7 @@ public class CRUDObjectInheritanceTestSchemaFull extends ObjectDBBaseTest {
       ODatabaseDocumentInternal importDatabase = new ODatabaseDocumentTx(url + "_objectschema");
 
       if (url.startsWith("remote")) {
-        importDatabase.open("root", ODatabaseHelper.getServerRootPassword());
+        importDatabase.open("root", "root");
       } else {
         importDatabase.open("admin", "admin");
       }

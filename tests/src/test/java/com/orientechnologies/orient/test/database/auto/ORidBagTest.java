@@ -3,7 +3,6 @@ package com.orientechnologies.orient.test.database.auto;
 import static org.testng.Assert.assertEquals;
 import static org.testng.Assert.assertTrue;
 
-import com.orientechnologies.orient.client.db.ODatabaseHelper;
 import com.orientechnologies.orient.client.remote.OServerAdmin;
 import com.orientechnologies.orient.core.config.OGlobalConfiguration;
 import com.orientechnologies.orient.core.db.record.OIdentifiable;
@@ -1132,9 +1131,7 @@ public abstract class ORidBagTest extends DocumentDBBaseTest {
     OGlobalConfiguration.RID_BAG_SBTREEBONSAI_TO_EMBEDDED_THRESHOLD.setValue(-1);
 
     if (database.isRemote()) {
-      OServerAdmin server =
-          new OServerAdmin(database.getURL())
-              .connect("root", ODatabaseHelper.getServerRootPassword());
+      OServerAdmin server = new OServerAdmin(database.getURL()).connect("root", "root");
       server.setGlobalConfiguration(
           OGlobalConfiguration.RID_BAG_EMBEDDED_TO_SBTREEBONSAI_THRESHOLD, 7);
       server.setGlobalConfiguration(
@@ -1225,9 +1222,7 @@ public abstract class ORidBagTest extends DocumentDBBaseTest {
     OGlobalConfiguration.RID_BAG_SBTREEBONSAI_TO_EMBEDDED_THRESHOLD.setValue(-1);
 
     if (database.isRemote()) {
-      OServerAdmin server =
-          new OServerAdmin(database.getURL())
-              .connect("root", ODatabaseHelper.getServerRootPassword());
+      OServerAdmin server = new OServerAdmin(database.getURL()).connect("root", "root");
       server.setGlobalConfiguration(
           OGlobalConfiguration.RID_BAG_EMBEDDED_TO_SBTREEBONSAI_THRESHOLD, 7);
       server.setGlobalConfiguration(

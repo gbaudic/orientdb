@@ -2,7 +2,6 @@ package com.orientechnologies.orient.test.database.auto;
 
 import static org.testng.AssertJUnit.assertTrue;
 
-import com.orientechnologies.orient.client.db.ODatabaseHelper;
 import com.orientechnologies.orient.client.remote.OServerAdmin;
 import com.orientechnologies.orient.core.id.ORecordId;
 import com.orientechnologies.orient.core.metadata.schema.OClass;
@@ -31,16 +30,13 @@ public class RemoteProtocolCommandsTest extends DocumentDBBaseTest {
   @Test(enabled = false)
   public void testConnect() throws Exception {
     final OServerAdmin admin =
-        new OServerAdmin("remote:localhost:" + serverPort)
-            .connect("root", ODatabaseHelper.getServerRootPassword());
+        new OServerAdmin("remote:localhost:" + serverPort).connect("root", "root");
     admin.close();
   }
 
   @Test
   public void testListDatabasesMemoryDB() throws Exception {
-    final OServerAdmin admin =
-        new OServerAdmin("remote:localhost")
-            .connect("root", ODatabaseHelper.getServerRootPassword());
+    final OServerAdmin admin = new OServerAdmin("remote:localhost").connect("root", "root");
     try {
       final Random random = new Random();
 

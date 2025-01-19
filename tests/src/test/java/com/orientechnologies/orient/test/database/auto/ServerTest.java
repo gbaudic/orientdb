@@ -15,7 +15,6 @@
  */
 package com.orientechnologies.orient.test.database.auto;
 
-import com.orientechnologies.orient.client.db.ODatabaseHelper;
 import com.orientechnologies.orient.client.remote.OServerAdmin;
 import com.orientechnologies.orient.core.db.document.ODatabaseDocument;
 import com.orientechnologies.orient.core.db.document.ODatabaseDocumentTx;
@@ -42,7 +41,7 @@ public class ServerTest extends DocumentDBBaseTest {
   public void testDbList() throws IOException {
     OServerAdmin server = new OServerAdmin(serverURL);
     try {
-      server.connect("root", ODatabaseHelper.getServerRootPassword());
+      server.connect("root", "root");
       Map<String, String> dbs = server.listDatabases();
       Assert.assertFalse(dbs.isEmpty());
     } finally {
@@ -54,7 +53,7 @@ public class ServerTest extends DocumentDBBaseTest {
   public void testOpenCloseCreateClass() throws IOException {
 
     OServerAdmin admin = new OServerAdmin("remote:localhost/doubleOpenTest");
-    admin.connect("root", ODatabaseHelper.getServerRootPassword());
+    admin.connect("root", "root");
     admin.createDatabase("document", "memory");
     admin.close();
 
@@ -75,7 +74,7 @@ public class ServerTest extends DocumentDBBaseTest {
       db.close();
     }
     admin = new OServerAdmin("remote:localhost/doubleOpenTest");
-    admin.connect("root", ODatabaseHelper.getServerRootPassword());
+    admin.connect("root", "root");
     admin.dropDatabase("memory");
     admin.close();
   }
