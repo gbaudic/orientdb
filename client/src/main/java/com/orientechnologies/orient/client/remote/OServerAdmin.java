@@ -64,30 +64,6 @@ public class OServerAdmin {
     }
   }
 
-  public OServerAdmin(OrientDBRemote remote, String url) throws IOException {
-    this.remote = remote;
-    urls = new ORemoteURLs(new String[] {}, remote.getContextConfiguration());
-    String name = urls.parseServerUrls(url, remote.getContextConfiguration());
-    if (name != null && name.length() != 0) {
-      this.database = Optional.of(name);
-    } else {
-      this.database = Optional.empty();
-    }
-  }
-
-  /**
-   * Creates the object starting from an existent remote storage.
-   *
-   * @param iStorage
-   */
-  @Deprecated
-  public OServerAdmin(final OStorageRemote iStorage) {
-    this.remote = iStorage.context;
-    urls = new ORemoteURLs(new String[] {}, remote.getContextConfiguration());
-    urls.parseServerUrls(iStorage.getURL(), remote.getContextConfiguration());
-    this.database = Optional.ofNullable(iStorage.getName());
-  }
-
   /**
    * Connects to a remote server.
    *
@@ -121,27 +97,6 @@ public class OServerAdmin {
   public synchronized Map<String, String> listDatabases() throws IOException {
     checkConnected();
     return remote.getDatabases(user, password);
-  }
-
-  /**
-   * Returns the server information in form of document.
-   *
-   * @throws IOException
-   */
-  @Deprecated
-  public synchronized ODocument getServerInfo() throws IOException {
-    checkConnected();
-    return remote.getServerInfo(user, password);
-  }
-
-  public int getSessionId() {
-    return session.getSessionId();
-  }
-
-  /** Deprecated. Use the {@link #createDatabase(String, String)} instead. */
-  @Deprecated
-  public synchronized OServerAdmin createDatabase(final String iStorageMode) throws IOException {
-    return createDatabase("document", iStorageMode);
   }
 
   /**
@@ -235,19 +190,6 @@ public class OServerAdmin {
   }
 
   /**
-   * Deprecated. Use dropDatabase() instead.
-   *
-   * @param storageType Storage type between "plocal" or "memory".
-   * @return The instance itself. Useful to execute method in chain
-   * @throws IOException
-   * @see #dropDatabase(String)
-   */
-  @Deprecated
-  public OServerAdmin deleteDatabase(final String storageType) throws IOException {
-    return dropDatabase(getStorageName(), storageType);
-  }
-
-  /**
    * Drops a database from a remote server instance.
    *
    * @param iDatabaseName The database name
@@ -271,34 +213,6 @@ public class OServerAdmin {
    */
   public synchronized OServerAdmin dropDatabase(final String storageType) throws IOException {
     return dropDatabase(getStorageName(), storageType);
-  }
-
-  /**
-   * Freezes the database by locking it in exclusive mode.
-   *
-   * @param storageType Storage type between "plocal" or "memory".
-   * @return
-   * @throws IOException
-   * @see #releaseDatabase(String)
-   */
-  public synchronized OServerAdmin freezeDatabase(final String storageType) throws IOException {
-    checkConnected();
-    remote.freezeDatabase(getStorageName(), user, password);
-    return this;
-  }
-
-  /**
-   * Releases a frozen database.
-   *
-   * @param storageType Storage type between "plocal" or "memory".
-   * @return
-   * @throws IOException
-   * @see #freezeDatabase(String)
-   */
-  public synchronized OServerAdmin releaseDatabase(final String storageType) throws IOException {
-    checkConnected();
-    remote.releaseDatabase(getStorageName(), user, password);
-    return this;
   }
 
   /**

@@ -425,6 +425,10 @@ public abstract class AbstractServerClusterInsertTest extends AbstractDistribute
     return getRemoteDatabaseURL(server);
   }
 
+  protected String getServerURL(ServerRun server) {
+    return "remote:" + server.getBinaryProtocolAddress();
+  }
+
   protected String getRemoteDatabaseURL(final ServerRun server) {
     return "remote:" + server.getBinaryProtocolAddress() + "/" + getDatabaseName();
   }

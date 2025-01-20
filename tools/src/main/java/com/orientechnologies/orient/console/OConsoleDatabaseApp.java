@@ -34,7 +34,6 @@ import com.orientechnologies.common.listener.OProgressListener;
 import com.orientechnologies.common.log.OLogManager;
 import com.orientechnologies.common.log.OLogger;
 import com.orientechnologies.orient.client.remote.ODatabaseImportRemote;
-import com.orientechnologies.orient.client.remote.OServerAdmin;
 import com.orientechnologies.orient.client.remote.OStorageRemote;
 import com.orientechnologies.orient.client.remote.OrientDBRemote;
 import com.orientechnologies.orient.client.remote.db.document.ODatabaseDocumentRemote;
@@ -953,11 +952,8 @@ public class OConsoleDatabaseApp extends OConsoleApplication
     final String dbName = currentDatabase.getName();
 
     if (currentDatabase.isRemote()) {
-      if (storageType == null) storageType = "plocal";
-
-      new OServerAdmin(currentDatabase.getURL())
-          .connect(currentDatabaseUserName, currentDatabaseUserPassword)
-          .freezeDatabase(storageType);
+      OrientDBRemote internal = (OrientDBRemote) OrientDBInternal.extract(orientDB);
+      internal.freezeDatabase(dbName, currentDatabaseUserName, currentDatabaseUserPassword);
     } else {
       // LOCAL CONNECTION
       currentDatabase.freeze();
@@ -982,10 +978,8 @@ public class OConsoleDatabaseApp extends OConsoleApplication
 
     if (currentDatabase.isRemote()) {
       if (storageType == null) storageType = "plocal";
-
-      new OServerAdmin(currentDatabase.getURL())
-          .connect(currentDatabaseUserName, currentDatabaseUserPassword)
-          .releaseDatabase(storageType);
+      OrientDBRemote internal = (OrientDBRemote) OrientDBInternal.extract(orientDB);
+      internal.releaseDatabase(dbName, currentDatabaseUserName, currentDatabaseUserPassword);
     } else {
       // LOCAL CONNECTION
       currentDatabase.release();

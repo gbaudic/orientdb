@@ -17,13 +17,14 @@
 package com.orientechnologies.orient.test.internal;
 
 import com.orientechnologies.common.exception.OException;
-import com.orientechnologies.orient.client.remote.OServerAdmin;
+import com.orientechnologies.orient.client.remote.OrientDBRemote;
 import com.orientechnologies.orient.core.config.OGlobalConfiguration;
 import com.orientechnologies.orient.core.db.ODatabaseDocumentInternal;
 import com.orientechnologies.orient.core.db.ODatabaseRecordThreadLocal;
 import com.orientechnologies.orient.core.db.ODatabaseSession;
 import com.orientechnologies.orient.core.db.OrientDB;
 import com.orientechnologies.orient.core.db.OrientDBConfig;
+import com.orientechnologies.orient.core.db.OrientDBInternal;
 import com.orientechnologies.orient.core.exception.OConcurrentModificationException;
 import com.orientechnologies.orient.core.exception.ORecordNotFoundException;
 import com.orientechnologies.orient.core.metadata.schema.OClass;
@@ -490,9 +491,8 @@ public class FreezeMultiThreadingNonTXIT {
       try {
         countDownLatch.await();
         while (createCounter.get() < DOCUMENT_COUNT) {
-          final OServerAdmin serverAdmin = new OServerAdmin(URL);
-          serverAdmin.connect("root", "root").freezeDatabase("plocal");
-          serverAdmin.close();
+          OrientDBRemote internal = (OrientDBRemote) OrientDBInternal.extract(remote);
+          internal.freezeDatabase("FreezeMultiThreadingTestNonTX", "root", "root");
           ODatabaseSession database =
               remote.open("FreezeMultiThreadingTestNonTX", "admin", "admin");
 
@@ -527,8 +527,7 @@ public class FreezeMultiThreadingNonTXIT {
                     + afterNonTxDocuments.size()
                     + " Tx : "
                     + afterTxDocuments.size());
-            serverAdmin.connect("root", "root").releaseDatabase("plocal");
-            serverAdmin.close();
+            internal.releaseDatabase("FreezeMultiThreadingTestNonTX", "root", "root");
           }
           Thread.sleep(10000);
         }

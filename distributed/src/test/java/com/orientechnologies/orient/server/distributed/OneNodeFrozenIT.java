@@ -15,10 +15,12 @@
  */
 package com.orientechnologies.orient.server.distributed;
 
-import com.orientechnologies.orient.client.remote.OServerAdmin;
+import com.orientechnologies.orient.client.remote.OrientDBRemote;
+import com.orientechnologies.orient.core.db.OrientDB;
+import com.orientechnologies.orient.core.db.OrientDBConfig;
+import com.orientechnologies.orient.core.db.OrientDBInternal;
 import com.orientechnologies.orient.core.db.document.ODatabaseDocument;
 import com.orientechnologies.orient.setup.ServerRun;
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.concurrent.Callable;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -114,19 +116,19 @@ public class OneNodeFrozenIT extends AbstractServerClusterTxTest {
 
                             freezeInProgress = true;
                             try {
+                              OrientDB remote =
+                                  new OrientDB(
+                                      getServerURL(server), OrientDBConfig.defaultConfig());
+                              OrientDBRemote rem =
+                                  (OrientDBRemote) OrientDBInternal.extract(remote);
 
-                              final OServerAdmin admin =
-                                  new OServerAdmin(getDatabaseURL(server)).connect("root", "test");
-
-                              admin.freezeDatabase("plocal");
+                              rem.freezeDatabase(getDatabaseName(), "root", "root");
                               try {
                                 Thread.sleep(10000);
                               } finally {
-                                admin.releaseDatabase("plocal");
+                                rem.releaseDatabase(getDatabaseName(), "root", "root");
                               }
 
-                            } catch (IOException e) {
-                              e.printStackTrace();
                             } finally {
                               banner("RELEASING SERVER " + (SERVERS - 1));
                               freezeInProgress = false;
