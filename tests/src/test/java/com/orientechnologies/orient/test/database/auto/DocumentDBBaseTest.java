@@ -3,7 +3,9 @@ package com.orientechnologies.orient.test.database.auto;
 import com.orientechnologies.orient.client.db.ODatabaseHelper;
 import com.orientechnologies.orient.core.db.ODatabaseDocumentInternal;
 import com.orientechnologies.orient.core.db.ODatabaseSession;
+import com.orientechnologies.orient.core.db.document.ODatabaseDocument;
 import com.orientechnologies.orient.core.db.document.ODatabaseDocumentTx;
+import java.io.IOException;
 import org.testng.annotations.Optional;
 import org.testng.annotations.Parameters;
 import org.testng.annotations.Test;
@@ -43,12 +45,42 @@ public abstract class DocumentDBBaseTest extends BaseTest<ODatabaseDocumentInter
     return session;
   }
 
+  protected ODatabaseSession openSession(String database, String user, String password) {
+    ODatabaseSession session =
+        new ODatabaseDocumentTx(getStorageType() + ":" + "./target/" + database);
+    session.open(user, password);
+    return session;
+  }
+
   protected void dropdb() {
     try {
       ODatabaseHelper.deleteDatabase(database, getStorageType());
     } catch (Exception e) {
       throw new RuntimeException(e);
     }
+  }
+
+  protected void dropdb(String name) {
+    final ODatabaseSession db =
+        new ODatabaseDocumentTx(getStorageType() + ":" + "./target/" + name);
+    try {
+      ODatabaseHelper.dropDatabase(db, getStorageType());
+    } catch (Exception e) {
+      throw new RuntimeException(e);
+    }
+  }
+
+  protected ODatabaseSession createdb(String database) throws IOException {
+    final ODatabaseSession db =
+        new ODatabaseDocumentTx(getStorageType() + ":" + "./target/" + database);
+    db.create();
+    return db;
+  }
+
+  protected void dropAndCreateDatabase(String suffix) throws IOException {
+    ODatabaseDocument database = new ODatabaseDocumentTx(url + suffix);
+    ODatabaseHelper.dropDatabase(database, getStorageType());
+    ODatabaseHelper.createDatabase(database, url + suffix, getStorageType());
   }
 
   protected boolean existsdb() {

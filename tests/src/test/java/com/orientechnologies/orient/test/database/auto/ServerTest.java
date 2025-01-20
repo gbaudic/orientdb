@@ -15,12 +15,12 @@
  */
 package com.orientechnologies.orient.test.database.auto;
 
-import com.orientechnologies.orient.client.remote.OServerAdmin;
+import com.orientechnologies.orient.core.db.OrientDB;
+import com.orientechnologies.orient.core.db.OrientDBConfig;
 import com.orientechnologies.orient.core.db.document.ODatabaseDocument;
-import com.orientechnologies.orient.core.db.document.ODatabaseDocumentTx;
 import com.orientechnologies.orient.core.record.impl.ODocument;
 import java.io.IOException;
-import java.util.Map;
+import java.util.List;
 import org.testng.Assert;
 import org.testng.annotations.Optional;
 import org.testng.annotations.Parameters;
@@ -28,54 +28,46 @@ import org.testng.annotations.Test;
 
 @Test
 public class ServerTest extends DocumentDBBaseTest {
-  private String serverURL;
 
   @Parameters(value = "url")
   public ServerTest(@Optional String url) {
     super(url);
-
-    serverURL = url.substring(0, url.lastIndexOf('/'));
   }
 
   @Test
   public void testDbList() throws IOException {
-    OServerAdmin server = new OServerAdmin(serverURL);
+    OrientDB ctx = new OrientDB("remote:localhost", "root", "root", OrientDBConfig.defaultConfig());
+
     try {
-      server.connect("root", "root");
-      Map<String, String> dbs = server.listDatabases();
+      List<String> dbs = ctx.list();
       Assert.assertFalse(dbs.isEmpty());
     } finally {
-      server.close();
+      ctx.close();
     }
   }
 
   @Test
   public void testOpenCloseCreateClass() throws IOException {
 
-    OServerAdmin admin = new OServerAdmin("remote:localhost/doubleOpenTest");
-    admin.connect("root", "root");
-    admin.createDatabase("document", "memory");
-    admin.close();
+    OrientDB ctx = new OrientDB("remote:localhost", "root", "root", OrientDBConfig.defaultConfig());
+    ctx.execute(
+        "create database doubleOpenTest memory users(admin identified by 'admin' role admin)");
 
-    ODatabaseDocument db = new ODatabaseDocumentTx("remote:localhost/doubleOpenTest");
+    ODatabaseDocument db = ctx.open("doubleOpenTest", "admin", "admin");
     try {
-      db.open("admin", "admin");
       ODocument d = new ODocument("User");
-      d.save();
+      db.save(d);
     } finally {
       db.close();
     }
-
+    db = ctx.open("doubleOpenTest", "admin", "admin");
     try {
-      db.open("admin", "admin");
       ODocument d = new ODocument("User");
-      d.save();
+      db.save(d);
     } finally {
       db.close();
     }
-    admin = new OServerAdmin("remote:localhost/doubleOpenTest");
-    admin.connect("root", "root");
-    admin.dropDatabase("memory");
-    admin.close();
+    ctx.drop("doubleOpenTest");
+    ctx.close();
   }
 }

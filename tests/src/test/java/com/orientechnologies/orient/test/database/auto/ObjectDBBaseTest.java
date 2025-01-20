@@ -6,7 +6,6 @@ import com.orientechnologies.orient.client.db.ODatabaseHelper;
 import com.orientechnologies.orient.core.db.ODatabaseSession;
 import com.orientechnologies.orient.core.db.document.ODatabaseDocumentTx;
 import com.orientechnologies.orient.core.db.object.ODatabaseObject;
-import com.orientechnologies.orient.object.db.OObjectDatabasePool;
 import com.orientechnologies.orient.object.db.OObjectDatabaseTx;
 import java.io.IOException;
 import org.testng.annotations.Optional;
@@ -70,17 +69,20 @@ public class ObjectDBBaseTest extends BaseTest<ODatabaseObject> {
   }
 
   protected void reopenpool(String user, String password) {
-    database = OObjectDatabasePool.global().acquire(url, user, password);
+    if (!database.isClosed()) {
+      database.close();
+    }
+    database = new OObjectDatabaseTx(this.url);
+    database.open(user, password);
   }
 
   protected ODatabaseObject openpool(String user, String password) {
-    return OObjectDatabasePool.global().acquire(url, user, password);
+    return session("", user, password);
   }
 
   protected void dropdb() throws IOException {
     String prefix = url.substring(0, url.indexOf(':') + 1);
     logger.info("deleting database %s", url);
-    ODatabaseHelper.dropDatabase(
-        OObjectDatabasePool.global().acquire(url, "admin", "admin"), prefix);
+    ODatabaseHelper.dropDatabase(session("", "admin", "admin"), prefix);
   }
 }

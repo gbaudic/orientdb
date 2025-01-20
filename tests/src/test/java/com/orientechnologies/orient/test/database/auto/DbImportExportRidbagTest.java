@@ -20,7 +20,6 @@ import com.orientechnologies.common.log.OLogger;
 import com.orientechnologies.orient.core.command.OCommandOutputListener;
 import com.orientechnologies.orient.core.db.ODatabaseDocumentInternal;
 import com.orientechnologies.orient.core.db.ODatabaseSession;
-import com.orientechnologies.orient.core.db.document.ODatabaseDocumentTx;
 import com.orientechnologies.orient.core.db.tool.ODatabaseCompare;
 import com.orientechnologies.orient.core.db.tool.ODatabaseExport;
 import com.orientechnologies.orient.core.db.tool.ODatabaseImport;
@@ -83,9 +82,7 @@ public class DbImportExportRidbagTest extends DocumentDBBaseTest implements OCom
     if (importDir.exists()) for (File f : importDir.listFiles()) f.delete();
     else importDir.mkdir();
 
-    ODatabaseDocumentInternal database =
-        new ODatabaseDocumentTx(getStorageType() + ":" + testPath + "/" + NEW_DB_URL);
-    database.create();
+    ODatabaseDocumentInternal database = (ODatabaseDocumentInternal) createdb("test-import");
 
     ODatabaseImport dbImport = new ODatabaseImport(database, testPath + "/" + exportFilePath, this);
     dbImport.setMaxRidbagStringSizeBeforeLazyImport(50);
@@ -112,11 +109,9 @@ public class DbImportExportRidbagTest extends DocumentDBBaseTest implements OCom
       // EXECUTES ONLY IF NOT REMOTE ON CI/RELEASE TEST ENV
     }
 
-    ODatabaseDocumentInternal first = new ODatabaseDocumentTx(url);
-    first.open("admin", "admin");
+    ODatabaseDocumentInternal first = (ODatabaseDocumentInternal) openSession("admin", "admin");
     ODatabaseDocumentInternal second =
-        new ODatabaseDocumentTx(getStorageType() + ":" + testPath + "/" + NEW_DB_URL);
-    second.open("admin", "admin");
+        (ODatabaseDocumentInternal) this.openSession("test-import", "admin", "admin");
 
     final ODatabaseCompare databaseCompare = new ODatabaseCompare(first, second, this);
     databaseCompare.setCompareEntriesForAutomaticIndexes(true);

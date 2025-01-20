@@ -13,15 +13,16 @@
  */
 package com.orientechnologies.orient.test.database.auto;
 
-import com.orientechnologies.orient.client.db.ODatabaseHelper;
 import com.orientechnologies.orient.client.remote.OStorageRemote;
 import com.orientechnologies.orient.core.db.ODatabase;
 import com.orientechnologies.orient.core.db.ODatabaseDocumentInternal;
 import com.orientechnologies.orient.core.db.ODatabaseInternal;
-import com.orientechnologies.orient.core.db.document.ODatabaseDocumentTx;
+import com.orientechnologies.orient.core.db.ODatabaseSession;
 import com.orientechnologies.orient.core.id.ORID;
 import com.orientechnologies.orient.core.record.impl.ODocument;
 import com.orientechnologies.orient.core.sql.executor.OResult;
+import com.orientechnologies.orient.core.util.OURLConnection;
+import com.orientechnologies.orient.core.util.OURLHelper;
 import com.orientechnologies.orient.object.db.OObjectDatabaseTx;
 import java.io.IOException;
 import java.util.Collections;
@@ -79,21 +80,23 @@ public class MultipleDBTest extends DocumentDBBaseTest {
 
     for (int i = 0; i < dbs; i++) {
 
-      final String dbUrl = url + i;
+      final String suffix = "" + i;
 
       Callable<Void> t =
           new Callable<Void>() {
 
             @Override
             public Void call() throws InterruptedException, IOException {
-              OObjectDatabaseTx tx = new OObjectDatabaseTx(dbUrl);
 
-              ODatabaseHelper.deleteDatabase(tx, getStorageType());
-              ODatabaseHelper.createDatabase(tx, dbUrl, getStorageType());
+              OURLConnection data = OURLHelper.parse(url);
+              dropdb(data.getDbName() + suffix);
+              createdb(data.getDbName() + suffix);
+              OObjectDatabaseTx tx =
+                  new OObjectDatabaseTx(
+                      (ODatabaseDocumentInternal)
+                          openSession(data.getDbName() + suffix, "admin", "admin"));
+
               try {
-                if (tx.isClosed()) {
-                  tx.open("admin", "admin");
-                }
 
                 tx.set(ODatabase.ATTRIBUTES.MINIMUMCLUSTERS, 1);
                 tx.getMetadata().getSchema().getOrCreateClass("DummyObject");
@@ -108,11 +111,6 @@ public class MultipleDBTest extends DocumentDBBaseTest {
                   // CAN'T WORK FOR LHPEPS CLUSTERS BECAUSE CLUSTER POSITION CANNOT BE KNOWN
                   Assert.assertEquals(
                       ((ORID) dummy.getId()).getClusterPosition(), j, "RID was " + dummy.getId());
-
-                  // if ((j + 1) % 20000 == 0) {
-                  // System.out.println("(" + getDbId(tx) + ") " + "Operations (WRITE) executed: " +
-                  // (j + 1));
-                  // }
                 }
                 long end = System.currentTimeMillis();
 
@@ -123,18 +121,12 @@ public class MultipleDBTest extends DocumentDBBaseTest {
                         + "Executed operations (WRITE) in: "
                         + (end - start)
                         + " ms";
-                // System.out.println(time);
                 times.add(time);
 
                 start = System.currentTimeMillis();
                 for (int j = 0; j < operations_read; j++) {
                   List<OResult> l = tx.query(" select * from DummyObject ").stream().toList();
                   Assert.assertEquals(l.size(), operations_write);
-
-                  // if ((j + 1) % 20000 == 0) {
-                  // System.out.println("(" + getDbId(tx) + ") " + "Operations (READ) executed: " +
-                  // j + 1);
-                  // }
                 }
                 end = System.currentTimeMillis();
 
@@ -145,17 +137,12 @@ public class MultipleDBTest extends DocumentDBBaseTest {
                         + "Executed operations (READ) in: "
                         + (end - start)
                         + " ms";
-                // System.out.println(time);
                 times.add(time);
 
                 tx.close();
 
               } finally {
-                // System.out.println("(" + getDbId(tx) + ") " + "Dropping");
-                // System.out.flush();
-                ODatabaseHelper.deleteDatabase(tx, getStorageType());
-                // System.out.println("(" + getDbId(tx) + ") " + "Dropped");
-                // System.out.flush();
+                dropdb(tx.getName());
               }
               return null;
             }
@@ -165,8 +152,6 @@ public class MultipleDBTest extends DocumentDBBaseTest {
     }
 
     for (Future future : threads) future.get();
-
-    // System.out.println("Test testObjectMultipleDBsThreaded ended");
   }
 
   @Test
@@ -182,29 +167,21 @@ public class MultipleDBTest extends DocumentDBBaseTest {
 
     for (int i = 0; i < dbs; i++) {
 
-      final String dbUrl = url + i;
-
+      final String suffix = "" + i;
       Callable<Void> t =
           new Callable<Void>() {
 
             @Override
             public Void call() throws InterruptedException, IOException {
-              ODatabaseDocumentInternal tx = new ODatabaseDocumentTx(dbUrl);
 
-              ODatabaseHelper.deleteDatabase(tx, getStorageType());
-              // System.out.println("Thread " + this + " is creating database " + dbUrl);
-              // System.out.flush();
-              ODatabaseHelper.createDatabase(tx, dbUrl, getStorageType());
+              OURLConnection data = OURLHelper.parse(url);
+              dropdb(data.getDbName() + suffix);
+              createdb(data.getDbName() + suffix);
+              ODatabaseSession tx = openSession(data.getDbName() + suffix, "admin", "admin");
 
               try {
-                // System.out.println("(" + getDbId(tx) + ") " + "Created");
-                // System.out.flush();
 
-                if (tx.isClosed()) {
-                  tx.open("admin", "admin");
-                }
-
-                tx.getMetadata().getSchema().createClass("DummyObject", 1, null);
+                tx.getMetadata().getSchema().createClass("DummyObject", 1);
 
                 long start = System.currentTimeMillis();
                 for (int j = 0; j < operations_write; j++) {
@@ -219,24 +196,16 @@ public class MultipleDBTest extends DocumentDBBaseTest {
                       dummy.getIdentity().getClusterPosition(),
                       j,
                       "RID was " + dummy.getIdentity());
-
-                  // if ((j + 1) % 20000 == 0) {
-                  // System.out.println("(" + getDbId(tx) + ") " + "Operations (WRITE) executed: " +
-                  // (j + 1));
-                  // System.out.flush();
-                  // }
                 }
                 long end = System.currentTimeMillis();
 
                 String time =
                     "("
-                        + getDbId(tx)
+                        + tx.getName()
                         + ") "
                         + "Executed operations (WRITE) in: "
                         + (end - start)
                         + " ms";
-                // System.out.println(time);
-                // System.out.flush();
 
                 times.add(time);
 
@@ -244,33 +213,23 @@ public class MultipleDBTest extends DocumentDBBaseTest {
                 for (int j = 0; j < operations_read; j++) {
                   List<OResult> l = tx.query(" select * from DummyObject ").stream().toList();
                   Assert.assertEquals(l.size(), operations_write);
-
-                  // if ((j + 1) % 20000 == 0) {
-                  // System.out.println("(" + getDbId(tx) + ") " + "Operations (READ) executed: " +
-                  // j + 1);
-                  // System.out.flush();
-                  // }
                 }
                 end = System.currentTimeMillis();
 
                 time =
                     "("
-                        + getDbId(tx)
+                        + tx.getName()
                         + ") "
                         + "Executed operations (READ) in: "
                         + (end - start)
                         + " ms";
-                // System.out.println(time);
-                // System.out.flush();
 
                 times.add(time);
 
               } finally {
                 tx.close();
 
-                // System.out.println("Thread " + this + " is dropping database " + dbUrl);
-                // System.out.flush();
-                ODatabaseHelper.deleteDatabase(tx, getStorageType());
+                dropdb(tx.getName());
               }
               return null;
             }
@@ -280,10 +239,6 @@ public class MultipleDBTest extends DocumentDBBaseTest {
     }
 
     for (Future future : results) future.get();
-
-    // System.out.println("Test testDocumentMultipleDBsThreaded ended");
-    // System.out.flush();
-
   }
 
   private String getDbId(ODatabaseInternal tx) {

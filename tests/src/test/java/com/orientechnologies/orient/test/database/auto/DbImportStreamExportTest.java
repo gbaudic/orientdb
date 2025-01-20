@@ -20,7 +20,6 @@ import com.orientechnologies.common.log.OLogger;
 import com.orientechnologies.orient.core.command.OCommandOutputListener;
 import com.orientechnologies.orient.core.db.ODatabaseDocumentInternal;
 import com.orientechnologies.orient.core.db.ODatabaseSession;
-import com.orientechnologies.orient.core.db.document.ODatabaseDocumentTx;
 import com.orientechnologies.orient.core.db.tool.ODatabaseCompare;
 import com.orientechnologies.orient.core.db.tool.ODatabaseExport;
 import com.orientechnologies.orient.core.db.tool.ODatabaseImport;
@@ -81,8 +80,7 @@ public class DbImportStreamExportTest extends DocumentDBBaseTest implements OCom
     }
 
     final ODatabaseDocumentInternal database =
-        new ODatabaseDocumentTx(getStorageType() + ":" + testPath + "/" + NEW_DB_URL);
-    database.create();
+        (ODatabaseDocumentInternal) this.createdb("test-import");
 
     final ODatabaseImport dbImport =
         new ODatabaseImport(database, new FileInputStream(importDir), this);
@@ -110,8 +108,7 @@ public class DbImportStreamExportTest extends DocumentDBBaseTest implements OCom
     }
     ODatabaseDocumentInternal first = (ODatabaseDocumentInternal) openSession("admin", "admin");
     ODatabaseDocumentInternal second =
-        new ODatabaseDocumentTx(getStorageType() + ":" + testPath + "/" + NEW_DB_URL);
-    second.open("admin", "admin");
+        (ODatabaseDocumentInternal) openSession("test-import", "admin", "admin");
 
     final ODatabaseCompare databaseCompare = new ODatabaseCompare(first, second, this);
     databaseCompare.setCompareEntriesForAutomaticIndexes(true);

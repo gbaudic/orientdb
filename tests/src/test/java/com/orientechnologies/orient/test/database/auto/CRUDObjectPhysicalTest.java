@@ -131,12 +131,7 @@ public class CRUDObjectPhysicalTest extends ObjectDBBaseTest {
     }
   }
 
-  @Test(dependsOnMethods = "create", expectedExceptions = UnsupportedOperationException.class)
-  public void testReleasedPoolDatabase() {
-    database.open("admin", "admin");
-  }
-
-  @Test(dependsOnMethods = "testReleasedPoolDatabase")
+  @Test(dependsOnMethods = "create")
   public void testCreate() {
     Assert.assertEquals(database.countClass("Account") - startRecordNumber, TOT_RECORDS);
   }
