@@ -471,6 +471,7 @@ public interface ODatabase<T> extends OBackupable, Closeable {
    */
   void freeze(boolean throwException);
 
+  @Deprecated
   enum OPERATION_MODE {
     SYNCHRONOUS,
     ASYNCHRONOUS,
@@ -680,6 +681,7 @@ public interface ODatabase<T> extends OBackupable, Closeable {
    * @param iRecordCreatedCallback
    * @param iRecordUpdatedCallback
    */
+  @Deprecated
   <RET extends T> RET save(
       T iObject,
       OPERATION_MODE iMode,
@@ -711,6 +713,7 @@ public interface ODatabase<T> extends OBackupable, Closeable {
    * @param iRecordCreatedCallback
    * @param iRecordUpdatedCallback
    */
+  @Deprecated
   <RET extends T> RET save(
       T iObject,
       String iClusterName,
