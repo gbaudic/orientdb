@@ -24,6 +24,7 @@ import com.orientechnologies.common.util.OCallable;
 import com.orientechnologies.orient.client.remote.OStorageRemote;
 import com.orientechnologies.orient.core.db.ODatabase;
 import com.orientechnologies.orient.core.db.ODatabaseDocumentInternal;
+import com.orientechnologies.orient.core.db.OrientDB;
 import com.orientechnologies.orient.core.db.document.ODatabaseDocumentAbstract;
 import com.orientechnologies.orient.core.db.record.OIdentifiable;
 import com.orientechnologies.orient.core.db.tool.ODatabaseRepair;
@@ -34,7 +35,6 @@ import com.orientechnologies.orient.core.metadata.schema.OSchema;
 import com.orientechnologies.orient.core.metadata.schema.OType;
 import com.orientechnologies.orient.core.record.impl.ODocument;
 import com.orientechnologies.orient.core.sql.executor.OResultSet;
-import com.orientechnologies.orient.stresstest.ODatabaseIdentifier;
 import com.orientechnologies.orient.stresstest.OStressTesterSettings;
 import java.util.Locale;
 
@@ -108,16 +108,15 @@ public class OCRUDWorkload extends OBaseDocumentWorkload implements OCheckWorklo
   }
 
   @Override
-  public void execute(
-      final OStressTesterSettings settings, final ODatabaseIdentifier databaseIdentifier) {
-    createSchema(databaseIdentifier);
+  public void execute(final OStressTesterSettings settings, final OrientDB ctx) {
+    createSchema(settings, ctx);
     connectionStrategy = settings.loadBalancing;
 
     // PREALLOCATE THE LIST TO AVOID CONCURRENCY ISSUES
     final ORID[] records = new ORID[createsResult.total];
 
     executeOperation(
-        databaseIdentifier,
+        ctx,
         createsResult,
         settings,
         context -> {
@@ -135,7 +134,7 @@ public class OCRUDWorkload extends OBaseDocumentWorkload implements OCheckWorklo
               + createsResult.total);
 
     executeOperation(
-        databaseIdentifier,
+        ctx,
         scansResult,
         settings,
         context -> {
@@ -145,7 +144,7 @@ public class OCRUDWorkload extends OBaseDocumentWorkload implements OCheckWorklo
         });
 
     executeOperation(
-        databaseIdentifier,
+        ctx,
         readsResult,
         settings,
         context -> {
@@ -155,7 +154,7 @@ public class OCRUDWorkload extends OBaseDocumentWorkload implements OCheckWorklo
         });
 
     executeOperation(
-        databaseIdentifier,
+        ctx,
         updatesResult,
         settings,
         context -> {
@@ -165,7 +164,7 @@ public class OCRUDWorkload extends OBaseDocumentWorkload implements OCheckWorklo
         });
 
     executeOperation(
-        databaseIdentifier,
+        ctx,
         deletesResult,
         settings,
         context -> {
@@ -176,9 +175,8 @@ public class OCRUDWorkload extends OBaseDocumentWorkload implements OCheckWorklo
         });
   }
 
-  protected void createSchema(ODatabaseIdentifier databaseIdentifier) {
-    final ODatabase database =
-        getDocumentDatabase(databaseIdentifier, OStorageRemote.CONNECTION_STRATEGY.STICKY);
+  protected void createSchema(final OStressTesterSettings settings, final OrientDB ctx) {
+    final ODatabase database = ctx.open(settings.dbName, settings.dbUser, settings.dbPassword);
     try {
       final OSchema schema = database.getMetadata().getSchema();
       if (!schema.existsClass(OCRUDWorkload.CLASS_NAME)) {
@@ -360,10 +358,10 @@ public class OCRUDWorkload extends OBaseDocumentWorkload implements OCheckWorklo
   }
 
   @Override
-  public void check(final ODatabaseIdentifier databaseIdentifier) {
+  public void check(final OStressTesterSettings settings, OrientDB context) {
     final ODatabaseDocumentInternal db =
         (ODatabaseDocumentInternal)
-            getDocumentDatabase(databaseIdentifier, OStorageRemote.CONNECTION_STRATEGY.STICKY);
+            context.open(settings.dbName, settings.dbUser, settings.dbPassword);
     final ODatabaseTool repair = new ODatabaseRepair().setDatabase(db);
     repair.run();
   }

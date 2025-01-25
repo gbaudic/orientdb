@@ -19,7 +19,7 @@
  */
 package com.orientechnologies.orient.stresstest.workload;
 
-import com.orientechnologies.orient.stresstest.ODatabaseIdentifier;
+import com.orientechnologies.orient.core.db.OrientDB;
 import com.orientechnologies.orient.stresstest.OStressTesterSettings;
 
 /**
@@ -32,7 +32,7 @@ public interface OWorkload {
 
   void parseParameters(String params);
 
-  void execute(OStressTesterSettings settings, ODatabaseIdentifier databaseIdentifier);
+  void execute(OStressTesterSettings settings, OrientDB context);
 
   String getPartialResult();
 

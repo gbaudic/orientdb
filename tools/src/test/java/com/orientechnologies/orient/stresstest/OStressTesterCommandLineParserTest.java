@@ -90,28 +90,28 @@ public class OStressTesterCommandLineParserTest {
         OStressTesterCommandLineParser.getStressTester(
             new String[] {"--root-password", "foo", "-m", "plocal"});
     assertEquals("foo", stressTester.getPassword());
-    assertEquals(OStressTester.OMode.PLOCAL, stressTester.getDatabaseIdentifier().getMode());
-    assertNull(stressTester.getDatabaseIdentifier().getPlocalPath());
+    assertEquals(OStressTester.OMode.PLOCAL, stressTester.getSettings().mode);
+    assertNull(stressTester.getSettings().plocalPath);
 
     stressTester =
         OStressTesterCommandLineParser.getStressTester(
             new String[] {"-m", "memory", "--root-password", "foo"});
     assertEquals("foo", stressTester.getPassword());
-    assertEquals(OStressTester.OMode.MEMORY, stressTester.getDatabaseIdentifier().getMode());
+    assertEquals(OStressTester.OMode.MEMORY, stressTester.getSettings().mode);
 
     stressTester =
         OStressTesterCommandLineParser.getStressTester(
             new String[] {"-c", "4", "--root-password", "foo", "-m", "plocal"});
     assertEquals(4, stressTester.getThreadsNumber());
-    assertNull(stressTester.getDatabaseIdentifier().getRemoteIp());
-    assertEquals(2424, stressTester.getDatabaseIdentifier().getRemotePort());
+    assertNull(stressTester.getSettings().remoteIp);
+    assertEquals(2424, stressTester.getSettings().remotePort);
 
     stressTester =
         OStressTesterCommandLineParser.getStressTester(
             new String[] {"-m", "remote", "--remote-ip", "127.0.0.1", "--root-password", "foo"});
     assertEquals("foo", stressTester.getPassword());
-    assertEquals("127.0.0.1", stressTester.getDatabaseIdentifier().getRemoteIp());
-    assertEquals(2424, stressTester.getDatabaseIdentifier().getRemotePort());
+    assertEquals("127.0.0.1", stressTester.getSettings().remoteIp);
+    assertEquals(2424, stressTester.getSettings().remotePort);
 
     stressTester =
         OStressTesterCommandLineParser.getStressTester(
@@ -126,10 +126,10 @@ public class OStressTesterCommandLineParserTest {
               "1025"
             });
     assertEquals("foo", stressTester.getPassword());
-    assertEquals("127.0.0.1", stressTester.getDatabaseIdentifier().getRemoteIp());
-    assertEquals(1025, stressTester.getDatabaseIdentifier().getRemotePort());
+    assertEquals("127.0.0.1", stressTester.getSettings().remoteIp);
+    assertEquals(1025, stressTester.getSettings().remotePort);
 
-    String tmpDir = System.getProperty("java.io.tmpdir");
+    String tmpDir = System.getProperty("java.io.tmpdir") + "/orientdb/";
     if (tmpDir.endsWith(File.separator)) {
       tmpDir = tmpDir.substring(0, tmpDir.length() - File.separator.length());
     }
@@ -140,7 +140,7 @@ public class OStressTesterCommandLineParserTest {
     assertEquals(4, stressTester.getThreadsNumber());
     assertEquals(OStressTester.OMode.PLOCAL, stressTester.getMode());
     assertEquals("foo", stressTester.getPassword());
-    assertEquals(tmpDir, stressTester.getDatabaseIdentifier().getPlocalPath());
+    assertEquals(tmpDir, stressTester.getSettings().plocalPath);
 
     stressTester =
         OStressTesterCommandLineParser.getStressTester(
@@ -160,7 +160,7 @@ public class OStressTesterCommandLineParserTest {
     assertEquals(OStressTester.OMode.PLOCAL, stressTester.getMode());
     assertEquals("foo", stressTester.getPassword());
     assertEquals(12, stressTester.getTransactionsNumber());
-    assertEquals(tmpDir, stressTester.getDatabaseIdentifier().getPlocalPath());
+    assertEquals(tmpDir, stressTester.getSettings().plocalPath);
 
     stressTester =
         OStressTesterCommandLineParser.getStressTester(

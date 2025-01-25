@@ -243,9 +243,7 @@ public class OStressTesterCommandLineParser {
 
     final List<OWorkload> workloads = parseWorkloads(settings.workloadCfg);
 
-    final ODatabaseIdentifier databaseIdentifier = new ODatabaseIdentifier(settings);
-
-    return new OStressTester(workloads, databaseIdentifier, settings);
+    return new OStressTester(workloads, settings);
   }
 
   private static List<OWorkload> parseWorkloads(final String workloadConfig) {

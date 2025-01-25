@@ -18,7 +18,6 @@ package com.orientechnologies.orient.test.database.auto;
 import com.orientechnologies.orient.client.db.ODatabaseHelper;
 import com.orientechnologies.orient.core.Orient;
 import com.orientechnologies.orient.core.db.ODatabase;
-import com.orientechnologies.orient.object.db.OObjectDatabaseTx;
 import java.io.IOException;
 import java.util.Locale;
 import org.testng.Assert;
@@ -63,9 +62,9 @@ public class DbCreationTest extends ObjectDBBaseTest {
   @Test
   public void testDbCreationDefault() throws IOException {
     if (ODatabaseHelper.existsDatabase(url))
-      ODatabaseHelper.dropDatabase(new OObjectDatabaseTx(url), url, getStorageType());
+      ODatabaseHelper.dropDatabase(createDatabaseInstance(url), url, getStorageType());
 
-    ODatabaseHelper.createDatabase(new OObjectDatabaseTx(url), url, getStorageType());
+    ODatabaseHelper.createDatabase(createDatabaseInstance(url), url, getStorageType());
   }
 
   @Test(dependsOnMethods = {"testDbCreationDefault"})

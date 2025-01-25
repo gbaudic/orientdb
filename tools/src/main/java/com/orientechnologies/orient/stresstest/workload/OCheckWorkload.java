@@ -19,7 +19,8 @@
  */
 package com.orientechnologies.orient.stresstest.workload;
 
-import com.orientechnologies.orient.stresstest.ODatabaseIdentifier;
+import com.orientechnologies.orient.core.db.OrientDB;
+import com.orientechnologies.orient.stresstest.OStressTesterSettings;
 
 /**
  * Supports checking of the workload.
@@ -27,5 +28,5 @@ import com.orientechnologies.orient.stresstest.ODatabaseIdentifier;
  * @author Luca Garulli (l.garulli--(at)--orientdb.com)
  */
 public interface OCheckWorkload {
-  void check(ODatabaseIdentifier databaseIdentifier);
+  void check(OStressTesterSettings settings, OrientDB context);
 }

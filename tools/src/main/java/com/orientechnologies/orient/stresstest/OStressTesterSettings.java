@@ -20,6 +20,7 @@
 package com.orientechnologies.orient.stresstest;
 
 import com.orientechnologies.orient.client.remote.OStorageRemote;
+import java.io.File;
 
 /**
  * StressTester settings.
@@ -43,4 +44,27 @@ public class OStressTesterSettings {
   public boolean checkDatabase = false;
   public OStorageRemote.CONNECTION_STRATEGY loadBalancing =
       OStorageRemote.CONNECTION_STRATEGY.ROUND_ROBIN_REQUEST;
+  public String dbUser;
+  public String dbPassword;
+
+  protected String getUrl() {
+    switch (mode) {
+      case MEMORY:
+        return "memory:";
+      case REMOTE:
+        return "remote:" + remoteIp + ":" + remotePort + "/" + dbName;
+      case DISTRIBUTED:
+        return null;
+      case PLOCAL:
+      default:
+        String basePath = System.getProperty("java.io.tmpdir") + "/orientdb/";
+        if (plocalPath != null) {
+          basePath = plocalPath;
+        }
+
+        if (!basePath.endsWith(File.separator)) basePath += File.separator;
+
+        return "embedded:" + basePath;
+    }
+  }
 }

@@ -25,9 +25,9 @@ import com.orientechnologies.common.log.OLogger;
 import com.orientechnologies.common.util.OCallable;
 import com.orientechnologies.common.util.OUncaughtExceptionHandler;
 import com.orientechnologies.orient.client.remote.OStorageRemote;
+import com.orientechnologies.orient.core.db.OrientDB;
 import com.orientechnologies.orient.core.db.document.ODatabaseDocumentAbstract;
 import com.orientechnologies.orient.core.record.impl.ODocument;
-import com.orientechnologies.orient.stresstest.ODatabaseIdentifier;
 import com.orientechnologies.orient.stresstest.OStressTesterSettings;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -49,7 +49,8 @@ public abstract class OBaseWorkload implements OWorkload {
     public int currentIdx;
     public int totalPerThread;
 
-    public abstract void init(ODatabaseIdentifier dbIdentifier, int operationsPerTransaction);
+    public abstract void init(
+        OStressTesterSettings dbIdentifier, OrientDB context, int operationsPerTransaction);
 
     public abstract void close();
   }
@@ -116,10 +117,10 @@ public abstract class OBaseWorkload implements OWorkload {
   protected List<String> errors = new ArrayList<String>();
 
   protected List<OBaseWorkLoadContext> executeOperation(
-      final ODatabaseIdentifier dbIdentifier,
-      final OWorkLoadResult result,
-      final OStressTesterSettings settings,
-      final OCallable<Void, OBaseWorkLoadContext> callback) {
+      OrientDB ctx,
+      OWorkLoadResult result,
+      OStressTesterSettings settings,
+      OCallable<Void, OBaseWorkLoadContext> callback) {
 
     if (result.total == 0) return null;
 
@@ -150,7 +151,7 @@ public abstract class OBaseWorkload implements OWorkload {
                   context.totalPerThread =
                       context.threadId < concurrencyLevel - 1 ? totalPerThread : totalPerLastThread;
 
-                  context.init(dbIdentifier, operationsPerTransaction);
+                  context.init(settings, ctx, operationsPerTransaction);
                   try {
                     final int startIdx = totalPerThread * context.threadId;
 

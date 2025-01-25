@@ -19,10 +19,9 @@
  */
 package com.orientechnologies.orient.stresstest.workload;
 
-import com.orientechnologies.orient.client.remote.OStorageRemote;
 import com.orientechnologies.orient.core.db.ODatabase;
-import com.orientechnologies.orient.stresstest.ODatabaseIdentifier;
-import com.orientechnologies.orient.stresstest.ODatabaseUtils;
+import com.orientechnologies.orient.core.db.OrientDB;
+import com.orientechnologies.orient.stresstest.OStressTesterSettings;
 
 /**
  * CRUD implementation of the workload.
@@ -34,8 +33,9 @@ public abstract class OBaseDocumentWorkload extends OBaseWorkload {
     private ODatabase db;
 
     @Override
-    public void init(final ODatabaseIdentifier dbIdentifier, int operationsPerTransaction) {
-      db = getDocumentDatabase(dbIdentifier, connectionStrategy);
+    public void init(
+        OStressTesterSettings settings, OrientDB context, int operationsPerTransaction) {
+      db = context.open(settings.dbName, settings.dbUser, settings.dbPassword);
     }
 
     @Override
@@ -51,19 +51,6 @@ public abstract class OBaseDocumentWorkload extends OBaseWorkload {
   @Override
   protected OBaseWorkLoadContext getContext() {
     return new OWorkLoadContext();
-  }
-
-  protected ODatabase getDocumentDatabase(
-      final ODatabaseIdentifier databaseIdentifier,
-      final OStorageRemote.CONNECTION_STRATEGY connectionStrategy) {
-    // opens the newly created db and creates an index on the class we're going to use
-    final ODatabase database = ODatabaseUtils.openDatabase(databaseIdentifier, connectionStrategy);
-
-    if (database == null)
-      throw new IllegalArgumentException(
-          "Error on opening database " + databaseIdentifier.getName());
-
-    return database;
   }
 
   @Override

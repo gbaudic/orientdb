@@ -21,9 +21,10 @@ package com.orientechnologies.orient.stresstest;
 
 import com.orientechnologies.common.io.OIOUtils;
 import com.orientechnologies.common.log.OLogManager;
-import com.orientechnologies.orient.client.remote.OStorageRemote;
 import com.orientechnologies.orient.core.OConstants;
 import com.orientechnologies.orient.core.db.ODatabase;
+import com.orientechnologies.orient.core.db.OrientDB;
+import com.orientechnologies.orient.core.db.OrientDBConfig;
 import com.orientechnologies.orient.core.sql.executor.OResult;
 import com.orientechnologies.orient.core.sql.executor.OResultSet;
 import com.orientechnologies.orient.stresstest.workload.OCheckWorkload;
@@ -50,21 +51,25 @@ public class OStressTester {
     DISTRIBUTED
   }
 
-  private final ODatabaseIdentifier databaseIdentifier;
   private OConsoleProgressWriter consoleProgressWriter;
   private final OStressTesterSettings settings;
 
   private static final OWorkloadFactory workloadFactory = new OWorkloadFactory();
   private List<OWorkload> workloads = new ArrayList<OWorkload>();
+  private OrientDB context;
 
-  public OStressTester(
-      final List<OWorkload> workloads,
-      ODatabaseIdentifier databaseIdentifier,
-      final OStressTesterSettings settings)
+  public OStressTester(final List<OWorkload> workloads, final OStressTesterSettings settings)
       throws Exception {
     this.workloads = workloads;
-    this.databaseIdentifier = databaseIdentifier;
+    if (settings.dbUser == null) {
+      settings.dbUser = "admin";
+    }
+    if (settings.dbPassword == null) {
+      settings.dbPassword = "adminPwd";
+    }
+
     this.settings = settings;
+    context = new OrientDB(settings.getUrl(), OrientDBConfig.defaultConfig());
   }
 
   public static void main(String[] args) {
@@ -90,9 +95,33 @@ public class OStressTester {
     // we don't want logs from DB
     OLogManager.instance().setConsoleLevel("SEVERE");
 
+    String mode = "memory";
+    switch (settings.mode) {
+      case MEMORY:
+        mode = "memory";
+        break;
+      case PLOCAL:
+        mode = "plocal";
+        break;
+      case REMOTE:
+        mode = "plocal";
+        break;
+      case DISTRIBUTED:
+        mode = "plocal";
+        break;
+    }
+
     // creates the temporary DB where to execute the test
-    ODatabaseUtils.createDatabase(databaseIdentifier);
-    System.out.println(String.format("Created database [%s].", databaseIdentifier.getUrl()));
+    context
+        .execute(
+            "create database ? " + mode + " users (? identified by ? role admin)",
+            settings.dbName,
+            settings.dbUser,
+            settings.dbPassword)
+        .close();
+
+    System.out.println(
+        String.format("Created database [%s].", settings.getUrl() + settings.dbName));
 
     try {
       for (OWorkload workload : workloads) {
@@ -107,7 +136,7 @@ public class OStressTester {
 
         final long startTime = System.currentTimeMillis();
 
-        workload.execute(settings, databaseIdentifier);
+        workload.execute(settings, context);
 
         final long endTime = System.currentTimeMillis();
 
@@ -123,7 +152,7 @@ public class OStressTester {
 
         if (settings.checkDatabase && workload instanceof OCheckWorkload) {
           System.out.println(String.format("- Checking database..."));
-          ((OCheckWorkload) workload).check(databaseIdentifier);
+          ((OCheckWorkload) workload).check(settings, context);
           System.out.println(String.format("- Check completed"));
         }
       }
@@ -136,13 +165,13 @@ public class OStressTester {
       returnCode = 1;
     } finally {
       // we don't need to drop the in-memory DB
-      if (settings.keepDatabaseAfterTest || databaseIdentifier.getMode() == OMode.MEMORY)
+      if (settings.keepDatabaseAfterTest || settings.mode == OMode.MEMORY)
         consoleProgressWriter.printMessage(
-            String.format("\nDatabase is available on [%s].", databaseIdentifier.getUrl()));
+            String.format("\nDatabase is available on [%s].", settings.getUrl() + settings.dbName));
       else {
-        ODatabaseUtils.dropDatabase(databaseIdentifier);
+        context.drop(settings.dbName);
         consoleProgressWriter.printMessage(
-            String.format("\nDropped database [%s].", databaseIdentifier.getUrl()));
+            String.format("\nDropped database [%s].", settings.getUrl() + settings.dbName));
       }
     }
 
@@ -151,9 +180,7 @@ public class OStressTester {
 
   private void dumpHaMetrics() {
     if (settings.haMetrics) {
-      final ODatabase db =
-          ODatabaseUtils.openDatabase(
-              databaseIdentifier, OStorageRemote.CONNECTION_STRATEGY.STICKY);
+      final ODatabase db = context.open(settings.dbName, "admin", "adminpwd");
       try {
         try (OResultSet output = db.command("ha status -latency -messages -output=text")) {
           System.out.println("HA METRICS");
@@ -194,15 +221,11 @@ public class OStressTester {
   }
 
   public OMode getMode() {
-    return databaseIdentifier.getMode();
-  }
-
-  public ODatabaseIdentifier getDatabaseIdentifier() {
-    return databaseIdentifier;
+    return settings.mode;
   }
 
   public String getPassword() {
-    return databaseIdentifier.getPassword();
+    return settings.rootPassword;
   }
 
   public int getTransactionsNumber() {
@@ -211,5 +234,9 @@ public class OStressTester {
 
   public static OWorkloadFactory getWorkloadFactory() {
     return workloadFactory;
+  }
+
+  public OStressTesterSettings getSettings() {
+    return settings;
   }
 }
