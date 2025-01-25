@@ -57,7 +57,8 @@ public class ObjectDBBaseTest extends BaseTest<ODatabaseObject> {
 
   protected void dropAndCreateDatabase(String suffix) throws IOException {
     ODatabaseObject database = new OObjectDatabaseTx(url + suffix);
-    ODatabaseHelper.dropDatabase(database, getStorageType());
+    if (ODatabaseHelper.existsDatabase(url + suffix))
+      ODatabaseHelper.dropDatabase(database, getStorageType());
     ODatabaseHelper.createDatabase(database, url + suffix, getStorageType());
   }
 

@@ -15,7 +15,6 @@
  */
 package com.orientechnologies.orient.test.database.auto;
 
-import com.orientechnologies.orient.client.db.ODatabaseHelper;
 import com.orientechnologies.orient.client.remote.ODatabaseImportRemote;
 import com.orientechnologies.orient.client.remote.OEngineRemote;
 import com.orientechnologies.orient.core.command.OCommandOutputListener;
@@ -74,9 +73,9 @@ public class CRUDObjectInheritanceTestSchemaFull extends ObjectDBBaseTest {
 
     database.close();
 
-    database = createDatabaseInstance(url + "_objectschema");
-    ODatabaseHelper.dropDatabase(database, getStorageType());
-    ODatabaseHelper.createDatabase(database, url + "_objectschema", getStorageType());
+    dropAndCreateDatabase("_objectschema");
+    database = session("_objectschema", "admin", "admin");
+    database.close();
 
     try {
       ODatabaseDocumentInternal exportDatabase =
