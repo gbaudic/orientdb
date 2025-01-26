@@ -19,7 +19,9 @@ import com.orientechnologies.orient.core.db.object.ODatabaseObject;
 import com.orientechnologies.orient.core.hook.ORecordHookAbstract;
 import com.orientechnologies.orient.core.record.ORecord;
 import com.orientechnologies.orient.core.record.impl.ODocument;
-import com.orientechnologies.orient.object.db.OObjectDatabaseTx;
+import com.orientechnologies.orient.core.util.OURLConnection;
+import com.orientechnologies.orient.core.util.OURLHelper;
+import com.orientechnologies.orient.object.db.OrientDBObject;
 import com.orientechnologies.orient.test.domain.whiz.Profile;
 import java.io.IOException;
 import java.util.List;
@@ -41,23 +43,32 @@ public class HookTxTest extends ORecordHookAbstract {
   public static final int RECORD_BEFORE_DELETE = 19;
   public static final int RECORD_AFTER_DELETE = 23;
 
+  private OrientDBObject context;
   private ODatabaseObject database;
   private int callbackCount = 0;
   private Profile p;
   private int expectedHookState;
   private String url;
+  private OURLConnection data;
 
   @Parameters(value = "url")
   public HookTxTest(@Optional String url) {
     this.url = BaseTest.prepareUrl(url);
+    data = OURLHelper.parse(this.url);
+
+    context = new OrientDBObject(BaseTest.getContext(data.getType() + ":" + data.getPath()));
   }
 
   @BeforeClass
   public void beforeClass() {
-    database = new OObjectDatabaseTx(url);
-    if (!url.startsWith("remote:") && !database.exists()) {
-      database.create();
-      database.close();
+    if (!url.startsWith("remote:") && !context.exists(data.getDbName())) {
+      String dbType = data.getDbType().map((x) -> x.toString()).orElse("plocal");
+      context.execute(
+          "create database ? "
+              + dbType
+              + " users (admin identified by 'admin' role admin, writer identified by 'writer' role"
+              + " writer ,reader identified by 'reader' role reader)",
+          data.getDbName());
     }
   }
 
@@ -68,7 +79,7 @@ public class HookTxTest extends ORecordHookAbstract {
 
   @Test
   public void testRegisterHook() throws IOException {
-    database.open("admin", "admin");
+    database = context.open(data.getDbName(), "admin", "admin");
     database.registerHook(this);
     database
         .getEntityManager()

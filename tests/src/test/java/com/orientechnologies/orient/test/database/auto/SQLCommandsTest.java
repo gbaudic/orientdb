@@ -132,13 +132,13 @@ public class SQLCommandsTest extends DocumentDBBaseTest {
           new File(
               storagePath,
               wowCache.nativeFileNameById(
-                  wowCache.fileIdByName("testClusterRename42" + OPaginatedCluster.DEF_EXTENSION)));
+                  wowCache.fileIdByName("testclusterrename42" + OPaginatedCluster.DEF_EXTENSION)));
       File mapFile =
           new File(
               storagePath,
               wowCache.nativeFileNameById(
                   wowCache.fileIdByName(
-                      "testClusterRename42" + OClusterPositionMap.DEF_EXTENSION)));
+                      "testclusterrename42" + OClusterPositionMap.DEF_EXTENSION)));
 
       Assert.assertTrue(dataFile.exists());
       Assert.assertTrue(mapFile.exists());

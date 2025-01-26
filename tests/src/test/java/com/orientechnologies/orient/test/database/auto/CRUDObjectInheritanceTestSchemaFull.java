@@ -64,22 +64,24 @@ public class CRUDObjectInheritanceTestSchemaFull extends ObjectDBBaseTest {
 
   @Parameters(value = "url")
   public CRUDObjectInheritanceTestSchemaFull(@Optional String url) {
-    super(url);
+    super(url, "_objectschema");
   }
 
   @BeforeClass
   public void beforeClass() throws Exception {
     super.beforeClass();
 
-    database.close();
+    if (database != null) {
+      database.close();
+    }
 
-    dropAndCreateDatabase("_objectschema");
-    database = session("_objectschema", "admin", "admin");
+    dropAndCreateDatabase(data.getDbName());
+    database = session(data.getDbName(), "admin", "admin");
     database.close();
 
     try {
       ODatabaseDocumentInternal exportDatabase =
-          (ODatabaseDocumentInternal) rawSession("admin", "admin");
+          (ODatabaseDocumentInternal) rawSession("demo", "admin", "admin");
 
       OCommandOutputListener listener =
           new OCommandOutputListener() {
@@ -101,7 +103,7 @@ public class CRUDObjectInheritanceTestSchemaFull extends ObjectDBBaseTest {
         password = "admin";
       }
       ODatabaseDocumentInternal importDatabase =
-          (ODatabaseDocumentInternal) rawSession("_objectschema", user, password);
+          (ODatabaseDocumentInternal) rawSession(data.getDbName(), user, password);
       if (importDatabase.isRemote()) {
         ODatabaseImportRemote impor =
             new ODatabaseImportRemote(importDatabase, EXPORT_DIR, listener);

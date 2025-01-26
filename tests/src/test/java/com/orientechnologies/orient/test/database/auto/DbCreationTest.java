@@ -60,7 +60,7 @@ public class DbCreationTest extends ObjectDBBaseTest {
 
   @Test
   public void testDbCreationDefault() throws IOException {
-    dropAndCreateDatabase("");
+    dropAndCreateDatabase(data.getDbName());
   }
 
   @Test(dependsOnMethods = {"testDbCreationDefault"})

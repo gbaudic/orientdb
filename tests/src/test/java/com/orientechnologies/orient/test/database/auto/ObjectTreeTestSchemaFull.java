@@ -182,6 +182,7 @@ public class ObjectTreeTestSchemaFull extends ObjectDBBaseTest {
 
   @BeforeClass
   public void init() {
+    reopenpool("admin", "admin");
     database
         .getEntityManager()
         .registerEntityClasses("com.orientechnologies.orient.test.domain.business");

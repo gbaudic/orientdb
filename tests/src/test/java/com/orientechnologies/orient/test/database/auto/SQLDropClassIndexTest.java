@@ -17,7 +17,6 @@ package com.orientechnologies.orient.test.database.auto;
 
 import com.orientechnologies.orient.core.db.ODatabaseDocumentInternal;
 import com.orientechnologies.orient.core.db.OrientDB;
-import com.orientechnologies.orient.core.db.OrientDBConfig;
 import com.orientechnologies.orient.core.metadata.schema.OClass;
 import com.orientechnologies.orient.core.metadata.schema.OSchema;
 import com.orientechnologies.orient.core.metadata.schema.OType;
@@ -48,17 +47,13 @@ public class SQLDropClassIndexTest {
   @BeforeClass
   public void beforeClass() {
     OURLConnection urlData = OURLHelper.parse(url);
-    ctx =
-        new OrientDB(
-            urlData.getType() + ":" + urlData.getPath(),
-            "root",
-            "root",
-            OrientDBConfig.defaultConfig());
+    ctx = BaseTest.getContext(urlData.getType() + ":" + urlData.getPath());
     if (!ctx.exists(urlData.getDbName())) {
       ctx.execute(
               "create database "
                   + urlData.getDbName()
-                  + " plocal users(admin identified by 'admin' role admin)")
+                  + " plocal users(admin identified by 'admin' role admin, writer identified by"
+                  + " 'writer' role writer, reader identified by 'reader' role reader)")
           .close();
     }
     database = (ODatabaseDocumentInternal) ctx.open(urlData.getDbName(), "admin", "admin");

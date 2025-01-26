@@ -1,10 +1,7 @@
 package com.orientechnologies.orient.test.database.auto;
 
-import com.orientechnologies.orient.client.db.ODatabaseHelper;
 import com.orientechnologies.orient.core.db.ODatabaseDocumentInternal;
 import com.orientechnologies.orient.core.db.ODatabaseSession;
-import com.orientechnologies.orient.core.db.document.ODatabaseDocument;
-import com.orientechnologies.orient.core.db.document.ODatabaseDocumentTx;
 import java.io.IOException;
 import org.testng.annotations.Optional;
 import org.testng.annotations.Parameters;
@@ -28,63 +25,38 @@ public abstract class DocumentDBBaseTest extends BaseTest<ODatabaseDocumentInter
     super(url, prefix);
   }
 
-  protected ODatabaseDocumentInternal createDatabaseInstance(String url) {
-    return new ODatabaseDocumentTx(url);
-  }
-
   protected void reopendb(String user, String password) {
-    if (!database.isClosed() && !database.isActiveOnCurrentThread()) {
-      database = new ODatabaseDocumentTx(this.url);
-    }
-    database = (ODatabaseDocumentInternal) database.open(user, password);
+    database = (ODatabaseDocumentInternal) baseContext.open(data.getDbName(), user, password);
   }
 
   protected ODatabaseSession openSession(String user, String password) {
-    ODatabaseSession session = new ODatabaseDocumentTx(this.url);
-    session.open(user, password);
-    return session;
+    return baseContext.open(data.getDbName(), user, password);
   }
 
   protected ODatabaseSession openSession(String database, String user, String password) {
-    ODatabaseSession session =
-        new ODatabaseDocumentTx(getStorageType() + ":" + "./target/" + database);
-    session.open(user, password);
-    return session;
+    return baseContext.open(database, user, password);
+  }
+
+  @Override
+  protected ODatabaseDocumentInternal session(String database, String user, String password) {
+    return (ODatabaseDocumentInternal) baseContext.open(database, user, password);
   }
 
   protected void dropdb() {
-    try {
-      ODatabaseHelper.deleteDatabase(database, getStorageType());
-    } catch (Exception e) {
-      throw new RuntimeException(e);
-    }
+    baseContext.drop(data.getDbName());
   }
 
   protected void dropdb(String name) {
-    final ODatabaseSession db =
-        new ODatabaseDocumentTx(getStorageType() + ":" + "./target/" + name);
-    try {
-      ODatabaseHelper.dropDatabase(db, getStorageType());
-    } catch (Exception e) {
-      throw new RuntimeException(e);
-    }
+    baseContext.drop(name);
   }
 
   protected ODatabaseSession createdb(String database) throws IOException {
-    final ODatabaseSession db =
-        new ODatabaseDocumentTx(getStorageType() + ":" + "./target/" + database);
-    db.create();
-    return db;
-  }
-
-  protected void dropAndCreateDatabase(String suffix) throws IOException {
-    ODatabaseDocument database = new ODatabaseDocumentTx(url + suffix);
-    ODatabaseHelper.dropDatabase(database, getStorageType());
-    ODatabaseHelper.createDatabase(database, url + suffix, getStorageType());
+    createBaseDb(database);
+    return openSession(database, "admin", "admin");
   }
 
   protected boolean existsdb() {
-    return database.exists();
+    return baseContext.exists(data.getDbName());
   }
 
   protected static String getTestEnv() {

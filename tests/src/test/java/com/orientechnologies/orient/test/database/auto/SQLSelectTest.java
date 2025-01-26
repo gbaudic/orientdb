@@ -52,7 +52,6 @@ import org.testng.annotations.Test;
  * because the order of clusters could be affected due to adding or removing cluster from storage.
  */
 @Test(groups = "sql-select")
-@SuppressWarnings("unchecked")
 public class SQLSelectTest extends AbstractSelectTest {
   private ODocument record = new ODocument();
 

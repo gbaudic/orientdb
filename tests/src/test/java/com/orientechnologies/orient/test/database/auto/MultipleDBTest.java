@@ -48,7 +48,7 @@ public class MultipleDBTest extends DocumentDBBaseTest {
 
   @Parameters(value = "url")
   public MultipleDBTest(@Optional String url) {
-    super(url, "-");
+    super(url);
   }
 
   @BeforeClass
@@ -80,7 +80,7 @@ public class MultipleDBTest extends DocumentDBBaseTest {
 
     for (int i = 0; i < dbs; i++) {
 
-      final String suffix = "" + i;
+      final String suffix = "-" + i;
 
       Callable<Void> t =
           new Callable<Void>() {
@@ -89,12 +89,12 @@ public class MultipleDBTest extends DocumentDBBaseTest {
             public Void call() throws InterruptedException, IOException {
 
               OURLConnection data = OURLHelper.parse(url);
-              dropdb(data.getDbName() + suffix);
-              createdb(data.getDbName() + suffix);
+              String dbName = data.getDbName() + suffix;
+              if (baseContext.exists(dbName)) {
+                dropdb(dbName);
+              }
               OObjectDatabaseTx tx =
-                  new OObjectDatabaseTx(
-                      (ODatabaseDocumentInternal)
-                          openSession(data.getDbName() + suffix, "admin", "admin"));
+                  new OObjectDatabaseTx((ODatabaseDocumentInternal) createdb(dbName));
 
               try {
 
@@ -142,7 +142,7 @@ public class MultipleDBTest extends DocumentDBBaseTest {
                 tx.close();
 
               } finally {
-                dropdb(tx.getName());
+                dropdb(dbName);
               }
               return null;
             }
@@ -175,9 +175,11 @@ public class MultipleDBTest extends DocumentDBBaseTest {
             public Void call() throws InterruptedException, IOException {
 
               OURLConnection data = OURLHelper.parse(url);
-              dropdb(data.getDbName() + suffix);
-              createdb(data.getDbName() + suffix);
-              ODatabaseSession tx = openSession(data.getDbName() + suffix, "admin", "admin");
+              String dbName = data.getDbName() + suffix;
+              if (baseContext.exists(dbName)) {
+                dropdb(dbName);
+              }
+              ODatabaseSession tx = createdb(dbName);
 
               try {
 
@@ -201,7 +203,7 @@ public class MultipleDBTest extends DocumentDBBaseTest {
 
                 String time =
                     "("
-                        + tx.getName()
+                        + dbName
                         + ") "
                         + "Executed operations (WRITE) in: "
                         + (end - start)
@@ -217,19 +219,14 @@ public class MultipleDBTest extends DocumentDBBaseTest {
                 end = System.currentTimeMillis();
 
                 time =
-                    "("
-                        + tx.getName()
-                        + ") "
-                        + "Executed operations (READ) in: "
-                        + (end - start)
-                        + " ms";
+                    "(" + dbName + ") " + "Executed operations (READ) in: " + (end - start) + " ms";
 
                 times.add(time);
 
               } finally {
                 tx.close();
 
-                dropdb(tx.getName());
+                dropdb(dbName);
               }
               return null;
             }
