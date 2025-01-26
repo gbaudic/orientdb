@@ -177,7 +177,6 @@ public class ObjectTreeTestSchemaFull extends ObjectDBBaseTest {
   public void afterClass() throws Exception {
     database.close();
 
-    database = createDatabaseInstance(url);
     super.afterClass();
   }
 

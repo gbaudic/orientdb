@@ -2008,6 +2008,7 @@ public class IndexTest extends ObjectDBBaseTest {
 
     database.close();
     reopendb("admin", "admin");
+    database = (ODatabaseDocumentInternal) this.database.getUnderlying();
 
     document = database.load(rid);
 
@@ -2030,6 +2031,7 @@ public class IndexTest extends ObjectDBBaseTest {
 
     database.close();
     reopendb("admin", "admin");
+    database = (ODatabaseDocumentInternal) this.database.getUnderlying();
 
     document = database.load(rid);
 
@@ -2048,6 +2050,7 @@ public class IndexTest extends ObjectDBBaseTest {
 
     database.close();
     reopendb("admin", "admin");
+    database = (ODatabaseDocumentInternal) this.database.getUnderlying();
 
     document = database.load(rid);
     users = document.field("users");
@@ -2071,6 +2074,7 @@ public class IndexTest extends ObjectDBBaseTest {
     database.close();
 
     reopendb("admin", "admin");
+    database = (ODatabaseDocumentInternal) this.database.getUnderlying();
 
     users = document.field("users");
     users.add(rid4);
@@ -2096,6 +2100,7 @@ public class IndexTest extends ObjectDBBaseTest {
 
     database.close();
     reopendb("admin", "admin");
+    database = (ODatabaseDocumentInternal) this.database.getUnderlying();
 
     document.removeField("users");
     database.save(document);

@@ -350,7 +350,6 @@ public class CRUDDocumentPhysicalTest extends DocumentDBBaseTest {
     }
   }
 
-  @SuppressWarnings("unchecked")
   @Test
   public void testNestedEmbeddedMap() {
     ODocument newDoc = new ODocument();
