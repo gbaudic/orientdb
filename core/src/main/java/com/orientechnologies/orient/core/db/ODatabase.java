@@ -1064,7 +1064,7 @@ public interface ODatabase<T> extends OBackupable, Closeable {
    *
    * @param nRetries the maximum number of retries (> 0)
    * @param function a lambda containing application code to execute in a commit/retry loop
-   * @param <T> the return type of the lambda
+   * @param <RET> the return type of the lambda
    * @return The result of the execution of the lambda
    * @throws IllegalStateException if there are operations in the current transaction
    * @throws ONeedRetryException if the maximum number of retries is executed and all failed with an
@@ -1073,7 +1073,7 @@ public interface ODatabase<T> extends OBackupable, Closeable {
    * @throws UnsupportedOperationException if this type of database does not support automatic
    *     commit/retry
    */
-  default <T> T executeWithRetry(int nRetries, Function<ODatabaseSession, T> function)
+  default <RET> RET executeWithRetry(int nRetries, Function<ODatabaseSession, RET> function)
       throws IllegalStateException,
           IllegalArgumentException,
           ONeedRetryException,
@@ -1094,7 +1094,7 @@ public interface ODatabase<T> extends OBackupable, Closeable {
       begin();
     }
 
-    T result = null;
+    RET result = null;
 
     for (int i = 0; i < nRetries; i++) {
       try {
