@@ -12,7 +12,6 @@ public abstract class AbstractExecutionStep implements OExecutionStepInternal {
 
   protected final OCommandContext ctx;
   protected Optional<OExecutionStepInternal> prev = Optional.empty();
-  protected Optional<OExecutionStepInternal> next = Optional.empty();
   protected boolean profilingEnabled = false;
 
   public AbstractExecutionStep(OCommandContext ctx, boolean profilingEnabled) {
@@ -25,21 +24,12 @@ public abstract class AbstractExecutionStep implements OExecutionStepInternal {
     this.prev = Optional.ofNullable(step);
   }
 
-  @Override
-  public void setNext(OExecutionStepInternal step) {
-    this.next = Optional.ofNullable(step);
-  }
-
   public OCommandContext getContext() {
     return ctx;
   }
 
   public Optional<OExecutionStepInternal> getPrev() {
     return prev;
-  }
-
-  public Optional<OExecutionStepInternal> getNext() {
-    return next;
   }
 
   @Override

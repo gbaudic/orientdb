@@ -74,7 +74,6 @@ public class OScriptExecutionPlan implements OInternalExecutionPlan {
     OExecutionStepInternal lastStep = steps.size() == 0 ? null : steps.get(steps.size() - 1);
     ScriptLineStep nextStep = new ScriptLineStep(nextStm, ctx, profilingEnabled);
     if (lastStep != null) {
-      lastStep.setNext(nextStep);
       nextStep.setPrevious(lastStep);
     }
     steps.add(nextStep);
@@ -92,9 +91,6 @@ public class OScriptExecutionPlan implements OInternalExecutionPlan {
           }
 
           public void setPrevious(OExecutionStepInternal step) {}
-
-          @Override
-          public void setNext(OExecutionStepInternal step) {}
 
           @Override
           public void sendTimeout() {}

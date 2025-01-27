@@ -38,8 +38,6 @@ public interface OExecutionStepInternal extends OExecutionStep {
 
   void setPrevious(OExecutionStepInternal step);
 
-  void setNext(OExecutionStepInternal step);
-
   void close();
 
   static String getIndent(int depth, int indent) {

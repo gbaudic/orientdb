@@ -52,7 +52,6 @@ public class OSelectExecutionPlan implements OInternalExecutionPlan {
 
   public void chain(OExecutionStepInternal nextStep) {
     if (lastStep != null) {
-      lastStep.setNext(nextStep);
       nextStep.setPrevious(lastStep);
     }
     lastStep = nextStep;
@@ -134,9 +133,6 @@ public class OSelectExecutionPlan implements OInternalExecutionPlan {
       OExecutionStepInternal newStep =
           (OExecutionStepInternal) ((OExecutionStepInternal) step).copy(ctx);
       newStep.setPrevious((OExecutionStepInternal) lastStep);
-      if (lastStep != null) {
-        ((OExecutionStepInternal) lastStep).setNext(newStep);
-      }
       lastStep = newStep;
       copy.getSteps().add(newStep);
     }
