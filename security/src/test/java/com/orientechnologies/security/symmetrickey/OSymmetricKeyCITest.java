@@ -99,7 +99,7 @@ public class OSymmetricKeyCITest extends AbstractSecurityTest {
       final String password = "{'key':'AAC7LeGkFbmHEYNTz5GwDw=='}";
 
       OrientDB serverAd =
-          new OrientDB("remote:localhost", "test", password, OrientDBConfig.defaultConfig());
+          new OrientDB("remote:localhost", "root", password, OrientDBConfig.defaultConfig());
       serverAd.list();
       serverAd.close();
     } finally {
@@ -121,7 +121,7 @@ public class OSymmetricKeyCITest extends AbstractSecurityTest {
 
       // The key file is specified for username "test2" in the security.json file.
       OrientDB serverAd =
-          new OrientDB("remote:localhost", "test", password, OrientDBConfig.defaultConfig());
+          new OrientDB("remote:localhost", "test2", password, OrientDBConfig.defaultConfig());
       serverAd.list();
       serverAd.close();
     } finally {
@@ -147,7 +147,7 @@ public class OSymmetricKeyCITest extends AbstractSecurityTest {
 
       // The keystore is specified for username "test3" in the security.json file.
       OrientDB serverAd =
-          new OrientDB("remote:localhost", "test", password, OrientDBConfig.defaultConfig());
+          new OrientDB("remote:localhost", "test3", password, OrientDBConfig.defaultConfig());
       serverAd.list();
       serverAd.close();
     } finally {
