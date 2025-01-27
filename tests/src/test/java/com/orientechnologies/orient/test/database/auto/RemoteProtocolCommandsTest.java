@@ -34,7 +34,7 @@ public class RemoteProtocolCommandsTest extends DocumentDBBaseTest {
     baseContext.execute("create database ? plocal", plocalDatabaseName);
 
     final String memoryDatabaseName = "memoryTestListDatabasesMemoryDB" + random.nextInt();
-    baseContext.execute("create database ? plocal", plocalDatabaseName);
+    baseContext.execute("create database ? plocal", memoryDatabaseName);
 
     List<String> list = baseContext.list();
 
