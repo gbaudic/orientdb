@@ -17,22 +17,21 @@ package com.orientechnologies.orient.test.database.speed;
 
 import com.orientechnologies.common.test.SpeedTestMultiThreads;
 import com.orientechnologies.orient.core.db.ODatabase;
-import com.orientechnologies.orient.core.db.ODatabaseDocumentInternal;
-import com.orientechnologies.orient.core.db.document.ODatabaseDocumentTx;
+import com.orientechnologies.orient.core.db.ODatabaseSession;
+import com.orientechnologies.orient.core.db.document.ODatabaseDocument;
 import com.orientechnologies.orient.core.record.impl.ODocument;
-import com.orientechnologies.orient.core.serialization.serializer.record.binary.ORecordSerializerBinary;
 import com.orientechnologies.orient.core.tx.OTransaction.TXTYPE;
-import com.orientechnologies.orient.test.database.base.OrientMultiThreadTest;
+import com.orientechnologies.orient.test.database.base.OrientMultiThreadDBTest;
 import com.orientechnologies.orient.test.database.base.OrientThreadTest;
 import java.util.Date;
 import org.junit.Assert;
 
-public class LocalCreateDocumentMultiThreadSpeedTest extends OrientMultiThreadTest {
-  private ODatabaseDocumentInternal mainDatabase;
+public class LocalCreateDocumentMultiThreadSpeedTest extends OrientMultiThreadDBTest {
+  private ODatabaseSession mainDatabase;
   private long foundObjects;
 
   public static class CreateObjectsThread extends OrientThreadTest {
-    private ODatabaseDocumentInternal database;
+    private ODatabaseDocument database;
     private ODocument record;
     private Date date = new Date();
 
@@ -42,8 +41,7 @@ public class LocalCreateDocumentMultiThreadSpeedTest extends OrientMultiThreadTe
 
     @Override
     public void init() {
-      database = new ODatabaseDocumentTx(System.getProperty("url")).open("admin", "admin");
-      database.setSerializer(new ORecordSerializerBinary());
+      database = ((OrientMultiThreadDBTest) owner).openDB();
 
       record = database.newInstance();
       database.begin(TXTYPE.NOTX);
@@ -82,16 +80,10 @@ public class LocalCreateDocumentMultiThreadSpeedTest extends OrientMultiThreadTe
   }
 
   @Override
-  public void init() {
-    mainDatabase = new ODatabaseDocumentTx(System.getProperty("url"));
-    mainDatabase.setSerializer(new ORecordSerializerBinary());
-    if (mainDatabase.exists()) {
-      mainDatabase.open("admin", "admin");
-      // else
-      mainDatabase.drop();
-    }
-
-    mainDatabase.create();
+  public void init() throws Exception {
+    super.init();
+    dropAndCreate();
+    mainDatabase = openDB();
     mainDatabase.set(ODatabase.ATTRIBUTES.MINIMUMCLUSTERS, 8);
     mainDatabase.getMetadata().getSchema().createClass("Account");
 
@@ -101,9 +93,10 @@ public class LocalCreateDocumentMultiThreadSpeedTest extends OrientMultiThreadTe
   }
 
   @Override
-  public void deinit() {
+  public void deinit() throws Exception {
     Assert.assertEquals(mainDatabase.countClass("Account"), 1000000 + foundObjects);
 
     if (mainDatabase != null) mainDatabase.close();
+    super.deinit();
   }
 }

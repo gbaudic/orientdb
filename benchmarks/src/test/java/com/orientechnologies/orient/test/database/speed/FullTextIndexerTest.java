@@ -1,19 +1,26 @@
 package com.orientechnologies.orient.test.database.speed;
 
 import com.orientechnologies.orient.core.Orient;
+import com.orientechnologies.orient.core.db.OrientDB;
+import com.orientechnologies.orient.core.db.OrientDBConfig;
 import com.orientechnologies.orient.core.db.document.ODatabaseDocument;
-import com.orientechnologies.orient.core.db.document.ODatabaseDocumentTx;
 import com.orientechnologies.orient.core.record.impl.ODocument;
 import com.orientechnologies.orient.core.tx.OTransaction.TXTYPE;
+import com.orientechnologies.orient.core.util.OURLConnection;
+import com.orientechnologies.orient.core.util.OURLHelper;
 
 public class FullTextIndexerTest {
   private static final int DOCUMENTS = 1000;
 
   public static void main(String[] iArgs) throws InstantiationException, IllegalAccessException {
     Orient.instance().getProfiler().startRecording();
+    String url = System.getProperty("url");
+    OURLConnection conn = OURLHelper.parse(url);
+    OrientDB context =
+        new OrientDB(
+            conn.getType() + ":" + conn.getPath(), "root", "root", OrientDBConfig.defaultConfig());
 
-    final ODatabaseDocument database =
-        new ODatabaseDocumentTx(System.getProperty("url")).open("admin", "admin");
+    final ODatabaseDocument database = context.open(conn.getDbName(), "admin", "admin");
 
     database.begin(TXTYPE.NOTX);
 
@@ -76,5 +83,6 @@ public class FullTextIndexerTest {
         "\nIndexed " + DOCUMENTS + " documents in " + ((lap - time) / 1000f) + " sec.");
 
     database.close();
+    context.close();
   }
 }

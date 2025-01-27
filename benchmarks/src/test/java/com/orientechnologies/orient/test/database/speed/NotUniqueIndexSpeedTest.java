@@ -1,11 +1,9 @@
 package com.orientechnologies.orient.test.database.speed;
 
-import com.orientechnologies.orient.core.db.document.ODatabaseDocument;
-import com.orientechnologies.orient.core.db.document.ODatabaseDocumentTx;
 import com.orientechnologies.orient.core.metadata.schema.OClass;
 import com.orientechnologies.orient.core.metadata.schema.OSchema;
 import com.orientechnologies.orient.core.metadata.schema.OType;
-import com.orientechnologies.orient.test.database.base.OrientMonoThreadTest;
+import com.orientechnologies.orient.test.database.base.OrientMonoThreadDBTest;
 import java.util.Date;
 import org.junit.Ignore;
 
@@ -14,8 +12,7 @@ import org.junit.Ignore;
  * @since 10/16/13
  */
 @Ignore
-public class NotUniqueIndexSpeedTest extends OrientMonoThreadTest {
-  private ODatabaseDocument database;
+public class NotUniqueIndexSpeedTest extends OrientMonoThreadDBTest {
   private int counter;
   private Date date;
 
@@ -25,16 +22,10 @@ public class NotUniqueIndexSpeedTest extends OrientMonoThreadTest {
   }
 
   @Override
-  public void init() throws Exception {
+  public void init() {
     super.init();
 
-    database = new ODatabaseDocumentTx("plocal:notUniqueIndexSpeedTest");
-    if (database.exists()) {
-      database.open("admin", "admin");
-      database.drop();
-    }
-
-    database.create();
+    dropAndCreate();
 
     OSchema schema = database.getMetadata().getSchema();
     OClass testClass = schema.createClass("test");

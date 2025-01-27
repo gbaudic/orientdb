@@ -10,7 +10,7 @@ import com.orientechnologies.orient.core.metadata.schema.OClass;
 import com.orientechnologies.orient.core.metadata.schema.OProperty;
 import com.orientechnologies.orient.core.metadata.schema.OType;
 import com.orientechnologies.orient.core.record.OVertex;
-import com.orientechnologies.orient.test.database.base.OrientMultiThreadTest;
+import com.orientechnologies.orient.test.database.base.OrientMultiThreadDBTest;
 import com.orientechnologies.orient.test.database.base.OrientThreadTest;
 import java.util.concurrent.atomic.AtomicLong;
 import org.junit.Assert;
@@ -29,7 +29,7 @@ import org.junit.Assert;
  * governing permissions and limitations under the License.
  */
 
-public class SuperNodeInsertSpeedTest extends OrientMultiThreadTest {
+public class SuperNodeInsertSpeedTest extends OrientMultiThreadDBTest {
   protected static final String URL = "plocal:target/databases/graphspeedtest";
   protected static final OrientDB factory =
       new OrientDB("embedded:target/databases/", OrientDBConfig.defaultConfig());

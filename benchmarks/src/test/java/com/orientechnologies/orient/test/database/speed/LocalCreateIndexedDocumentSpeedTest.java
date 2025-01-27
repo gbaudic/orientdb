@@ -16,17 +16,14 @@
 package com.orientechnologies.orient.test.database.speed;
 
 import com.orientechnologies.orient.core.Orient;
-import com.orientechnologies.orient.core.db.document.ODatabaseDocument;
-import com.orientechnologies.orient.core.db.document.ODatabaseDocumentTx;
 import com.orientechnologies.orient.core.metadata.schema.OClass;
 import com.orientechnologies.orient.core.record.impl.ODocument;
 import com.orientechnologies.orient.core.tx.OTransaction.TXTYPE;
-import com.orientechnologies.orient.test.database.base.OrientMonoThreadTest;
+import com.orientechnologies.orient.test.database.base.OrientMonoThreadDBTest;
 import org.junit.Ignore;
 
 @Ignore
-public class LocalCreateIndexedDocumentSpeedTest extends OrientMonoThreadTest {
-  private ODatabaseDocument database;
+public class LocalCreateIndexedDocumentSpeedTest extends OrientMonoThreadDBTest {
   private ODocument record;
 
   public static void main(String[] iArgs) throws InstantiationException, IllegalAccessException {
@@ -41,9 +38,9 @@ public class LocalCreateIndexedDocumentSpeedTest extends OrientMonoThreadTest {
 
   @Override
   public void init() {
+    super.init();
     Orient.instance().getProfiler().startRecording();
 
-    database = new ODatabaseDocumentTx(System.getProperty("url")).open("admin", "admin");
     record = database.newInstance();
 
     // REMOVE THE INDEX
@@ -77,11 +74,5 @@ public class LocalCreateIndexedDocumentSpeedTest extends OrientMonoThreadTest {
           .createIndex(OClass.INDEX_TYPE.UNIQUE);
       System.out.println("Done");
     }
-  }
-
-  @Override
-  public void deinit() {
-    database.close();
-    super.deinit();
   }
 }

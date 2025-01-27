@@ -18,19 +18,18 @@ package com.orientechnologies.orient.test.database.speed;
 import com.orientechnologies.common.test.SpeedTestMultiThreads;
 import com.orientechnologies.orient.core.Orient;
 import com.orientechnologies.orient.core.db.document.ODatabaseDocument;
-import com.orientechnologies.orient.core.db.document.ODatabaseDocumentTx;
 import com.orientechnologies.orient.core.metadata.schema.OClass;
 import com.orientechnologies.orient.core.metadata.schema.OProperty;
 import com.orientechnologies.orient.core.metadata.schema.OType;
 import com.orientechnologies.orient.core.record.impl.ODocument;
 import com.orientechnologies.orient.core.tx.OTransaction.TXTYPE;
-import com.orientechnologies.orient.test.database.base.OrientMultiThreadTest;
+import com.orientechnologies.orient.test.database.base.OrientMultiThreadDBTest;
 import com.orientechnologies.orient.test.database.base.OrientThreadTest;
 import java.util.Date;
 import org.junit.Ignore;
 
 @Ignore
-public class LocalCreateDocumentMultiThreadIndexedSpeedTest extends OrientMultiThreadTest {
+public class LocalCreateDocumentMultiThreadIndexedSpeedTest extends OrientMultiThreadDBTest {
   private ODatabaseDocument database;
   private long foundObjects;
 
@@ -45,7 +44,7 @@ public class LocalCreateDocumentMultiThreadIndexedSpeedTest extends OrientMultiT
 
     @Override
     public void init() {
-      database = new ODatabaseDocumentTx(System.getProperty("url")).open("admin", "admin");
+      database = ((OrientMultiThreadDBTest) this.owner).openDB();
       record = database.newInstance();
       database.begin(TXTYPE.NOTX);
     }
@@ -92,18 +91,10 @@ public class LocalCreateDocumentMultiThreadIndexedSpeedTest extends OrientMultiT
   }
 
   @Override
-  public void init() {
-    database = new ODatabaseDocumentTx(System.getProperty("url"));
-    database.setProperty("minPool", 2);
-    database.setProperty("maxPool", 3);
-
-    if (database.getURL().startsWith("remote:")) database.open("admin", "admin");
-    else {
-      if (database.exists()) database.drop();
-
-      database.create();
-    }
-
+  public void init() throws Exception {
+    super.init();
+    dropAndCreate();
+    database = openDB();
     foundObjects = 0; // database.countClusterElements("Account");
 
     synchronized (LocalCreateDocumentMultiThreadIndexedSpeedTest.class) {

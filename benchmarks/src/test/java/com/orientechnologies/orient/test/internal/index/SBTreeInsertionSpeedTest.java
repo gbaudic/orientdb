@@ -1,10 +1,9 @@
 package com.orientechnologies.orient.test.internal.index;
 
-import com.orientechnologies.common.test.SpeedTestMonoThread;
 import com.orientechnologies.orient.core.db.ODatabaseDocumentInternal;
-import com.orientechnologies.orient.core.db.document.ODatabaseDocumentTx;
 import com.orientechnologies.orient.core.id.ORecordId;
 import com.orientechnologies.orient.core.index.OIndex;
+import com.orientechnologies.orient.test.database.base.OrientMonoThreadDBTest;
 import java.util.Random;
 import org.junit.Ignore;
 
@@ -13,8 +12,7 @@ import org.junit.Ignore;
  * @since 14.08.13
  */
 @Ignore
-public class SBTreeInsertionSpeedTest extends SpeedTestMonoThread {
-  private ODatabaseDocumentInternal databaseDocumentTx;
+public class SBTreeInsertionSpeedTest extends OrientMonoThreadDBTest {
   private OIndex index;
   private Random random = new Random();
 
@@ -23,38 +21,25 @@ public class SBTreeInsertionSpeedTest extends SpeedTestMonoThread {
   }
 
   @Override
-  public void init() throws Exception {
+  public void init() {
 
     String buildDirectory = System.getProperty("buildDirectory", ".");
     if (buildDirectory == null) buildDirectory = ".";
-
-    databaseDocumentTx =
-        new ODatabaseDocumentTx("plocal:" + buildDirectory + "/SBTreeInsertionSpeedTTest");
-    if (databaseDocumentTx.exists()) {
-      databaseDocumentTx.open("admin", "admin");
-      databaseDocumentTx.drop();
-    }
-
-    databaseDocumentTx.create();
-    databaseDocumentTx.command("create index  sbtree_index unique String").close();
+    dropAndCreate();
+    database.command("create index  sbtree_index unique String").close();
 
     index =
-        databaseDocumentTx
+        ((ODatabaseDocumentInternal) database)
             .getMetadata()
             .getIndexManagerInternal()
-            .getIndex(databaseDocumentTx, "sbtree_index");
+            .getIndex((ODatabaseDocumentInternal) database, "sbtree_index");
   }
 
   @Override
   public void cycle() throws Exception {
-    databaseDocumentTx.begin();
+    database.begin();
     String key = "bsadfasfas" + random.nextInt();
     index.put(key, new ORecordId(0, 0));
-    databaseDocumentTx.commit();
-  }
-
-  @Override
-  public void deinit() throws Exception {
-    databaseDocumentTx.close();
+    database.commit();
   }
 }

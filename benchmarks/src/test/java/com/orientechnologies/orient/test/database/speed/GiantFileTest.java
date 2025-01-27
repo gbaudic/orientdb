@@ -3,8 +3,9 @@ package com.orientechnologies.orient.test.database.speed;
 import com.orientechnologies.orient.core.config.OGlobalConfiguration;
 import com.orientechnologies.orient.core.db.ODatabase;
 import com.orientechnologies.orient.core.db.ODatabaseRecordThreadLocal;
+import com.orientechnologies.orient.core.db.OrientDB;
+import com.orientechnologies.orient.core.db.OrientDBConfig;
 import com.orientechnologies.orient.core.db.document.ODatabaseDocument;
-import com.orientechnologies.orient.core.db.document.ODatabaseDocumentTx;
 import com.orientechnologies.orient.core.id.ORID;
 import com.orientechnologies.orient.core.metadata.schema.OClass;
 import com.orientechnologies.orient.core.metadata.schema.OSchema;
@@ -31,15 +32,16 @@ public class GiantFileTest {
 
   public static void main(final String[] args) throws Exception {
     OGlobalConfiguration.DISK_CACHE_SIZE.setValue(1024);
-    try {
-      db = new ODatabaseDocumentTx("plocal:" + DATABASE_NAME);
-      if (db.exists() && RECREATE_DATABASE) {
-        db.open("admin", "admin");
-        db.drop();
-        System.out.println("Dropped database.");
+    try (OrientDB context = new OrientDB("embedded:./", OrientDBConfig.defaultConfig())) {
+
+      if (context.exists(DATABASE_NAME) && RECREATE_DATABASE) {
+        context.drop(DATABASE_NAME);
       }
-      if (!db.exists()) {
-        db.create();
+      if (!context.exists(DATABASE_NAME)) {
+        context.execute(
+            "create database ? plocal users(admin identified by 'admin' role admin)",
+            DATABASE_NAME);
+        db = context.open(DATABASE_NAME, "admin", "admin");
         System.out.println("Created database.");
 
         final OSchema schema = db.getMetadata().getSchema();
@@ -63,7 +65,7 @@ public class GiantFileTest {
             .setNotNull(false);
         System.out.println("Created schema.");
       } else {
-        db.open("admin", "admin");
+        db = context.open(DATABASE_NAME, "admin", "admin");
       }
 
       final File giantFile = new File("giantFile.bin");
@@ -92,7 +94,6 @@ public class GiantFileTest {
       final long storeFileMs = System.currentTimeMillis() - storeFileStartTime;
 
       System.out.printf("Finished storing giant file in %f seconds.\n", (float) storeFileMs / 1000);
-    } finally {
       db.close();
     }
   }

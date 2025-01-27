@@ -15,38 +15,25 @@
  */
 package com.orientechnologies.orient.test.database.speed;
 
-import com.orientechnologies.common.test.SpeedTestMonoThread;
-import com.orientechnologies.orient.core.db.document.ODatabaseDocument;
-import com.orientechnologies.orient.core.db.document.ODatabaseDocumentTx;
 import com.orientechnologies.orient.core.record.impl.ODocument;
-import java.io.IOException;
+import com.orientechnologies.orient.test.database.base.OrientMonoThreadDBTest;
 import java.io.UnsupportedEncodingException;
 import org.junit.Ignore;
 
 @Ignore
-public class ReadAllClusterObjectsSpeedTest extends SpeedTestMonoThread {
+public class ReadAllClusterObjectsSpeedTest extends OrientMonoThreadDBTest {
   private static final String CLASS_NAME = "Account";
-  private ODatabaseDocument db;
   private int objectsRead;
-  private String url;
 
   public ReadAllClusterObjectsSpeedTest() {
     super(5);
-    url = System.getProperty("url");
-    if (url == null) throw new IllegalArgumentException("URL missing");
-  }
-
-  @Override
-  public void init() throws IOException {
-    db = new ODatabaseDocumentTx(url);
-    db.open("admin", "admin");
   }
 
   @Override
   public void cycle() throws UnsupportedEncodingException {
     objectsRead = 0;
 
-    for (ODocument rec : db.browseClass(CLASS_NAME)) {
+    for (ODocument rec : database.browseClass(CLASS_NAME)) {
       ++objectsRead;
     }
   }
@@ -61,11 +48,5 @@ public class ReadAllClusterObjectsSpeedTest extends SpeedTestMonoThread {
             + CLASS_NAME
             + "="
             + data().takeTimer());
-  }
-
-  @Override
-  public void deinit() throws IOException {
-    System.out.println("Read " + objectsRead + " objects in the cluster " + CLASS_NAME);
-    db.close();
   }
 }

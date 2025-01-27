@@ -17,17 +17,14 @@ package com.orientechnologies.orient.test.database.speed;
 
 import com.orientechnologies.orient.core.Orient;
 import com.orientechnologies.orient.core.db.ODatabase.OPERATION_MODE;
-import com.orientechnologies.orient.core.db.document.ODatabaseDocument;
-import com.orientechnologies.orient.core.db.document.ODatabaseDocumentTx;
 import com.orientechnologies.orient.core.record.impl.ODocument;
 import com.orientechnologies.orient.core.tx.OTransaction.TXTYPE;
-import com.orientechnologies.orient.test.database.base.OrientMonoThreadTest;
+import com.orientechnologies.orient.test.database.base.OrientMonoThreadDBTest;
 import java.util.Date;
 import org.junit.Ignore;
 
 @Ignore
-public class RemoteCreateDocumentSpeedTest extends OrientMonoThreadTest {
-  private ODatabaseDocument database;
+public class RemoteCreateDocumentSpeedTest extends OrientMonoThreadDBTest {
   private ODocument record;
   private Date date = new Date();
   private long beginRecords;
@@ -44,9 +41,9 @@ public class RemoteCreateDocumentSpeedTest extends OrientMonoThreadTest {
 
   @Override
   public void init() {
+    super.init();
     Orient.instance().getProfiler().startRecording();
 
-    database = new ODatabaseDocumentTx(System.getProperty("url")).open("admin", "admin");
     record = database.newInstance();
 
     database.begin(TXTYPE.NOTX);
@@ -87,7 +84,6 @@ public class RemoteCreateDocumentSpeedTest extends OrientMonoThreadTest {
 
     System.out.println(Orient.instance().getProfiler().dump());
 
-    if (database != null) database.close();
     super.deinit();
   }
 }

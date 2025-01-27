@@ -16,16 +16,13 @@
 package com.orientechnologies.orient.test.database.speed;
 
 import com.orientechnologies.orient.core.Orient;
-import com.orientechnologies.orient.core.db.document.ODatabaseDocument;
-import com.orientechnologies.orient.core.db.document.ODatabaseDocumentTx;
 import com.orientechnologies.orient.core.index.OIndex;
 import com.orientechnologies.orient.core.record.impl.ODocument;
-import com.orientechnologies.orient.test.database.base.OrientMonoThreadTest;
+import com.orientechnologies.orient.test.database.base.OrientMonoThreadDBTest;
 import org.junit.Ignore;
 
 @Ignore
-public class DictionaryPutDocumentSpeedTest extends OrientMonoThreadTest {
-  private ODatabaseDocument database;
+public class DictionaryPutDocumentSpeedTest extends OrientMonoThreadDBTest {
   private ODocument record;
   private long startNum;
 
@@ -37,10 +34,12 @@ public class DictionaryPutDocumentSpeedTest extends OrientMonoThreadTest {
 
   public DictionaryPutDocumentSpeedTest() throws InstantiationException, IllegalAccessException {
     super(1000000);
+    record = new ODocument();
+  }
 
-    String url = System.getProperty("url");
-
-    database = new ODatabaseDocumentTx(url).open("admin", "admin");
+  @Override
+  public void init() {
+    super.init();
     for (OIndex idx : database.getMetadata().getSchema().getClass("Account").getIndexes()) {
       idx.delete();
     }

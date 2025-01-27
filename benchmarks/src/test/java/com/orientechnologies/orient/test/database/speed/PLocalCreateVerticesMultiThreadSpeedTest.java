@@ -24,11 +24,11 @@ import com.orientechnologies.orient.core.metadata.schema.OClass;
 import com.orientechnologies.orient.core.metadata.schema.OProperty;
 import com.orientechnologies.orient.core.metadata.schema.OType;
 import com.orientechnologies.orient.core.record.OVertex;
-import com.orientechnologies.orient.test.database.base.OrientMultiThreadTest;
+import com.orientechnologies.orient.test.database.base.OrientMultiThreadDBTest;
 import com.orientechnologies.orient.test.database.base.OrientThreadTest;
 import org.junit.Assert;
 
-public class PLocalCreateVerticesMultiThreadSpeedTest extends OrientMultiThreadTest {
+public class PLocalCreateVerticesMultiThreadSpeedTest extends OrientMultiThreadDBTest {
   protected static final String URL = "embedded:target/databases";
   protected static final OrientDB factory = new OrientDB(URL, OrientDBConfig.defaultConfig());
   protected long foundObjects;

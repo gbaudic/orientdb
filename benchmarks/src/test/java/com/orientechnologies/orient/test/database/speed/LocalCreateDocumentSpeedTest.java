@@ -17,17 +17,15 @@ package com.orientechnologies.orient.test.database.speed;
 
 import com.orientechnologies.orient.core.Orient;
 import com.orientechnologies.orient.core.db.ODatabaseDocumentInternal;
-import com.orientechnologies.orient.core.db.document.ODatabaseDocumentTx;
 import com.orientechnologies.orient.core.metadata.schema.OSchema;
 import com.orientechnologies.orient.core.record.impl.ODocument;
-import com.orientechnologies.orient.core.serialization.serializer.record.binary.ORecordSerializerBinary;
 import com.orientechnologies.orient.core.tx.OTransaction.TXTYPE;
-import com.orientechnologies.orient.test.database.base.OrientMonoThreadTest;
+import com.orientechnologies.orient.test.database.base.OrientMonoThreadDBTest;
 import java.util.Date;
 import org.junit.Ignore;
 
 @Ignore
-public class LocalCreateDocumentSpeedTest extends OrientMonoThreadTest {
+public class LocalCreateDocumentSpeedTest extends OrientMonoThreadDBTest {
   private ODatabaseDocumentInternal database;
   private ODocument record;
   private Date date = new Date();
@@ -43,15 +41,9 @@ public class LocalCreateDocumentSpeedTest extends OrientMonoThreadTest {
 
   @Override
   public void init() {
-    database = new ODatabaseDocumentTx(System.getProperty("url"));
-    database.setSerializer(new ORecordSerializerBinary());
+    super.init();
 
-    if (database.exists()) {
-      database.open("admin", "admin");
-      database.drop();
-    }
-
-    database.create();
+    dropAndCreate();
     OSchema schema = database.getMetadata().getSchema();
     schema.createClass("Account");
 
@@ -79,8 +71,6 @@ public class LocalCreateDocumentSpeedTest extends OrientMonoThreadTest {
   @Override
   public void deinit() {
     System.out.println(Orient.instance().getProfiler().dump());
-
-    if (database != null) database.close();
     super.deinit();
   }
 }

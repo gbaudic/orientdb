@@ -18,17 +18,14 @@ package com.orientechnologies.orient.test.database.speed;
 import com.orientechnologies.orient.core.Orient;
 import com.orientechnologies.orient.core.config.OGlobalConfiguration;
 import com.orientechnologies.orient.core.db.ODatabase.OPERATION_MODE;
-import com.orientechnologies.orient.core.db.document.ODatabaseDocument;
-import com.orientechnologies.orient.core.db.document.ODatabaseDocumentTx;
 import com.orientechnologies.orient.core.record.impl.ODocument;
 import com.orientechnologies.orient.core.tx.OTransaction.TXTYPE;
-import com.orientechnologies.orient.test.database.base.OrientMonoThreadTest;
+import com.orientechnologies.orient.test.database.base.OrientMonoThreadDBTest;
 import java.util.Date;
 import org.junit.Ignore;
 
 @Ignore
-public class LocalCreateAsynchDocumentSpeedTest extends OrientMonoThreadTest {
-  private ODatabaseDocument database;
+public class LocalCreateAsynchDocumentSpeedTest extends OrientMonoThreadDBTest {
   private ODocument record;
   private Date date = new Date();
 
@@ -47,8 +44,8 @@ public class LocalCreateAsynchDocumentSpeedTest extends OrientMonoThreadTest {
     Orient.instance().getProfiler().startRecording();
 
     OGlobalConfiguration.NETWORK_SOCKET_BUFFER_SIZE.setValue(10000000);
+    super.init();
 
-    database = new ODatabaseDocumentTx(System.getProperty("url")).open("admin", "admin");
     record = database.newInstance();
 
     database.begin(TXTYPE.NOTX);
@@ -74,7 +71,6 @@ public class LocalCreateAsynchDocumentSpeedTest extends OrientMonoThreadTest {
   public void deinit() {
     System.out.println(Orient.instance().getProfiler().dump());
 
-    if (database != null) database.close();
     super.deinit();
   }
 }

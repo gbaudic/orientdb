@@ -1,12 +1,11 @@
 package com.orientechnologies.orient.test.internal.index;
 
-import com.orientechnologies.common.test.SpeedTestMonoThread;
 import com.orientechnologies.orient.core.db.ODatabaseDocumentInternal;
-import com.orientechnologies.orient.core.db.document.ODatabaseDocumentTx;
 import com.orientechnologies.orient.core.id.ORecordId;
 import com.orientechnologies.orient.core.index.OIndex;
 import com.orientechnologies.orient.core.index.OSimpleKeyIndexDefinition;
 import com.orientechnologies.orient.core.metadata.schema.OType;
+import com.orientechnologies.orient.test.database.base.OrientMonoThreadDBTest;
 import java.util.Random;
 import org.junit.Ignore;
 
@@ -15,8 +14,7 @@ import org.junit.Ignore;
  * @since 30.01.13
  */
 @Ignore
-public class HashIndexSpeedTest extends SpeedTestMonoThread {
-  private ODatabaseDocumentInternal databaseDocumentTx;
+public class HashIndexSpeedTest extends OrientMonoThreadDBTest {
   private OIndex hashIndex;
   private Random random = new Random();
 
@@ -25,25 +23,18 @@ public class HashIndexSpeedTest extends SpeedTestMonoThread {
   }
 
   @Override
-  public void init() throws Exception {
+  public void init() {
     String buildDirectory = System.getProperty("buildDirectory", ".");
     if (buildDirectory == null) buildDirectory = ".";
-
-    databaseDocumentTx =
-        new ODatabaseDocumentTx("plocal:" + buildDirectory + "/uniqueHashIndexTest");
-    if (databaseDocumentTx.exists()) {
-      databaseDocumentTx.open("admin", "admin");
-      databaseDocumentTx.drop();
-    }
-
-    databaseDocumentTx.create();
+    super.init();
+    dropAndCreate();
 
     hashIndex =
-        databaseDocumentTx
+        ((ODatabaseDocumentInternal) database)
             .getMetadata()
             .getIndexManagerInternal()
             .createIndex(
-                databaseDocumentTx,
+                (ODatabaseDocumentInternal) database,
                 "hashIndex",
                 "UNIQUE_HASH_INDEX",
                 new OSimpleKeyIndexDefinition(OType.STRING),
@@ -54,14 +45,9 @@ public class HashIndexSpeedTest extends SpeedTestMonoThread {
 
   @Override
   public void cycle() throws Exception {
-    databaseDocumentTx.begin();
+    database.begin();
     String key = "bsadfasfas" + random.nextInt();
     hashIndex.put(key, new ORecordId(0, 0));
-    databaseDocumentTx.commit();
-  }
-
-  @Override
-  public void deinit() throws Exception {
-    databaseDocumentTx.drop();
+    database.commit();
   }
 }

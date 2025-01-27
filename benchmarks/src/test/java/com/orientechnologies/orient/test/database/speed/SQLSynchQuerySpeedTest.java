@@ -15,17 +15,14 @@
  */
 package com.orientechnologies.orient.test.database.speed;
 
-import com.orientechnologies.common.test.SpeedTestMonoThread;
-import com.orientechnologies.orient.core.db.document.ODatabaseDocument;
-import com.orientechnologies.orient.core.db.document.ODatabaseDocumentTx;
 import com.orientechnologies.orient.core.sql.executor.OResultSet;
+import com.orientechnologies.orient.test.database.base.OrientMonoThreadDBTest;
 import java.io.UnsupportedEncodingException;
 import org.junit.Ignore;
 
 @Ignore
-public class SQLSynchQuerySpeedTest extends SpeedTestMonoThread {
+public class SQLSynchQuerySpeedTest extends OrientMonoThreadDBTest {
   protected int resultCount = 0;
-  private ODatabaseDocument database;
 
   public static void main(String[] iArgs) throws InstantiationException, IllegalAccessException {
     SQLSynchQuerySpeedTest test = new SQLSynchQuerySpeedTest();
@@ -34,7 +31,6 @@ public class SQLSynchQuerySpeedTest extends SpeedTestMonoThread {
 
   public SQLSynchQuerySpeedTest() {
     super(1);
-    database = new ODatabaseDocumentTx(System.getProperty("url")).open("admin", "admin");
 
     System.out.println("Finding Accounts between " + database.countClass("Profile") + " records");
   }

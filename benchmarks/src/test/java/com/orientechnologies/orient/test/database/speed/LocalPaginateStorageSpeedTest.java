@@ -2,21 +2,17 @@ package com.orientechnologies.orient.test.database.speed;
 
 import com.orientechnologies.orient.core.Orient;
 import com.orientechnologies.orient.core.db.ODatabaseDocumentInternal;
-import com.orientechnologies.orient.core.db.document.ODatabaseDocumentAbstract;
-import com.orientechnologies.orient.core.db.document.ODatabaseDocumentTx;
 import com.orientechnologies.orient.core.id.ORecordId;
 import com.orientechnologies.orient.core.metadata.schema.OSchema;
 import com.orientechnologies.orient.core.record.impl.ODocument;
-import com.orientechnologies.orient.core.serialization.serializer.record.binary.ORecordSerializerBinary;
 import com.orientechnologies.orient.core.storage.impl.local.OAbstractPaginatedStorage;
 import com.orientechnologies.orient.core.tx.OTransaction.TXTYPE;
-import com.orientechnologies.orient.test.database.base.OrientMonoThreadTest;
+import com.orientechnologies.orient.test.database.base.OrientMonoThreadDBTest;
 import java.util.Date;
 import org.junit.Ignore;
 
 @Ignore
-public class LocalPaginateStorageSpeedTest extends OrientMonoThreadTest {
-  private ODatabaseDocumentInternal database;
+public class LocalPaginateStorageSpeedTest extends OrientMonoThreadDBTest {
   private ODocument record;
   private Date date = new Date();
   private byte[] content;
@@ -33,14 +29,8 @@ public class LocalPaginateStorageSpeedTest extends OrientMonoThreadTest {
 
   @Override
   public void init() {
-    ODatabaseDocumentAbstract.setDefaultSerializer(new ORecordSerializerBinary());
-    database = new ODatabaseDocumentTx("plocal:target/db/test");
-    if (database.exists()) {
-      database.open("admin", "admin");
-      database.drop();
-    }
-
-    database.create();
+    super.init();
+    dropAndCreate();
     OSchema schema = database.getMetadata().getSchema();
     schema.createClass("Account");
 
@@ -48,7 +38,7 @@ public class LocalPaginateStorageSpeedTest extends OrientMonoThreadTest {
 
     database.begin(TXTYPE.NOTX);
 
-    storage = (OAbstractPaginatedStorage) database.getStorage();
+    storage = (OAbstractPaginatedStorage) ((ODatabaseDocumentInternal) database).getStorage();
   }
 
   @Override
@@ -70,8 +60,6 @@ public class LocalPaginateStorageSpeedTest extends OrientMonoThreadTest {
   @Override
   public void deinit() {
     System.out.println(Orient.instance().getProfiler().dump());
-
-    if (database != null) database.close();
     super.deinit();
   }
 }

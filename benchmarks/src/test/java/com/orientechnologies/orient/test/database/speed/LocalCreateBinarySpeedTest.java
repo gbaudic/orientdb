@@ -16,17 +16,14 @@
 package com.orientechnologies.orient.test.database.speed;
 
 import com.orientechnologies.orient.core.Orient;
-import com.orientechnologies.orient.core.db.document.ODatabaseDocument;
-import com.orientechnologies.orient.core.db.document.ODatabaseDocumentTx;
 import com.orientechnologies.orient.core.record.impl.ORecordBytes;
 import com.orientechnologies.orient.core.tx.OTransaction.TXTYPE;
-import com.orientechnologies.orient.test.database.base.OrientMonoThreadTest;
+import com.orientechnologies.orient.test.database.base.OrientMonoThreadDBTest;
 import java.util.Random;
 import org.junit.Ignore;
 
 @Ignore
-public class LocalCreateBinarySpeedTest extends OrientMonoThreadTest {
-  private ODatabaseDocument database;
+public class LocalCreateBinarySpeedTest extends OrientMonoThreadDBTest {
   private ORecordBytes record;
   private static final int RECORD_SIZE = 512;
   private byte[] recordContent;
@@ -42,9 +39,9 @@ public class LocalCreateBinarySpeedTest extends OrientMonoThreadTest {
 
   @Override
   public void init() {
+    super.init();
     Orient.instance().getProfiler().startRecording();
 
-    database = new ODatabaseDocumentTx(System.getProperty("url")).open("admin", "admin");
     record = new ORecordBytes();
 
     database.begin(TXTYPE.NOTX);
@@ -58,11 +55,5 @@ public class LocalCreateBinarySpeedTest extends OrientMonoThreadTest {
     record.reset(recordContent).save("binary");
 
     if (data.getCyclesDone() == data.getCycles() - 1) database.commit();
-  }
-
-  @Override
-  public void deinit() {
-    if (database != null) database.close();
-    super.deinit();
   }
 }
