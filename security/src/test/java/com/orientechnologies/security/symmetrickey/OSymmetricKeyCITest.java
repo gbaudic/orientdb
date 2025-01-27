@@ -1,8 +1,9 @@
 package com.orientechnologies.security.symmetrickey;
 
-import com.orientechnologies.orient.client.remote.OServerAdmin;
 import com.orientechnologies.orient.core.Orient;
 import com.orientechnologies.orient.core.config.OGlobalConfiguration;
+import com.orientechnologies.orient.core.db.OrientDB;
+import com.orientechnologies.orient.core.db.OrientDBConfig;
 import com.orientechnologies.orient.core.exception.OSecurityAccessException;
 import com.orientechnologies.orient.core.security.symmetrickey.OSymmetricKey;
 import com.orientechnologies.orient.server.OServer;
@@ -75,9 +76,9 @@ public class OSymmetricKeyCITest extends AbstractSecurityTest {
       // This key is specified in the security.json resource file for username "test".
       final String password = "{'key':'8BC7LeGkFbmHEYNTz5GwDw=='}";
 
-      OServerAdmin serverAd = new OServerAdmin("remote:localhost");
-      serverAd.connect("test", password);
-      serverAd.listDatabases();
+      OrientDB serverAd =
+          new OrientDB("remote:localhost", "test", password, OrientDBConfig.defaultConfig());
+      serverAd.list();
       serverAd.close();
     } finally {
       OGlobalConfiguration.CLIENT_CREDENTIAL_INTERCEPTOR.setValue(
@@ -97,10 +98,9 @@ public class OSymmetricKeyCITest extends AbstractSecurityTest {
       // Set the key to an invalid one.
       final String password = "{'key':'AAC7LeGkFbmHEYNTz5GwDw=='}";
 
-      OServerAdmin serverAd = new OServerAdmin("remote:localhost");
-      // The key is specified for username "test" in the security.json file.
-      serverAd.connect("test", password);
-      serverAd.listDatabases();
+      OrientDB serverAd =
+          new OrientDB("remote:localhost", "test", password, OrientDBConfig.defaultConfig());
+      serverAd.list();
       serverAd.close();
     } finally {
       OGlobalConfiguration.CLIENT_CREDENTIAL_INTERCEPTOR.setValue(
@@ -120,9 +120,9 @@ public class OSymmetricKeyCITest extends AbstractSecurityTest {
       final String password = "{'keyFile':'" + SERVER_DIRECTORY + "/config/AES.key'}";
 
       // The key file is specified for username "test2" in the security.json file.
-      OServerAdmin serverAd = new OServerAdmin("remote:localhost");
-      serverAd.connect("test2", password);
-      serverAd.listDatabases();
+      OrientDB serverAd =
+          new OrientDB("remote:localhost", "test", password, OrientDBConfig.defaultConfig());
+      serverAd.list();
       serverAd.close();
     } finally {
       OGlobalConfiguration.CLIENT_CREDENTIAL_INTERCEPTOR.setValue(
@@ -146,9 +146,9 @@ public class OSymmetricKeyCITest extends AbstractSecurityTest {
               + " 'keyPassword':'password' } }";
 
       // The keystore is specified for username "test3" in the security.json file.
-      OServerAdmin serverAd = new OServerAdmin("remote:localhost");
-      serverAd.connect("test3", password);
-      serverAd.listDatabases();
+      OrientDB serverAd =
+          new OrientDB("remote:localhost", "test", password, OrientDBConfig.defaultConfig());
+      serverAd.list();
       serverAd.close();
     } finally {
       OGlobalConfiguration.CLIENT_CREDENTIAL_INTERCEPTOR.setValue(
