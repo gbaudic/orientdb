@@ -1033,6 +1033,7 @@ public enum OGlobalConfiguration { // ENVIRONMENT
       Boolean.FALSE,
       true),
 
+  @Deprecated
   SERVER_BACKWARD_COMPATIBILITY(
       "server.backwardCompatibility",
       "guarantee that the server use global context for search the database instance",

@@ -37,7 +37,6 @@ import com.orientechnologies.orient.core.db.ODatabaseWrapperAbstract;
 import com.orientechnologies.orient.core.db.OLiveQueryMonitor;
 import com.orientechnologies.orient.core.db.OLiveQueryResultListener;
 import com.orientechnologies.orient.core.db.OSharedContext;
-import com.orientechnologies.orient.core.db.document.ODatabaseDocumentTx;
 import com.orientechnologies.orient.core.db.object.ODatabaseObject;
 import com.orientechnologies.orient.core.db.record.OIdentifiable;
 import com.orientechnologies.orient.core.db.record.ORecordElement;
@@ -109,13 +108,6 @@ public class OObjectDatabaseTx extends ODatabaseWrapperAbstract<ODatabaseDocumen
   protected boolean lazyLoading;
   protected boolean automaticSchemaGeneration;
   protected OMetadataObject metadata;
-
-  @Deprecated
-  public OObjectDatabaseTx(final String iURL) {
-    super(new ODatabaseDocumentTx(iURL));
-    underlying.setDatabaseOwner(this);
-    init();
-  }
 
   /**
    * Constructor to wrap an existing database connect for object connections

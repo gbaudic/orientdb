@@ -1859,9 +1859,6 @@ public abstract class ODatabaseDocumentAbstract extends OListenerManger<ODatabas
   public void checkIfActive() {
     final ODatabaseRecordThreadLocal tl = ODatabaseRecordThreadLocal.instance();
     ODatabaseDocumentInternal currentDatabase = tl != null ? tl.get() : null;
-    if (currentDatabase instanceof ODatabaseDocumentTx) {
-      currentDatabase = ((ODatabaseDocumentTx) currentDatabase).internal;
-    }
     if (currentDatabase != this)
       throw new IllegalStateException(
           "The current database instance ("

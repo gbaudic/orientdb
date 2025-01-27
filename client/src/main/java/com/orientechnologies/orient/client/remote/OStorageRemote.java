@@ -131,7 +131,6 @@ import com.orientechnologies.orient.core.db.OLiveQueryMonitor;
 import com.orientechnologies.orient.core.db.OSharedContext;
 import com.orientechnologies.orient.core.db.OrientDBConfig;
 import com.orientechnologies.orient.core.db.OrientDBInternal;
-import com.orientechnologies.orient.core.db.document.ODatabaseDocumentTxInternal;
 import com.orientechnologies.orient.core.db.record.OCurrentStorageComponentsFactory;
 import com.orientechnologies.orient.core.db.record.OIdentifiable;
 import com.orientechnologies.orient.core.db.record.ORecordOperation;
@@ -2033,7 +2032,7 @@ public class OStorageRemote implements ORemotePushHandler, OStorage {
     ODatabaseDocumentInternal db = null;
     if (ODatabaseRecordThreadLocal.instance() != null)
       db = ODatabaseRecordThreadLocal.instance().getIfDefined();
-    ODatabaseDocumentInternal internal = ODatabaseDocumentTxInternal.getInternal(db);
+    ODatabaseDocumentInternal internal = db;
     if (internal == null || !(internal instanceof ODatabaseDocumentRemote)) return null;
     ODatabaseDocumentRemote remote = (ODatabaseDocumentRemote) internal;
     OStorageRemoteSession session = remote.getSessionMetadata();
@@ -2057,8 +2056,6 @@ public class OStorageRemote implements ORemotePushHandler, OStorage {
     ODatabaseDocumentInternal origin = null;
     if (ODatabaseRecordThreadLocal.instance() != null)
       origin = ODatabaseRecordThreadLocal.instance().getIfDefined();
-
-    origin = ODatabaseDocumentTxInternal.getInternal(origin);
 
     final OStorageRemoteSession session = source.getSessionMetadata();
     if (session != null) {

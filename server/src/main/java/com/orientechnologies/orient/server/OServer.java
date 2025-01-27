@@ -40,7 +40,6 @@ import com.orientechnologies.orient.core.db.OrientDB;
 import com.orientechnologies.orient.core.db.OrientDBConfig;
 import com.orientechnologies.orient.core.db.OrientDBConfigBuilder;
 import com.orientechnologies.orient.core.db.OrientDBInternal;
-import com.orientechnologies.orient.core.db.document.ODatabaseDocumentTxInternal;
 import com.orientechnologies.orient.core.exception.OConfigurationException;
 import com.orientechnologies.orient.core.exception.ODatabaseException;
 import com.orientechnologies.orient.core.exception.OStorageException;
@@ -388,29 +387,22 @@ public class OServer {
             .setSecurityConfig(new OServerSecurityConfig(this, this.serverCfg))
             .build();
 
-    if (contextConfiguration.getValueAsBoolean(
-        OGlobalConfiguration.SERVER_BACKWARD_COMPATIBILITY)) {
+    OServerConfiguration configuration = getConfiguration();
 
-      databases =
-          ODatabaseDocumentTxInternal.getOrCreateEmbeddedFactory(this.databaseDirectory, config);
+    if (configuration.distributed != null && configuration.distributed.enabled) {
+      try {
+        OrientDBConfig orientDBConfig =
+            ODistributedConfig.buildConfig(
+                contextConfiguration, ODistributedConfig.fromEnv(configuration.distributed));
+        databases = OrientDBInternal.distributed(this.databaseDirectory, orientDBConfig);
+      } catch (ODatabaseException ex) {
+        databases = OrientDBInternal.embedded(this.databaseDirectory, config);
+      }
     } else {
-      OServerConfiguration configuration = getConfiguration();
-
-      if (configuration.distributed != null && configuration.distributed.enabled) {
-        try {
-          OrientDBConfig orientDBConfig =
-              ODistributedConfig.buildConfig(
-                  contextConfiguration, ODistributedConfig.fromEnv(configuration.distributed));
-          databases = OrientDBInternal.distributed(this.databaseDirectory, orientDBConfig);
-        } catch (ODatabaseException ex) {
-          databases = OrientDBInternal.embedded(this.databaseDirectory, config);
-        }
-      } else {
-        try {
-          databases = OrientDBInternal.distributed(this.databaseDirectory, config);
-        } catch (ODatabaseException ex) {
-          databases = OrientDBInternal.embedded(this.databaseDirectory, config);
-        }
+      try {
+        databases = OrientDBInternal.distributed(this.databaseDirectory, config);
+      } catch (ODatabaseException ex) {
+        databases = OrientDBInternal.embedded(this.databaseDirectory, config);
       }
     }
 
