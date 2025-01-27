@@ -35,12 +35,12 @@ public class FetchEdgesToVerticesStep extends AbstractExecutionStep {
   @Override
   public OExecutionStream internalStart(OCommandContext ctx) throws OTimeoutException {
     getPrev().ifPresent(x -> x.start(ctx).close(ctx));
-    Iterator<Object> source = init();
+    Iterator<Object> source = init(ctx);
 
     return OExecutionStream.streamsFromIterator(source, this::edges);
   }
 
-  private Iterator<Object> init() {
+  private Iterator<Object> init(OCommandContext ctx) {
     Object toValues = null;
 
     toValues = ctx.getVariable(toAlias);
@@ -66,7 +66,7 @@ public class FetchEdgesToVerticesStep extends AbstractExecutionStep {
           StreamSupport.stream(edges.spliterator(), false)
               .filter(
                   (edge) -> {
-                    return matchesClass(edge) && matchesCluster(edge);
+                    return matchesClass(edge) && matchesCluster(edge, ctx);
                   })
               .map((e) -> new OResultInternal(e));
       return OExecutionStream.resultIterator(stream.iterator());
@@ -75,7 +75,7 @@ public class FetchEdgesToVerticesStep extends AbstractExecutionStep {
     }
   }
 
-  private boolean matchesCluster(OEdge edge) {
+  private boolean matchesCluster(OEdge edge, OCommandContext ctx) {
     if (targetCluster == null) {
       return true;
     }

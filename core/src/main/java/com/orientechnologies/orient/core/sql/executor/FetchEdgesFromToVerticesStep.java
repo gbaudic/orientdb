@@ -41,18 +41,18 @@ public class FetchEdgesFromToVerticesStep extends AbstractExecutionStep {
   public OExecutionStream internalStart(OCommandContext ctx) throws OTimeoutException {
     getPrev().ifPresent(x -> x.start(ctx).close(ctx));
 
-    final Iterator fromIter = loadFrom();
+    final Iterator fromIter = loadFrom(ctx);
 
-    final Set<ORID> toList = loadTo();
+    final Set<ORID> toList = loadTo(ctx);
 
     return OExecutionStream.streamsFromIterator(
-        fromIter, (value, pc) -> createResultSet(toList, value));
+        fromIter, (value, pc) -> createResultSet(toList, value, ctx));
   }
 
-  private OExecutionStream createResultSet(Set<ORID> toList, Object val) {
+  private OExecutionStream createResultSet(Set<ORID> toList, Object val, OCommandContext ctx) {
     return OExecutionStream.resultIterator(
         StreamSupport.stream(this.loadNextResults(val).spliterator(), false)
-            .filter((e) -> filterResult(e, toList))
+            .filter((e) -> filterResult(e, toList, ctx))
             .map(
                 (edge) -> {
                   return (OResult) new OResultInternal(edge);
@@ -60,7 +60,7 @@ public class FetchEdgesFromToVerticesStep extends AbstractExecutionStep {
             .iterator());
   }
 
-  private Set<ORID> loadTo() {
+  private Set<ORID> loadTo(OCommandContext ctx) {
     Object toValues = null;
 
     toValues = ctx.getVariable(toAlias);
@@ -92,7 +92,7 @@ public class FetchEdgesFromToVerticesStep extends AbstractExecutionStep {
     return null;
   }
 
-  private Iterator loadFrom() {
+  private Iterator loadFrom(OCommandContext ctx) {
     Object fromValues = null;
 
     fromValues = ctx.getVariable(fromAlias);
@@ -104,9 +104,9 @@ public class FetchEdgesFromToVerticesStep extends AbstractExecutionStep {
     return (Iterator) fromValues;
   }
 
-  private boolean filterResult(OEdge edge, Set<ORID> toList) {
+  private boolean filterResult(OEdge edge, Set<ORID> toList, OCommandContext ctx) {
     if (toList == null || toList.contains(edge.getTo().getIdentity())) {
-      if (matchesClass(edge) && matchesCluster(edge)) {
+      if (matchesClass(edge) && matchesCluster(edge, ctx)) {
         return true;
       } else {
         return false;
@@ -130,7 +130,7 @@ public class FetchEdgesFromToVerticesStep extends AbstractExecutionStep {
     }
   }
 
-  private boolean matchesCluster(OEdge edge) {
+  private boolean matchesCluster(OEdge edge, OCommandContext ctx) {
     if (targetCluster == null) {
       return true;
     }

@@ -48,7 +48,7 @@ public class FetchFromClusterExecutionStep extends AbstractExecutionStep {
   public OExecutionStream internalStart(OCommandContext ctx) throws OTimeoutException {
     getPrev().ifPresent(x -> x.start(ctx).close(ctx));
     long minClusterPosition = calculateMinClusterPosition();
-    long maxClusterPosition = calculateMaxClusterPosition();
+    long maxClusterPosition = calculateMaxClusterPosition(ctx);
     ORecordIteratorCluster iterator =
         new ORecordIteratorCluster(
             (ODatabaseDocumentInternal) ctx.getDatabase(),
@@ -96,7 +96,7 @@ public class FetchFromClusterExecutionStep extends AbstractExecutionStep {
     return maxValue;
   }
 
-  private long calculateMaxClusterPosition() {
+  private long calculateMaxClusterPosition(OCommandContext ctx) {
     if (queryPlanning == null
         || queryPlanning.ridRangeConditions == null
         || queryPlanning.ridRangeConditions.isEmpty()) {

@@ -59,12 +59,12 @@ public class UpsertStep extends AbstractExecutionStep {
 
     OUpdatableResult result = new OUpdatableResult(doc);
     if (initialFilter != null) {
-      setContent(result, initialFilter);
+      setContent(result, initialFilter, ctx);
     }
     return result;
   }
 
-  private void setContent(OResultInternal doc, OWhereClause initialFilter) {
+  private void setContent(OResultInternal doc, OWhereClause initialFilter, OCommandContext ctx) {
     List<OAndBlock> flattened = initialFilter.flatten();
     if (flattened.size() == 0) {
       return;

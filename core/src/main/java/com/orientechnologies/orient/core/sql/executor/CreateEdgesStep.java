@@ -59,9 +59,9 @@ public class CreateEdgesStep extends AbstractExecutionStep {
   public OExecutionStream internalStart(OCommandContext ctx) throws OTimeoutException {
     getPrev().ifPresent(x -> x.start(ctx).close(ctx));
 
-    Iterator fromIter = fetchFroms();
-    List<Object> toList = fetchTo();
-    OIndex uniqueIndex = findIndex(this.uniqueIndexName);
+    Iterator fromIter = fetchFroms(ctx);
+    List<Object> toList = fetchTo(ctx);
+    OIndex uniqueIndex = findIndex(this.uniqueIndexName, ctx);
     Stream<OResult> stream =
         StreamSupport.stream(Spliterators.spliteratorUnknownSize(fromIter, 0), false)
             .map(this::asVertex)
@@ -72,7 +72,7 @@ public class CreateEdgesStep extends AbstractExecutionStep {
     return OExecutionStream.resultIterator(stream.iterator());
   }
 
-  private OIndex findIndex(String uniqueIndexName) {
+  private OIndex findIndex(String uniqueIndexName, OCommandContext ctx) {
     if (uniqueIndexName != null) {
       final ODatabaseDocumentInternal database = (ODatabaseDocumentInternal) ctx.getDatabase();
       OIndex uniqueIndex =
@@ -85,7 +85,7 @@ public class CreateEdgesStep extends AbstractExecutionStep {
     return null;
   }
 
-  private List<Object> fetchTo() {
+  private List<Object> fetchTo(OCommandContext ctx) {
     Object toValues = ctx.getVariable(toAlias.getStringValue());
     if (toValues instanceof Iterable && !(toValues instanceof OIdentifiable)) {
       toValues = ((Iterable) toValues).iterator();
@@ -111,7 +111,7 @@ public class CreateEdgesStep extends AbstractExecutionStep {
     return toList;
   }
 
-  private Iterator fetchFroms() {
+  private Iterator fetchFroms(OCommandContext ctx) {
     Object fromValues = ctx.getVariable(fromAlias.getStringValue());
     if (fromValues instanceof Iterable && !(fromValues instanceof OIdentifiable)) {
       fromValues = ((Iterable) fromValues).iterator();

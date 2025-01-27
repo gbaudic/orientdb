@@ -69,7 +69,7 @@ public class DeleteFromIndexStep extends AbstractExecutionStep {
   @Override
   public OExecutionStream internalStart(OCommandContext ctx) throws OTimeoutException {
     getPrev().ifPresent(x -> x.start(ctx).close(ctx));
-    Set<Stream<ORawPair<Object, ORID>>> streams = init(condition);
+    Set<Stream<ORawPair<Object, ORID>>> streams = init(condition, ctx);
     OExecutionStreamProducer res =
         new OExecutionStreamProducer() {
           private final Iterator<Stream<ORawPair<Object, ORID>>> iter = streams.iterator();
@@ -126,20 +126,21 @@ public class DeleteFromIndexStep extends AbstractExecutionStep {
     super.close();
   }
 
-  private Set<Stream<ORawPair<Object, ORID>>> init(OBooleanExpression condition) {
+  private Set<Stream<ORawPair<Object, ORID>>> init(
+      OBooleanExpression condition, OCommandContext ctx) {
     Set<Stream<ORawPair<Object, ORID>>> acquiredStreams =
         Collections.newSetFromMap(new IdentityHashMap<>());
     if (index.getDefinition() == null) {
       return acquiredStreams;
     }
     if (condition == null) {
-      processFlatIteration(acquiredStreams);
+      processFlatIteration(acquiredStreams, ctx);
     } else if (condition instanceof OBinaryCondition) {
-      processBinaryCondition(acquiredStreams);
+      processBinaryCondition(acquiredStreams, ctx);
     } else if (condition instanceof OBetweenCondition) {
-      processBetweenCondition(acquiredStreams);
+      processBetweenCondition(acquiredStreams, ctx);
     } else if (condition instanceof OAndBlock) {
-      processAndBlock(acquiredStreams);
+      processAndBlock(acquiredStreams, ctx);
     } else {
       throw new OCommandExecutionException(
           "search for index for " + condition + " is not supported yet");
@@ -152,16 +153,19 @@ public class DeleteFromIndexStep extends AbstractExecutionStep {
    * ignored)
    *
    * @param acquiredStreams TODO
+   * @param ctx
    */
-  private void processAndBlock(Set<Stream<ORawPair<Object, ORID>>> acquiredStreams) {
+  private void processAndBlock(
+      Set<Stream<ORawPair<Object, ORID>>> acquiredStreams, OCommandContext ctx) {
     OCollection fromKey = indexKeyFrom((OAndBlock) condition, additional);
     OCollection toKey = indexKeyTo((OAndBlock) condition, additional);
     boolean fromKeyIncluded = indexKeyFromIncluded((OAndBlock) condition, additional);
     boolean toKeyIncluded = indexKeyToIncluded((OAndBlock) condition, additional);
-    init(acquiredStreams, fromKey, fromKeyIncluded, toKey, toKeyIncluded);
+    init(acquiredStreams, fromKey, fromKeyIncluded, toKey, toKeyIncluded, ctx);
   }
 
-  private void processFlatIteration(Set<Stream<ORawPair<Object, ORID>>> acquiredStreams) {
+  private void processFlatIteration(
+      Set<Stream<ORawPair<Object, ORID>>> acquiredStreams, OCommandContext ctx) {
     Stream<ORawPair<Object, ORID>> stream = orderAsc ? index.stream() : index.descStream();
     storeAcquiredStream(stream, acquiredStreams);
   }
@@ -178,7 +182,8 @@ public class DeleteFromIndexStep extends AbstractExecutionStep {
       OCollection fromKey,
       boolean fromKeyIncluded,
       OCollection toKey,
-      boolean toKeyIncluded) {
+      boolean toKeyIncluded,
+      OCommandContext ctx) {
     Object secondValue = fromKey.execute((OResult) null, ctx);
     Object thirdValue = toKey.execute((OResult) null, ctx);
     OIndexDefinition indexDef = index.getDefinition();
@@ -217,7 +222,8 @@ public class DeleteFromIndexStep extends AbstractExecutionStep {
     return true;
   }
 
-  private void processBetweenCondition(Set<Stream<ORawPair<Object, ORID>>> acquiredStreams) {
+  private void processBetweenCondition(
+      Set<Stream<ORawPair<Object, ORID>>> acquiredStreams, OCommandContext ctx) {
     OIndexDefinition definition = index.getDefinition();
     OExpression key = ((OBetweenCondition) condition).getFirst();
     if (!key.toString().equalsIgnoreCase("key")) {
@@ -239,7 +245,8 @@ public class DeleteFromIndexStep extends AbstractExecutionStep {
     storeAcquiredStream(stream, acquiredStreams);
   }
 
-  private void processBinaryCondition(Set<Stream<ORawPair<Object, ORID>>> acquiredStreams) {
+  private void processBinaryCondition(
+      Set<Stream<ORawPair<Object, ORID>>> acquiredStreams, OCommandContext ctx) {
     OIndexDefinition definition = index.getDefinition();
     OBinaryCompareOperator operator = ((OBinaryCondition) condition).getOperator();
     OExpression left = ((OBinaryCondition) condition).getLeft();

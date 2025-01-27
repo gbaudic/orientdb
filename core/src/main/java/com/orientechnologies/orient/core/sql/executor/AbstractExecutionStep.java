@@ -48,7 +48,6 @@ public abstract class AbstractExecutionStep implements OExecutionStepInternal {
   }
 
   private boolean alreadyClosed = false;
-  private long baseCost = 0;
 
   @Override
   public void close() {
@@ -79,7 +78,6 @@ public abstract class AbstractExecutionStep implements OExecutionStepInternal {
       return internalStart(ctx);
     }
   }
-  ;
 
   protected abstract OExecutionStream internalStart(OCommandContext ctx) throws OTimeoutException;
 
