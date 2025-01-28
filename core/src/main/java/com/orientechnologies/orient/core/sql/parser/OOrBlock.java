@@ -5,6 +5,7 @@ package com.orientechnologies.orient.core.sql.parser;
 import com.orientechnologies.orient.core.command.OCommandContext;
 import com.orientechnologies.orient.core.db.ODatabaseDocumentInternal;
 import com.orientechnologies.orient.core.db.record.OIdentifiable;
+import com.orientechnologies.orient.core.exception.OCommandExecutionException;
 import com.orientechnologies.orient.core.metadata.schema.OClass;
 import com.orientechnologies.orient.core.sql.executor.OResult;
 import com.orientechnologies.orient.core.sql.executor.OResultInternal;
@@ -12,6 +13,8 @@ import com.orientechnologies.orient.core.sql.executor.metadata.OIndexCandidate;
 import com.orientechnologies.orient.core.sql.executor.metadata.OIndexFinder;
 import com.orientechnologies.orient.core.sql.executor.metadata.ORequiredIndexCanditate;
 import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -239,6 +242,7 @@ public class OOrBlock extends OBooleanExpression {
         return false;
       }
     }
+
     return true;
   }
 
@@ -290,6 +294,29 @@ public class OOrBlock extends OBooleanExpression {
       }
     }
     return false;
+  }
+
+  public void applyRemove(
+      Object currentValue, OResultInternal originalRecord, OCommandContext ctx) {
+    if (currentValue == null) {
+      return;
+    }
+    if (currentValue instanceof Collection) {
+      Iterator it = ((Collection) currentValue).iterator();
+      while (it.hasNext()) {
+        Object cv = it.next();
+        if (this.evaluate(cv, ctx)) {
+          it.remove();
+        }
+      }
+    } else {
+      throw new OCommandExecutionException(
+          "Trying to remove elements from "
+              + currentValue
+              + " ("
+              + currentValue.getClass().getSimpleName()
+              + ")");
+    }
   }
 }
 /* JavaCC - OriginalChecksum=98d3077303a598705894dbb7bd4e1573 (do not edit this line) */
