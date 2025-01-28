@@ -641,8 +641,10 @@ public abstract class OIndexAbstract implements OIndexInternal {
         }
 
         try {
-          try (Stream<ORID> stream = getRids(null)) {
-            stream.forEach((rid) -> remove(null, rid));
+          if (!this.getDefinition().isNullValuesIgnored()) {
+            try (Stream<ORID> stream = getRids(null)) {
+              stream.forEach((rid) -> remove(null, rid));
+            }
           }
         } catch (OIndexEngineException e) {
           throw e;
