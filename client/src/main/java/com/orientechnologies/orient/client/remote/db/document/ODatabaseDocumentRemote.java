@@ -691,7 +691,8 @@ public class ODatabaseDocumentRemote extends ODatabaseDocumentAbstract {
         if (iRecord != null) version = iRecord.getVersion();
         else version = recordVersion;
 
-        recordBuffer = recordReader.readRecord(getStorage(), rid, fetchPlan, ignoreCache, version);
+        recordBuffer =
+            recordReader.readRecord(getStorageRemote(), rid, fetchPlan, ignoreCache, version);
       }
 
       if (recordBuffer == null) return null;

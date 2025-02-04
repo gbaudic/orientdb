@@ -63,6 +63,7 @@ import com.orientechnologies.orient.core.db.ODatabaseDocumentInternal;
 import com.orientechnologies.orient.core.db.ODatabaseRecordThreadLocal;
 import com.orientechnologies.orient.core.db.OrientDBConfig;
 import com.orientechnologies.orient.core.db.OrientDBInternal;
+import com.orientechnologies.orient.core.db.document.RecordReader;
 import com.orientechnologies.orient.core.db.record.OCurrentStorageComponentsFactory;
 import com.orientechnologies.orient.core.db.record.OIdentifiable;
 import com.orientechnologies.orient.core.db.record.ORecordOperation;
@@ -242,7 +243,8 @@ public abstract class OAbstractPaginatedStorage
         OBackgroundExceptionListener,
         OFreezableStorageComponent,
         OPageIsBrokenListener,
-        OStorage {
+        OStorage,
+        RecordReader.RecordFetchMode {
 
   private static final String CONF_UTF_8_ENTRY_NAME = "database_utf8.ocf";
   private static final String CONF_ENTRY_NAME = "database.ocf";

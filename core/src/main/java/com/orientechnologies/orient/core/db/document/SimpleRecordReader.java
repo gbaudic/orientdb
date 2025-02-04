@@ -3,7 +3,6 @@ package com.orientechnologies.orient.core.db.document;
 import com.orientechnologies.orient.core.exception.ORecordNotFoundException;
 import com.orientechnologies.orient.core.id.ORecordId;
 import com.orientechnologies.orient.core.storage.ORawBuffer;
-import com.orientechnologies.orient.core.storage.OStorage;
 
 /** @Internal */
 public final class SimpleRecordReader implements RecordReader {
@@ -15,7 +14,7 @@ public final class SimpleRecordReader implements RecordReader {
 
   @Override
   public ORawBuffer readRecord(
-      OStorage storage,
+      RecordFetchMode storage,
       ORecordId rid,
       String fetchPlan,
       boolean ignoreCache,

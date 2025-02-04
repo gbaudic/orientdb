@@ -45,6 +45,7 @@ import com.orientechnologies.orient.core.db.OLiveQueryResultListener;
 import com.orientechnologies.orient.core.db.OSharedContext;
 import com.orientechnologies.orient.core.db.OSharedContextEmbedded;
 import com.orientechnologies.orient.core.db.OrientDBConfig;
+import com.orientechnologies.orient.core.db.document.RecordReader.RecordFetchMode;
 import com.orientechnologies.orient.core.db.record.OClassTrigger;
 import com.orientechnologies.orient.core.db.record.OIdentifiable;
 import com.orientechnologies.orient.core.db.record.ORecordElement;
@@ -1436,7 +1437,8 @@ public class ODatabaseDocumentEmbedded extends ODatabaseDocumentAbstract
           else version = recordVersion;
 
           recordBuffer =
-              recordReader.readRecord(getStorage(), rid, fetchPlan, ignoreCache, version);
+              recordReader.readRecord(
+                  (RecordFetchMode) getStorage(), rid, fetchPlan, ignoreCache, version);
         }
 
         if (recordBuffer == null) return null;
