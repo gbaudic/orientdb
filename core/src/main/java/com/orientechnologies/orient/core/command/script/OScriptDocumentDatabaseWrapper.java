@@ -60,11 +60,6 @@ public class OScriptDocumentDatabaseWrapper {
     this.database = database;
   }
 
-  public void switchUser(final String iUserName, final String iUserPassword) {
-    if (!database.isClosed()) database.close();
-    database.open(iUserName, iUserPassword);
-  }
-
   public OIdentifiable[] query(final String iText) {
     return query(iText, (Object[]) null);
   }
@@ -99,10 +94,6 @@ public class OScriptDocumentDatabaseWrapper {
     return database.getMetadata().getIndexManagerInternal().getIndex(database, name);
   }
 
-  public boolean exists() {
-    return database.exists();
-  }
-
   public ODocument newInstance() {
     return database.newInstance();
   }
@@ -131,10 +122,6 @@ public class OScriptDocumentDatabaseWrapper {
     return (THISDB) database.setStatus(iStatus);
   }
 
-  public void drop() {
-    database.drop();
-  }
-
   public String getName() {
     return database.getName();
   }
@@ -149,10 +136,6 @@ public class OScriptDocumentDatabaseWrapper {
 
   public boolean isClosed() {
     return database.isClosed();
-  }
-
-  public <THISDB extends ODatabase> THISDB open(String iUserName, String iUserPassword) {
-    return (THISDB) database.open(iUserName, iUserPassword);
   }
 
   public ODocument save(final Map<String, Object> iObject) {
@@ -170,10 +153,6 @@ public class OScriptDocumentDatabaseWrapper {
 
   public boolean dropCluster(String iClusterName) {
     return database.dropCluster(iClusterName);
-  }
-
-  public <THISDB extends ODatabase> THISDB create() {
-    return (THISDB) database.create();
   }
 
   public boolean dropCluster(int iClusterId, final boolean iTruncate) {
@@ -204,28 +183,12 @@ public class OScriptDocumentDatabaseWrapper {
     return database.getClusterIdByName(iClusterName);
   }
 
-  public boolean isMVCC() {
-    return database.isMVCC();
-  }
-
   public String getClusterNameById(int iClusterId) {
     return database.getClusterNameById(iClusterId);
   }
 
-  public <RET extends ODatabase<?>> RET setMVCC(boolean iValue) {
-    return (RET) database.setMVCC(iValue);
-  }
-
-  public long getClusterRecordSizeById(int iClusterId) {
-    return database.getClusterRecordSizeById(iClusterId);
-  }
-
   public boolean isValidationEnabled() {
     return database.isValidationEnabled();
-  }
-
-  public long getClusterRecordSizeByName(String iClusterName) {
-    return database.getClusterRecordSizeByName(iClusterName);
   }
 
   public <RET extends ODatabaseDocument> RET setValidationEnabled(boolean iValue) {
@@ -340,14 +303,6 @@ public class OScriptDocumentDatabaseWrapper {
 
   public void setInternal(ATTRIBUTES attribute, Object iValue) {
     database.setInternal(attribute, iValue);
-  }
-
-  public boolean isRetainRecords() {
-    return database.isRetainRecords();
-  }
-
-  public ODatabaseDocument setRetainRecords(boolean iValue) {
-    return database.setRetainRecords(iValue);
   }
 
   public long getSize() {

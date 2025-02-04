@@ -362,17 +362,6 @@ public abstract class ODatabaseDocumentAbstract extends OListenerManger<ODatabas
   }
 
   /** {@inheritDoc} */
-  public boolean isRetainRecords() {
-    return retainRecords;
-  }
-
-  /** {@inheritDoc} */
-  public ODatabaseDocument setRetainRecords(boolean retainRecords) {
-    this.retainRecords = retainRecords;
-    return this;
-  }
-
-  /** {@inheritDoc} */
   public <DB extends ODatabase> DB setStatus(final STATUS status) {
     checkIfActive();
     setStatusInternal(status);
@@ -425,16 +414,6 @@ public abstract class ODatabaseDocumentAbstract extends OListenerManger<ODatabas
         }
       }
     }
-  }
-
-  /** {@inheritDoc} */
-  public boolean isMVCC() {
-    return true;
-  }
-
-  /** {@inheritDoc} */
-  public <DB extends ODatabase<?>> DB setMVCC(boolean mvcc) {
-    throw new UnsupportedOperationException();
   }
 
   /** {@inheritDoc} */

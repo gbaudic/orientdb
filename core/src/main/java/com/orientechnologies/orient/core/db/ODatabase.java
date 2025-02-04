@@ -967,34 +967,11 @@ public interface ODatabase<T> extends OBackupable, Closeable {
   <DB extends ODatabase<?>> DB unregisterHook(ORecordHook iHookImpl);
 
   /**
-   * Returns if the Multi Version Concurrency Control is enabled or not. If enabled the version of
-   * the record is checked before each update and delete against the records.
-   *
-   * @return true if enabled, otherwise false
-   * @see com.orientechnologies.orient.core.db.document.ODatabaseDocument#setMVCC(boolean)
-   *     deprecated since 2.2
-   */
-  @Deprecated
-  boolean isMVCC();
-
-  /**
    * Retrieves all the registered listeners.
    *
    * @return An iterable of ODatabaseListener instances.
    */
   Iterable<ODatabaseListener> getListeners();
-
-  /**
-   * Enables or disables the Multi-Version Concurrency Control. If enabled the version of the record
-   * is checked before each update and delete against the records.
-   *
-   * @param iValue
-   * @return The Database instance itself giving a "fluent interface". Useful to call multiple
-   *     methods in chain. deprecated since 2.2
-   * @see com.orientechnologies.orient.core.db.document.ODatabaseDocument#isMVCC()
-   */
-  @Deprecated
-  <DB extends ODatabase<?>> DB setMVCC(boolean iValue);
 
   String getType();
 

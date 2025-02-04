@@ -1238,12 +1238,12 @@ public class OObjectEntitySerializer {
       }
     }
 
-    if (db.isMVCC() && !versionConfigured && db.getTransaction() instanceof OTransactionOptimistic)
+    if (!versionConfigured && db.getTransaction() instanceof OTransactionOptimistic)
       throw new OTransactionException(
           "Cannot involve an object of class '"
               + pojoClass
               + "' in an Optimistic Transaction commit because it does not define @Version or"
-              + " @OVersion and therefore cannot handle MVCC");
+              + " @OVersion and therefore cannot handle optimist locking");
 
     String fieldName;
     Object fieldValue;

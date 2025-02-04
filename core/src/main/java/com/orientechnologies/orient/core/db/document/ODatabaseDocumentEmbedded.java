@@ -1679,41 +1679,6 @@ public class ODatabaseDocumentEmbedded extends ODatabaseDocumentAbstract
   }
 
   @Override
-  @Deprecated
-  public <DB extends ODatabaseDocument> DB checkSecurity(
-      final String iResource, final int iOperation) {
-    final String resourceSpecific = ORule.mapLegacyResourceToSpecificResource(iResource);
-    final ORule.ResourceGeneric resourceGeneric =
-        ORule.mapLegacyResourceToGenericResource(iResource);
-
-    if (resourceSpecific == null || resourceSpecific.equals("*"))
-      checkSecurity(resourceGeneric, null, iOperation);
-
-    return checkSecurity(resourceGeneric, resourceSpecific, iOperation);
-  }
-
-  @Override
-  @Deprecated
-  public <DB extends ODatabaseDocument> DB checkSecurity(
-      final String iResourceGeneric, final int iOperation, final Object iResourceSpecific) {
-    final ORule.ResourceGeneric resourceGeneric =
-        ORule.mapLegacyResourceToGenericResource(iResourceGeneric);
-    if (iResourceSpecific == null || iResourceSpecific.equals("*"))
-      return checkSecurity(resourceGeneric, iOperation, (Object) null);
-
-    return checkSecurity(resourceGeneric, iOperation, iResourceSpecific);
-  }
-
-  @Override
-  @Deprecated
-  public <DB extends ODatabaseDocument> DB checkSecurity(
-      final String iResourceGeneric, final int iOperation, final Object... iResourcesSpecific) {
-    final ORule.ResourceGeneric resourceGeneric =
-        ORule.mapLegacyResourceToGenericResource(iResourceGeneric);
-    return checkSecurity(resourceGeneric, iOperation, iResourcesSpecific);
-  }
-
-  @Override
   public int addCluster(final String iClusterName, final Object... iParameters) {
     checkIfActive();
     return getStorage().addCluster(iClusterName, iParameters);

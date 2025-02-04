@@ -1058,23 +1058,6 @@ public class ODatabaseDocumentRemote extends ODatabaseDocumentAbstract {
   }
 
   @Override
-  public <DB extends ODatabaseDocument> DB checkSecurity(String iResource, int iOperation) {
-    return (DB) this;
-  }
-
-  @Override
-  public <DB extends ODatabaseDocument> DB checkSecurity(
-      String iResourceGeneric, int iOperation, Object iResourceSpecific) {
-    return (DB) this;
-  }
-
-  @Override
-  public <DB extends ODatabaseDocument> DB checkSecurity(
-      String iResourceGeneric, int iOperation, Object... iResourcesSpecific) {
-    return (DB) this;
-  }
-
-  @Override
   public boolean isRemote() {
     return true;
   }

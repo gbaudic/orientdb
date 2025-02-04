@@ -1106,39 +1106,6 @@ public class OObjectDatabaseTx extends ODatabaseWrapperAbstract<ODatabaseDocumen
     return iParameter;
   }
 
-  @Deprecated
-  public boolean isMVCC() {
-    return underlying.isMVCC();
-  }
-
-  @Deprecated
-  public <DBTYPE extends ODatabase<?>> DBTYPE setMVCC(final boolean iMvcc) {
-    underlying.setMVCC(iMvcc);
-    return (DBTYPE) this;
-  }
-
-  /**
-   * Returns true if current configuration retains objects, otherwise false
-   *
-   * @see #setRetainObjects(boolean)
-   */
-  @Deprecated
-  public boolean isRetainObjects() {
-    return false;
-  }
-
-  /**
-   * Specifies if retain handled objects in memory or not. Setting it to false can improve
-   * performance on large inserts. Default is enabled.
-   *
-   * @param iValue True to enable, false to disable it.
-   * @see #isRetainObjects()
-   */
-  @Deprecated
-  public OObjectDatabaseTx setRetainObjects(final boolean iValue) {
-    return this;
-  }
-
   @Override
   public OLiveQueryMonitor live(String query, OLiveQueryResultListener listener, Object... args) {
     return underlying.live(query, listener, args);

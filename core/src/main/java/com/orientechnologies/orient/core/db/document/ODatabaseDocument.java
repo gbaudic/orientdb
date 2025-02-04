@@ -198,24 +198,6 @@ public interface ODatabaseDocument extends ODatabase<ORecord> {
   byte getRecordType();
 
   /**
-   * Returns true if current configuration retains objects, otherwise false
-   *
-   * @see #setRetainRecords(boolean)
-   */
-  @Deprecated
-  boolean isRetainRecords();
-
-  /**
-   * Specifies if retain handled objects in memory or not. Setting it to false can improve
-   * performance on large inserts. Default is enabled.
-   *
-   * @param iValue True to enable, false to disable it.
-   * @see #isRetainRecords()
-   */
-  @Deprecated
-  ODatabaseDocument setRetainRecords(boolean iValue);
-
-  /**
    * Checks if the operation on a resource is allowed for the current user.
    *
    * @param resourceGeneric Generic Resource where to execute the operation
@@ -281,56 +263,6 @@ public interface ODatabaseDocument extends ODatabase<ORecord> {
    *     methods in chain.
    */
   <DB extends ODatabaseDocument> DB setValidationEnabled(boolean iEnabled);
-
-  /**
-   * Checks if the operation on a resource is allowed for the current user.
-   *
-   * @param iResource Resource where to execute the operation
-   * @param iOperation Operation to execute against the resource
-   * @return The Database instance itself giving a "fluent interface". Useful to call multiple
-   *     methods in chain.
-   */
-  @Deprecated
-  <DB extends ODatabaseDocument> DB checkSecurity(String iResource, int iOperation);
-
-  /**
-   * Checks if the operation on a resource is allowed for the current user. The check is made in two
-   * steps:
-   *
-   * <ol>
-   *   <li>Access to all the resource as *
-   *   <li>Access to the specific target resource
-   * </ol>
-   *
-   * @param iResourceGeneric Resource where to execute the operation, i.e.: database.clusters
-   * @param iOperation Operation to execute against the resource
-   * @param iResourceSpecific Target resource, i.e.: "employee" to specify the cluster name.
-   * @return The Database instance itself giving a "fluent interface". Useful to call multiple
-   *     methods in chain.
-   */
-  @Deprecated
-  <DB extends ODatabaseDocument> DB checkSecurity(
-      String iResourceGeneric, int iOperation, Object iResourceSpecific);
-
-  /**
-   * Checks if the operation against multiple resources is allowed for the current user. The check
-   * is made in two steps:
-   *
-   * <ol>
-   *   <li>Access to all the resource as *
-   *   <li>Access to the specific target resources
-   * </ol>
-   *
-   * @param iResourceGeneric Resource where to execute the operation, i.e.: database.clusters
-   * @param iOperation Operation to execute against the resource
-   * @param iResourcesSpecific Target resources as an array of Objects, i.e.: ["employee", 2] to
-   *     specify cluster name and id.
-   * @return The Database instance itself giving a "fluent interface". Useful to call multiple
-   *     methods in chain.
-   */
-  @Deprecated
-  <DB extends ODatabaseDocument> DB checkSecurity(
-      String iResourceGeneric, int iOperation, Object... iResourcesSpecific);
 
   /**
    * @return <code>true</code> if database is obtained from the pool and <code>false</code>

@@ -168,10 +168,6 @@ public interface ODatabaseObject extends ODatabase<Object>, OUserObject2RecordHa
    */
   <RET> RET detachAll(final Object iPojo, boolean returnNonProxiedInstance);
 
-  boolean isRetainObjects();
-
-  ODatabase setRetainObjects(boolean iRetainObjects);
-
   Object stream2pojo(ODocument iRecord, final Object iPojo, final String iFetchPlan);
 
   ODocument pojo2Stream(final Object iPojo, final ODocument iRecord);
