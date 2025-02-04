@@ -25,7 +25,6 @@ import com.orientechnologies.common.exception.OException;
 import com.orientechnologies.orient.core.cache.OLocalRecordCache;
 import com.orientechnologies.orient.core.command.script.OCommandScriptException;
 import com.orientechnologies.orient.core.config.OContextConfiguration;
-import com.orientechnologies.orient.core.config.OGlobalConfiguration;
 import com.orientechnologies.orient.core.conflict.ORecordConflictStrategy;
 import com.orientechnologies.orient.core.dictionary.ODictionary;
 import com.orientechnologies.orient.core.exception.OCommandExecutionException;
@@ -95,46 +94,6 @@ public interface ODatabase<T> extends OBackupable, Closeable {
   }
 
   /**
-   * Opens a database using the user and password received as arguments.
-   *
-   * @param iUserName Username to login
-   * @param iUserPassword Password associated to the user
-   * @return The Database instance itself giving a "fluent interface". Useful to call multiple
-   *     methods in chain.
-   */
-  @Deprecated
-  <DB extends ODatabase> DB open(final String iUserName, final String iUserPassword);
-
-  /**
-   * Creates a new database.
-   *
-   * @return The Database instance itself giving a "fluent interface". Useful to call multiple
-   *     methods in chain.
-   */
-  @Deprecated
-  <DB extends ODatabase> DB create();
-
-  /**
-   * Creates new database from database backup. Only incremental backups are supported.
-   *
-   * @param incrementalBackupPath Path to incremental backup
-   * @param <DB> Concrete database instance type.
-   * @return he Database instance itself giving a "fluent interface". Useful to call multiple
-   *     methods in chain.
-   */
-  @Deprecated
-  <DB extends ODatabase> DB create(String incrementalBackupPath);
-
-  /**
-   * Creates a new database passing initial settings.
-   *
-   * @return The Database instance itself giving a "fluent interface". Useful to call multiple
-   *     methods in chain.
-   */
-  @Deprecated
-  <DB extends ODatabase> DB create(Map<OGlobalConfiguration, Object> iInitialSettings);
-
-  /**
    * Activate current database instance on current thread. Call this method before using the
    * database if you switch between multiple databases instances on the same thread or if you pass
    * them across threads.
@@ -148,28 +107,12 @@ public interface ODatabase<T> extends OBackupable, Closeable {
   void reload();
 
   /**
-   * Drops a database.
-   *
-   * @throws ODatabaseException if database is closed. @Deprecated use instead {@link OrientDB#drop}
-   */
-  @Deprecated
-  void drop();
-
-  /**
    * Returns the database configuration settings. If defined, any database configuration overwrites
    * the global one.
    *
    * @return OContextConfiguration
    */
   OContextConfiguration getConfiguration();
-
-  /**
-   * Checks if the database exists.
-   *
-   * @return True if already exists, otherwise false.
-   */
-  @Deprecated
-  boolean exists();
 
   /**
    * Closes an opened database, if the database is already closed does nothing, if a transaction is
@@ -727,15 +670,6 @@ public interface ODatabase<T> extends OBackupable, Closeable {
    *     methods in chain.
    */
   ODatabase<T> begin(OTransaction.TXTYPE iStatus);
-
-  /**
-   * Attaches a transaction as current.
-   *
-   * @return The Database instance itself giving a "fluent interface". Useful to call multiple
-   *     methods in chain.
-   */
-  @Deprecated
-  ODatabase<T> begin(OTransaction iTx) throws OTransactionException;
 
   /**
    * Commits the current transaction. The approach is all or nothing. All changes will be permanent

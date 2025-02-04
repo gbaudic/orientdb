@@ -22,11 +22,9 @@ package com.orientechnologies.orient.core.db;
 import com.orientechnologies.orient.core.cache.OLocalRecordCache;
 import com.orientechnologies.orient.core.command.OCommandOutputListener;
 import com.orientechnologies.orient.core.config.OContextConfiguration;
-import com.orientechnologies.orient.core.config.OGlobalConfiguration;
 import com.orientechnologies.orient.core.db.tool.ODatabaseImport;
 import com.orientechnologies.orient.core.exception.ODatabaseException;
 import com.orientechnologies.orient.core.id.ORID;
-import com.orientechnologies.orient.core.metadata.security.OToken;
 import com.orientechnologies.orient.core.storage.ORecordMetadata;
 import com.orientechnologies.orient.core.storage.OStorage;
 import java.io.IOException;
@@ -50,17 +48,6 @@ public abstract class ODatabaseWrapperAbstract<DB extends ODatabaseInternal, T>
     databaseOwner = this;
   }
 
-  public <THISDB extends ODatabase> THISDB open(
-      final String iUserName, final String iUserPassword) {
-    underlying.open(iUserName, iUserPassword);
-    return (THISDB) this;
-  }
-
-  public <THISDB extends ODatabase> THISDB open(final OToken iToken) {
-    underlying.open(iToken);
-    return (THISDB) this;
-  }
-
   @Override
   public ODatabase activateOnCurrentThread() {
     return underlying.activateOnCurrentThread();
@@ -69,25 +56,6 @@ public abstract class ODatabaseWrapperAbstract<DB extends ODatabaseInternal, T>
   @Override
   public boolean isActiveOnCurrentThread() {
     return underlying.isActiveOnCurrentThread();
-  }
-
-  public <THISDB extends ODatabase> THISDB create() {
-    return (THISDB) underlying.create();
-  }
-
-  @Override
-  public <THISDB extends ODatabase> THISDB create(String incrementalBackupPath) {
-    return (THISDB) underlying.create(incrementalBackupPath);
-  }
-
-  public <THISDB extends ODatabase> THISDB create(
-      final Map<OGlobalConfiguration, Object> iInitialSettings) {
-    underlying.create(iInitialSettings);
-    return (THISDB) this;
-  }
-
-  public boolean exists() {
-    return underlying.exists();
   }
 
   public void reload() {
@@ -155,10 +123,6 @@ public abstract class ODatabaseWrapperAbstract<DB extends ODatabaseInternal, T>
 
   public void replaceStorage(OStorage iNewStorage) {
     underlying.replaceStorage(iNewStorage);
-  }
-
-  public void drop() {
-    underlying.drop();
   }
 
   public STATUS getStatus() {

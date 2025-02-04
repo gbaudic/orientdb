@@ -39,7 +39,6 @@ import com.orientechnologies.orient.core.Orient;
 import com.orientechnologies.orient.core.cache.OLocalRecordCache;
 import com.orientechnologies.orient.core.command.OCommandOutputListener;
 import com.orientechnologies.orient.core.command.script.OCommandScriptException;
-import com.orientechnologies.orient.core.config.OGlobalConfiguration;
 import com.orientechnologies.orient.core.conflict.ORecordConflictStrategy;
 import com.orientechnologies.orient.core.db.ODatabase;
 import com.orientechnologies.orient.core.db.ODatabaseDocumentInternal;
@@ -72,7 +71,6 @@ import com.orientechnologies.orient.core.metadata.schema.OSchemaProxy;
 import com.orientechnologies.orient.core.metadata.security.OImmutableUser;
 import com.orientechnologies.orient.core.metadata.security.ORole;
 import com.orientechnologies.orient.core.metadata.security.ORule;
-import com.orientechnologies.orient.core.metadata.security.OToken;
 import com.orientechnologies.orient.core.metadata.security.OUser;
 import com.orientechnologies.orient.core.metadata.sequence.OSequenceAction;
 import com.orientechnologies.orient.core.record.OEdge;
@@ -147,36 +145,6 @@ public class ODatabaseDocumentRemote extends ODatabaseDocumentAbstract {
     }
   }
 
-  public <DB extends ODatabase> DB open(final String iUserName, final String iUserPassword) {
-    throw new UnsupportedOperationException("Use OrientDB");
-  }
-
-  @Deprecated
-  public <DB extends ODatabase> DB open(final OToken iToken) {
-    throw new UnsupportedOperationException("Deprecated Method");
-  }
-
-  @Override
-  public <DB extends ODatabase> DB create() {
-    throw new UnsupportedOperationException("Deprecated Method");
-  }
-
-  @Override
-  public <DB extends ODatabase> DB create(String incrementalBackupPath) {
-    throw new UnsupportedOperationException("use OrientDB");
-  }
-
-  @Override
-  public <DB extends ODatabase> DB create(
-      final Map<OGlobalConfiguration, Object> iInitialSettings) {
-    throw new UnsupportedOperationException("use OrientDB");
-  }
-
-  @Override
-  public void drop() {
-    throw new UnsupportedOperationException("use OrientDB");
-  }
-
   @Override
   public <DB extends ODatabase> DB set(ATTRIBUTES iAttribute, Object iValue) {
 
@@ -236,11 +204,6 @@ public class ODatabaseDocumentRemote extends ODatabaseDocumentAbstract {
     database.user = this.user;
     this.activateOnCurrentThread();
     return database;
-  }
-
-  @Override
-  public boolean exists() {
-    throw new UnsupportedOperationException("use OrientDB");
   }
 
   public void internalOpen(String user, String password, OrientDBConfig config) {

@@ -27,7 +27,6 @@ import com.orientechnologies.common.log.OLogManager;
 import com.orientechnologies.common.log.OLogger;
 import com.orientechnologies.common.util.OCommonConst;
 import com.orientechnologies.orient.core.command.script.OCommandScriptException;
-import com.orientechnologies.orient.core.config.OGlobalConfiguration;
 import com.orientechnologies.orient.core.conflict.ORecordConflictStrategy;
 import com.orientechnologies.orient.core.db.ODatabase;
 import com.orientechnologies.orient.core.db.ODatabaseDocumentInternal;
@@ -55,7 +54,6 @@ import com.orientechnologies.orient.core.metadata.schema.OType;
 import com.orientechnologies.orient.core.metadata.security.ORole;
 import com.orientechnologies.orient.core.metadata.security.ORule;
 import com.orientechnologies.orient.core.metadata.security.OSecurityUser;
-import com.orientechnologies.orient.core.metadata.security.OToken;
 import com.orientechnologies.orient.core.metadata.security.OUser;
 import com.orientechnologies.orient.core.record.OElement;
 import com.orientechnologies.orient.core.record.ORecord;
@@ -129,29 +127,6 @@ public class OObjectDatabaseTx extends ODatabaseWrapperAbstract<ODatabaseDocumen
 
   public <RET> RET newInstance(String iClassName) {
     return (RET) newInstance(iClassName, null, OCommonConst.EMPTY_OBJECT_ARRAY);
-  }
-
-  @Override
-  public <THISDB extends ODatabase> THISDB open(String iUserName, String iUserPassword) {
-    super.open(iUserName, iUserPassword);
-    saveOnlyDirty =
-        getConfiguration().getValueAsBoolean(OGlobalConfiguration.OBJECT_SAVE_ONLY_DIRTY);
-
-    entityManager.registerEntityClass(OUser.class);
-    entityManager.registerEntityClass(ORole.class);
-    metadata = new OMetadataObject((OMetadataInternal) underlying.getMetadata(), underlying);
-    this.registerFieldMappingStrategy();
-    return (THISDB) this;
-  }
-
-  @Override
-  public <THISDB extends ODatabase> THISDB open(OToken iToken) {
-    super.open(iToken);
-    entityManager.registerEntityClass(OUser.class);
-    entityManager.registerEntityClass(ORole.class);
-    metadata = new OMetadataObject((OMetadataInternal) underlying.getMetadata(), underlying);
-    this.registerFieldMappingStrategy();
-    return (THISDB) this;
   }
 
   public OSecurityUser getUser() {
@@ -647,11 +622,6 @@ public class OObjectDatabaseTx extends ODatabaseWrapperAbstract<ODatabaseDocumen
     return this;
   }
 
-  public OObjectDatabaseTx begin(final OTransaction iTx) {
-    underlying.begin(iTx);
-    return this;
-  }
-
   @Override
   public OObjectDatabaseTx commit() {
     // BY PASS DOCUMENT DB
@@ -978,21 +948,6 @@ public class OObjectDatabaseTx extends ODatabaseWrapperAbstract<ODatabaseDocumen
   @Override
   public OSharedContext getSharedContext() {
     return underlying.getSharedContext();
-  }
-
-  /**
-   * Register the static document binary mapping mode in the database context (only if it's not
-   * already set)
-   */
-  private void registerFieldMappingStrategy() {
-    if (!this.getConfiguration()
-        .getContextKeys()
-        .contains(OGlobalConfiguration.DOCUMENT_BINARY_MAPPING.getKey())) {
-      this.getConfiguration()
-          .setValue(
-              OGlobalConfiguration.DOCUMENT_BINARY_MAPPING,
-              OGlobalConfiguration.DOCUMENT_BINARY_MAPPING.getValueAsInteger());
-    }
   }
 
   /**

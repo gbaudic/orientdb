@@ -32,7 +32,6 @@ import com.orientechnologies.orient.core.cache.OLocalRecordCache;
 import com.orientechnologies.orient.core.command.OBasicCommandContext;
 import com.orientechnologies.orient.core.command.OCommandOutputListener;
 import com.orientechnologies.orient.core.command.OScriptExecutor;
-import com.orientechnologies.orient.core.config.OGlobalConfiguration;
 import com.orientechnologies.orient.core.conflict.ORecordConflictStrategy;
 import com.orientechnologies.orient.core.db.ODatabase;
 import com.orientechnologies.orient.core.db.ODatabaseDocumentInternal;
@@ -81,7 +80,6 @@ import com.orientechnologies.orient.core.metadata.security.ORule;
 import com.orientechnologies.orient.core.metadata.security.OSecurityInternal;
 import com.orientechnologies.orient.core.metadata.security.OSecurityShared;
 import com.orientechnologies.orient.core.metadata.security.OSecurityUser;
-import com.orientechnologies.orient.core.metadata.security.OToken;
 import com.orientechnologies.orient.core.metadata.security.OUser;
 import com.orientechnologies.orient.core.metadata.security.auth.OAuthenticationInfo;
 import com.orientechnologies.orient.core.metadata.sequence.OSequenceAction;
@@ -175,10 +173,6 @@ public class ODatabaseDocumentEmbedded extends ODatabaseDocumentAbstract
 
       throw OException.wrapException(new ODatabaseException("Error on opening database "), t);
     }
-  }
-
-  public <DB extends ODatabase> DB open(final String iUserName, final String iUserPassword) {
-    throw new UnsupportedOperationException("Use OrientDB");
   }
 
   public void init(OrientDBConfig config, OSharedContext sharedContext) {
@@ -290,23 +284,6 @@ public class ODatabaseDocumentEmbedded extends ODatabaseDocumentAbstract
         registerListener(listener);
       }
     }
-  }
-
-  /**
-   * Opens a database using an authentication token received as an argument.
-   *
-   * @param iToken Authentication token
-   * @return The Database instance itself giving a "fluent interface". Useful to call multiple
-   *     methods in chain.
-   */
-  @Deprecated
-  public <DB extends ODatabase> DB open(final OToken iToken) {
-    throw new UnsupportedOperationException("Deprecated Method");
-  }
-
-  @Override
-  public <DB extends ODatabase> DB create() {
-    throw new UnsupportedOperationException("Deprecated Method");
   }
 
   /** {@inheritDoc} */
@@ -509,24 +486,6 @@ public class ODatabaseDocumentEmbedded extends ODatabaseDocumentAbstract
     return (DB) this;
   }
 
-  /** {@inheritDoc} */
-  @Override
-  public <DB extends ODatabase> DB create(String incrementalBackupPath) {
-    throw new UnsupportedOperationException("use OrientDB");
-  }
-
-  @Override
-  public <DB extends ODatabase> DB create(
-      final Map<OGlobalConfiguration, Object> iInitialSettings) {
-    throw new UnsupportedOperationException("use OrientDB");
-  }
-
-  /** {@inheritDoc} */
-  @Override
-  public void drop() {
-    throw new UnsupportedOperationException("use OrientDB");
-  }
-
   /**
    * Returns a copy of current database if it's open. The returned instance can be used by another
    * thread without affecting current instance. The database copy is not set in thread local.
@@ -547,11 +506,6 @@ public class ODatabaseDocumentEmbedded extends ODatabaseDocumentAbstract
     database.callOnOpenListeners();
     this.activateOnCurrentThread();
     return database;
-  }
-
-  @Override
-  public boolean exists() {
-    throw new UnsupportedOperationException("use OrientDB");
   }
 
   @Override
