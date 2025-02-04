@@ -17,6 +17,7 @@
 package com.orientechnologies.orient.test.database.auto;
 
 import com.orientechnologies.orient.core.db.ODatabaseDocumentInternal;
+import com.orientechnologies.orient.core.db.OrientDBInternal;
 import com.orientechnologies.orient.core.db.document.ODatabaseDocument;
 import com.orientechnologies.orient.core.db.object.ODatabaseObject;
 import com.orientechnologies.orient.core.exception.OConcurrentModificationException;
@@ -124,7 +125,8 @@ public class TransactionConsistencyTest extends DocumentDBBaseTest {
     database1.close();
 
     database2.activateOnCurrentThread();
-    ((ODatabaseDocumentInternal) database2).getStorage().close();
+    ((ODatabaseDocumentInternal) database2).close();
+    OrientDBInternal.extract(baseContext).forceDatabaseClose(database2.getName());
     database2 = openSession("admin", "admin");
 
     ODocument vDocA_db2 = database2.load(vDocA_Rid);

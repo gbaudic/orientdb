@@ -230,7 +230,7 @@ public class CollateTest extends DocumentDBBaseTest {
     Assert.assertTrue(
         explain.getExecutionPlan().get().getIndexes().contains("collateCompositeIndexCS"));
 
-    if (!database.getStorage().isRemote()) {
+    if (!database.isRemote()) {
       final OIndexManagerAbstract indexManager = database.getMetadata().getIndexManagerInternal();
       final OIndex index = indexManager.getIndex(database, "collateCompositeIndexCS");
 

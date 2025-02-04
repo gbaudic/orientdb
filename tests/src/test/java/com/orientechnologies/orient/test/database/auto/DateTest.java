@@ -69,7 +69,7 @@ public class DateTest extends DocumentDBBaseTest {
     final long begin = System.currentTimeMillis();
 
     String dateAsString =
-        database.getStorage().getConfiguration().getDateFormatInstance().format(begin);
+        database.getStorageInfo().getConfiguration().getDateFormatInstance().format(begin);
 
     ODocument doc = new ODocument("Order");
     doc.field("context", "testPrecision");

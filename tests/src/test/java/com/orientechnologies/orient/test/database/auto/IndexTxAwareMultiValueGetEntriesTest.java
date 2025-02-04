@@ -50,7 +50,7 @@ public class IndexTxAwareMultiValueGetEntriesTest extends DocumentDBBaseTest {
 
   @Test
   public void testPut() {
-    if (database.getStorage().isRemote()) {
+    if (database.isRemote()) {
       throw new SkipException("Test is enabled only for embedded database");
     }
 
@@ -92,7 +92,7 @@ public class IndexTxAwareMultiValueGetEntriesTest extends DocumentDBBaseTest {
 
   @Test
   public void testRemove() {
-    if (database.getStorage().isRemote()) {
+    if (database.isRemote()) {
       throw new SkipException("Test is enabled only for embedded database");
     }
 
@@ -135,7 +135,7 @@ public class IndexTxAwareMultiValueGetEntriesTest extends DocumentDBBaseTest {
 
   @Test
   public void testRemoveOne() {
-    if (database.getStorage().isRemote()) {
+    if (database.isRemote()) {
       throw new SkipException("Test is enabled only for embedded database");
     }
 
@@ -177,7 +177,7 @@ public class IndexTxAwareMultiValueGetEntriesTest extends DocumentDBBaseTest {
 
   @Test
   public void testMultiPut() {
-    if (database.getStorage().isRemote()) {
+    if (database.isRemote()) {
       throw new SkipException("Test is enabled only for embedded database");
     }
 
@@ -212,7 +212,7 @@ public class IndexTxAwareMultiValueGetEntriesTest extends DocumentDBBaseTest {
 
   @Test
   public void testPutAfterTransaction() {
-    if (database.getStorage().isRemote()) {
+    if (database.isRemote()) {
       throw new SkipException("Test is enabled only for embedded database");
     }
 
@@ -241,7 +241,7 @@ public class IndexTxAwareMultiValueGetEntriesTest extends DocumentDBBaseTest {
 
   @Test
   public void testRemoveOneWithinTransaction() {
-    if (database.getStorage().isRemote()) {
+    if (database.isRemote()) {
       throw new SkipException("Test is enabled only for embedded database");
     }
 
@@ -275,7 +275,7 @@ public class IndexTxAwareMultiValueGetEntriesTest extends DocumentDBBaseTest {
 
   @Test
   public void testRemoveAllWithinTransaction() {
-    if (database.getStorage().isRemote()) {
+    if (database.isRemote()) {
       throw new SkipException("Test is enabled only for embedded database");
     }
 
@@ -308,7 +308,7 @@ public class IndexTxAwareMultiValueGetEntriesTest extends DocumentDBBaseTest {
 
   @Test
   public void testPutAfterRemove() {
-    if (database.getStorage().isRemote()) {
+    if (database.isRemote()) {
       throw new SkipException("Test is enabled only for embedded database");
     }
 

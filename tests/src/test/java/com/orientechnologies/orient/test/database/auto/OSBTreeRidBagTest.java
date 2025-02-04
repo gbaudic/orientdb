@@ -16,14 +16,12 @@
 
 package com.orientechnologies.orient.test.database.auto;
 
-import com.orientechnologies.orient.client.remote.OEngineRemote;
 import com.orientechnologies.orient.client.remote.OrientDBRemote;
 import com.orientechnologies.orient.core.config.OGlobalConfiguration;
 import com.orientechnologies.orient.core.db.ODatabaseRecordThreadLocal;
 import com.orientechnologies.orient.core.db.OrientDBInternal;
 import com.orientechnologies.orient.core.db.record.OIdentifiable;
 import com.orientechnologies.orient.core.db.record.ridbag.ORidBag;
-import com.orientechnologies.orient.core.engine.memory.OEngineMemory;
 import com.orientechnologies.orient.core.record.impl.ODocument;
 import com.orientechnologies.orient.core.storage.cache.local.OWOWCache;
 import com.orientechnologies.orient.core.storage.disk.OLocalPaginatedStorage;
@@ -107,8 +105,7 @@ public class OSBTreeRidBagTest extends ORidBagTest {
   }
 
   public void testRidBagClusterDistribution() {
-    if (database.getStorage().getType().equals(OEngineRemote.NAME)
-        || database.getStorage().getType().equals(OEngineMemory.NAME)) return;
+    if (database.isRemote()) return;
 
     final int clusterIdOne = database.addCluster("clusterOne");
 
@@ -232,8 +229,7 @@ public class OSBTreeRidBagTest extends ORidBagTest {
   }
 
   public void testRidBagDelete() {
-    if (database.getStorage().getType().equals(OEngineRemote.NAME)
-        || database.getStorage().getType().equals(OEngineMemory.NAME)) return;
+    if (database.isRemote()) return;
 
     ODocument realDoc = new ODocument();
     ORidBag realDocRidBag = new ORidBag();

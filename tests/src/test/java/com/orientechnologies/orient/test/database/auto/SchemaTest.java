@@ -127,7 +127,7 @@ public class SchemaTest extends DocumentDBBaseTest {
   @Test(dependsOnMethods = "createSchema")
   public void checkTotalRecords() {
 
-    Assert.assertTrue(database.getStorage().countRecords() > 0);
+    Assert.assertTrue(database.countRecords() > 0);
   }
 
   @Test(expectedExceptions = OValidationException.class)
@@ -168,23 +168,23 @@ public class SchemaTest extends DocumentDBBaseTest {
     database.getMetadata().getSchema().reload();
     dropTestClass = database.getMetadata().getSchema().getClass(testClassName);
     Assert.assertNotNull(dropTestClass);
-    Assert.assertEquals(database.getStorage().getClusterIdByName(testClassName), clusterId);
+    Assert.assertEquals(database.getClusterIdByName(testClassName), clusterId);
     Assert.assertNotNull(database.getClusterNameById(clusterId));
 
     dropTestClass = database.getMetadata().getSchema().getClass(testClassName);
     Assert.assertNotNull(dropTestClass);
-    Assert.assertEquals(database.getStorage().getClusterIdByName(testClassName), clusterId);
+    Assert.assertEquals(database.getClusterIdByName(testClassName), clusterId);
     Assert.assertNotNull(database.getClusterNameById(clusterId));
     database.getMetadata().getSchema().dropClass(testClassName);
     database.getMetadata().getSchema().reload();
     dropTestClass = database.getMetadata().getSchema().getClass(testClassName);
     Assert.assertNull(dropTestClass);
-    Assert.assertEquals(database.getStorage().getClusterIdByName(testClassName), -1);
+    Assert.assertEquals(database.getClusterIdByName(testClassName), -1);
     Assert.assertNull(database.getClusterNameById(clusterId));
 
     dropTestClass = database.getMetadata().getSchema().getClass(testClassName);
     Assert.assertNull(dropTestClass);
-    Assert.assertEquals(database.getStorage().getClusterIdByName(testClassName), -1);
+    Assert.assertEquals(database.getClusterIdByName(testClassName), -1);
     Assert.assertNull(database.getClusterNameById(clusterId));
   }
 
@@ -198,23 +198,23 @@ public class SchemaTest extends DocumentDBBaseTest {
     database.getMetadata().getSchema().reload();
     dropTestClass = database.getMetadata().getSchema().getClass(testClassName);
     Assert.assertNotNull(dropTestClass);
-    Assert.assertEquals(database.getStorage().getClusterIdByName(testClassName), clusterId);
+    Assert.assertEquals(database.getClusterIdByName(testClassName), clusterId);
     Assert.assertNotNull(database.getClusterNameById(clusterId));
 
     dropTestClass = database.getMetadata().getSchema().getClass(testClassName);
     Assert.assertNotNull(dropTestClass);
-    Assert.assertEquals(database.getStorage().getClusterIdByName(testClassName), clusterId);
+    Assert.assertEquals(database.getClusterIdByName(testClassName), clusterId);
     Assert.assertNotNull(database.getClusterNameById(clusterId));
     database.command("drop class " + testClassName).close();
     database.reload();
     dropTestClass = database.getMetadata().getSchema().getClass(testClassName);
     Assert.assertNull(dropTestClass);
-    Assert.assertEquals(database.getStorage().getClusterIdByName(testClassName), -1);
+    Assert.assertEquals(database.getClusterIdByName(testClassName), -1);
     Assert.assertNull(database.getClusterNameById(clusterId));
 
     dropTestClass = database.getMetadata().getSchema().getClass(testClassName);
     Assert.assertNull(dropTestClass);
-    Assert.assertEquals(database.getStorage().getClusterIdByName(testClassName), -1);
+    Assert.assertEquals(database.getClusterIdByName(testClassName), -1);
     Assert.assertNull(database.getClusterNameById(clusterId));
   }
 

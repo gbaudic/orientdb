@@ -2,7 +2,6 @@ package com.orientechnologies.orient.test.database.auto;
 
 import com.orientechnologies.orient.core.db.ODatabase;
 import com.orientechnologies.orient.core.db.ODatabaseDocumentInternal;
-import com.orientechnologies.orient.core.db.ODatabaseInternal;
 import com.orientechnologies.orient.core.db.ODatabaseWrapperAbstract;
 import com.orientechnologies.orient.core.db.OrientDB;
 import com.orientechnologies.orient.core.db.OrientDBConfig;
@@ -269,7 +268,13 @@ public abstract class BaseTest<T extends ODatabase> {
   }
 
   protected void checkEmbeddedDB() {
-    if (((ODatabaseInternal) database).getStorage().isRemote()) {
+    final ODatabaseDocumentInternal db;
+    if (database instanceof ODatabaseWrapperAbstract) {
+      db = (ODatabaseDocumentInternal) ((ODatabaseWrapperAbstract) database).getUnderlying();
+    } else {
+      db = (ODatabaseDocumentInternal) database;
+    }
+    if (db.isRemote()) {
       throw new SkipException("Test is running only in embedded database");
     }
   }
