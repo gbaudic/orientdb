@@ -15,10 +15,8 @@
  */
 package com.orientechnologies.orient.test.database.auto;
 
-import com.orientechnologies.orient.core.db.ODatabase.OPERATION_MODE;
 import com.orientechnologies.orient.core.db.ODatabaseDocumentInternal;
 import com.orientechnologies.orient.core.db.ODatabaseRecordThreadLocal;
-import com.orientechnologies.orient.core.db.document.ODatabaseDocument;
 import com.orientechnologies.orient.core.db.document.ODatabaseDocumentAbstract;
 import com.orientechnologies.orient.core.db.record.OIdentifiable;
 import com.orientechnologies.orient.core.exception.ORecordNotFoundException;
@@ -38,7 +36,6 @@ import com.orientechnologies.orient.core.serialization.serializer.record.ORecord
 import com.orientechnologies.orient.core.serialization.serializer.record.string.ORecordSerializerSchemaAware2CSV;
 import com.orientechnologies.orient.core.sql.executor.OResult;
 import com.orientechnologies.orient.core.sql.executor.OResultSet;
-import com.orientechnologies.orient.core.storage.ORecordCallback;
 import java.util.ArrayList;
 import java.util.Base64;
 import java.util.Collection;
@@ -48,7 +45,6 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Stream;
 import org.testng.Assert;
 import org.testng.annotations.Optional;
@@ -612,70 +608,6 @@ public class CRUDDocumentPhysicalTest extends DocumentDBBaseTest {
     }
 
     database.delete(newAccount);
-  }
-
-  @Test(dependsOnMethods = "cleanAll")
-  public void asynchInsertion() {
-    startRecordNumber = database.countClusterElements("Account");
-    final AtomicInteger callBackCalled = new AtomicInteger();
-
-    final long total = startRecordNumber + TOT_RECORDS;
-    for (long i = startRecordNumber; i < total; ++i) {
-      record.reset();
-      record.setClassName("Account");
-
-      record.field("id", i);
-      record.field("name", "Asynch insertion test");
-      record.field("location", "Italy");
-      record.field("salary", (i + 300));
-
-      database.save(
-          record,
-          OPERATION_MODE.ASYNCHRONOUS,
-          false,
-          (ORecordCallback<Long>) (iRID, iParameter) -> callBackCalled.incrementAndGet(),
-          null);
-    }
-
-    while (callBackCalled.intValue() < total) {
-      try {
-        Thread.sleep(100);
-      } catch (InterruptedException ignored) {
-      }
-    }
-
-    Assert.assertEquals(callBackCalled.intValue(), total);
-
-    // WAIT UNTIL ALL RECORD ARE INSERTED. USE A NEW DATABASE CONNECTION
-    // TO AVOID TO ENQUEUE THE COUNT ITSELF
-    final Thread t =
-        new Thread(
-            () -> {
-              //noinspection deprecation
-              try (final ODatabaseDocument db = openSession("admin", "admin")) {
-                long tot;
-                while (db.countClusterElements("Account") < startRecordNumber + TOT_RECORDS) {
-                  // System.out.println("Asynchronous insertion: found " + tot + " records but
-                  // waiting till " + (startRecordNumber +
-                  // TOT_RECORDS)
-                  // + " is reached");
-                  try {
-                    Thread.sleep(100);
-                  } catch (InterruptedException ignored) {
-                  }
-                }
-              }
-            });
-    t.start();
-    try {
-      t.join();
-    } catch (InterruptedException ignored) {
-    }
-
-    if (database.countClusterElements("Account") > 0)
-      for (ODocument d : database.browseClass("Account")) {
-        if (d.field("name").equals("Asynch insertion test")) d.delete();
-      }
   }
 
   @Test(dependsOnMethods = "cleanAll")

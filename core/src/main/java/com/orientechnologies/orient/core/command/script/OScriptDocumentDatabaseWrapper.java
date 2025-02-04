@@ -21,7 +21,6 @@ package com.orientechnologies.orient.core.command.script;
 
 import com.orientechnologies.orient.core.db.ODatabase;
 import com.orientechnologies.orient.core.db.ODatabase.ATTRIBUTES;
-import com.orientechnologies.orient.core.db.ODatabase.OPERATION_MODE;
 import com.orientechnologies.orient.core.db.ODatabase.STATUS;
 import com.orientechnologies.orient.core.db.ODatabaseDocumentInternal;
 import com.orientechnologies.orient.core.db.ODatabaseInternal;
@@ -39,7 +38,6 @@ import com.orientechnologies.orient.core.metadata.security.OUser;
 import com.orientechnologies.orient.core.record.ORecord;
 import com.orientechnologies.orient.core.record.impl.ODocument;
 import com.orientechnologies.orient.core.sql.executor.OResultSet;
-import com.orientechnologies.orient.core.storage.ORecordCallback;
 import com.orientechnologies.orient.core.tx.OTransaction;
 import java.util.Collection;
 import java.util.Iterator;
@@ -203,16 +201,6 @@ public class OScriptDocumentDatabaseWrapper {
     database.setUser(user);
   }
 
-  public ODocument save(
-      ORecord iRecord,
-      OPERATION_MODE iMode,
-      boolean iForceCreate,
-      final ORecordCallback<? extends Number> iRecordCreatedCallback,
-      ORecordCallback<Integer> iRecordUpdatedCallback) {
-    return database.save(
-        iRecord, iMode, iForceCreate, iRecordCreatedCallback, iRecordUpdatedCallback);
-  }
-
   public OMetadata getMetadata() {
     return database.getMetadata();
   }
@@ -307,17 +295,6 @@ public class OScriptDocumentDatabaseWrapper {
 
   public long getSize() {
     return database.getSize();
-  }
-
-  public ODocument save(
-      ORecord iRecord,
-      String iClusterName,
-      OPERATION_MODE iMode,
-      boolean iForceCreate,
-      final ORecordCallback<? extends Number> iRecordCreatedCallback,
-      ORecordCallback<Integer> iRecordUpdatedCallback) {
-    return database.save(
-        iRecord, iClusterName, iMode, iForceCreate, iRecordCreatedCallback, iRecordUpdatedCallback);
   }
 
   public ODatabaseDocument delete(ODocument iRecord) {

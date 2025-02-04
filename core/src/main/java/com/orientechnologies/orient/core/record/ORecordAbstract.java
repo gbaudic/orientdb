@@ -21,7 +21,6 @@ package com.orientechnologies.orient.core.record;
 
 import com.orientechnologies.common.exception.OException;
 import com.orientechnologies.common.io.OIOUtils;
-import com.orientechnologies.orient.core.db.ODatabase;
 import com.orientechnologies.orient.core.db.ODatabaseDocumentInternal;
 import com.orientechnologies.orient.core.db.ODatabaseRecordThreadLocal;
 import com.orientechnologies.orient.core.db.record.OIdentifiable;
@@ -299,14 +298,13 @@ public abstract class ORecordAbstract implements ORecord {
 
   @Deprecated(forRemoval = true)
   public ORecordAbstract save(boolean forceCreate) {
-    getDatabase().save(this, ODatabase.OPERATION_MODE.SYNCHRONOUS, forceCreate, null, null);
+    getDatabase().save(this, null, forceCreate);
     return this;
   }
 
   @Deprecated(forRemoval = true)
   public ORecordAbstract save(String iClusterName, boolean forceCreate) {
-    return getDatabase()
-        .save(this, iClusterName, ODatabase.OPERATION_MODE.SYNCHRONOUS, forceCreate, null, null);
+    return getDatabase().save(this, iClusterName, forceCreate);
   }
 
   @Deprecated

@@ -65,7 +65,6 @@ import com.orientechnologies.orient.core.serialization.serializer.record.OSerial
 import com.orientechnologies.orient.core.sql.OCommandSQLParsingException;
 import com.orientechnologies.orient.core.sql.executor.OResult;
 import com.orientechnologies.orient.core.sql.executor.OResultSet;
-import com.orientechnologies.orient.core.storage.ORecordCallback;
 import com.orientechnologies.orient.core.storage.OStorageInfo;
 import com.orientechnologies.orient.core.tx.OTransaction;
 import com.orientechnologies.orient.core.tx.OTransactionNoTx;
@@ -484,24 +483,7 @@ public class OObjectDatabaseTx extends ODatabaseWrapperAbstract<ODatabaseDocumen
    * stored separately.
    */
   public <RET> RET save(final Object iContent) {
-    return (RET) save(iContent, (String) null, OPERATION_MODE.SYNCHRONOUS, false, null, null);
-  }
-
-  /**
-   * Saves an object to the database specifying the mode. First checks if the object is new or not.
-   * In case it's new a new ODocument is created and bound to the object, otherwise the ODocument is
-   * retrieved and updated. The object is introspected using the Java Reflection to extract the
-   * field values. <br>
-   * If a multi value (array, collection or map of objects) is passed, then each single object is
-   * stored separately.
-   */
-  public <RET> RET save(
-      final Object iContent,
-      OPERATION_MODE iMode,
-      boolean iForceCreate,
-      final ORecordCallback<? extends Number> iRecordCreatedCallback,
-      ORecordCallback<Integer> iRecordUpdatedCallback) {
-    return (RET) save(iContent, null, iMode, false, iRecordCreatedCallback, iRecordUpdatedCallback);
+    return (RET) save(iContent, (String) null, false);
   }
 
   /**
@@ -518,7 +500,7 @@ public class OObjectDatabaseTx extends ODatabaseWrapperAbstract<ODatabaseDocumen
    * @see ODocument#validate()
    */
   public <RET> RET save(final Object iPojo, final String iClusterName) {
-    return (RET) save(iPojo, iClusterName, OPERATION_MODE.SYNCHRONOUS, false, null, null);
+    return (RET) save(iPojo, iClusterName, false);
   }
 
   /**
@@ -534,13 +516,7 @@ public class OObjectDatabaseTx extends ODatabaseWrapperAbstract<ODatabaseDocumen
    *
    * @see ODocument#validate()
    */
-  public <RET> RET save(
-      final Object iPojo,
-      final String iClusterName,
-      OPERATION_MODE iMode,
-      boolean iForceCreate,
-      final ORecordCallback<? extends Number> iRecordCreatedCallback,
-      ORecordCallback<Integer> iRecordUpdatedCallback) {
+  public <RET> RET save(final Object iPojo, final String iClusterName, boolean iForceCreate) {
     checkOpenness();
     if (iPojo == null) return (RET) iPojo;
     else if (OMultiValue.isMultiValue(iPojo)) {
@@ -563,14 +539,7 @@ public class OObjectDatabaseTx extends ODatabaseWrapperAbstract<ODatabaseDocumen
           // registerUserObject(iPojo, record);
           deleteOrphans((((OObjectProxyMethodHandler) ((ProxyObject) proxiedObject).getHandler())));
 
-          ODocument savedRecord =
-              underlying.save(
-                  record,
-                  iClusterName,
-                  iMode,
-                  iForceCreate,
-                  iRecordCreatedCallback,
-                  iRecordUpdatedCallback);
+          ODocument savedRecord = underlying.save(record, iClusterName, iForceCreate);
 
           ((OObjectProxyMethodHandler) ((ProxyObject) proxiedObject).getHandler())
               .setDoc(savedRecord);

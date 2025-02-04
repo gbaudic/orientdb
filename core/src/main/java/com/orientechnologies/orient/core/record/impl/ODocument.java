@@ -2431,14 +2431,7 @@ public class ODocument extends ORecordAbstract
   @Override
   @Deprecated(forRemoval = true)
   public ORecordAbstract save(final String iClusterName, final boolean forceCreate) {
-    return getDatabase()
-        .save(
-            this,
-            iClusterName,
-            ODatabaseSession.OPERATION_MODE.SYNCHRONOUS,
-            forceCreate,
-            null,
-            null);
+    return getDatabase().save(this, iClusterName, forceCreate);
   }
 
   /*

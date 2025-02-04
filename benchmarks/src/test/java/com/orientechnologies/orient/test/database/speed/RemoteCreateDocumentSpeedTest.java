@@ -15,13 +15,14 @@
  */
 package com.orientechnologies.orient.test.database.speed;
 
+import java.util.Date;
+
+import org.junit.Ignore;
+
 import com.orientechnologies.orient.core.Orient;
-import com.orientechnologies.orient.core.db.ODatabase.OPERATION_MODE;
 import com.orientechnologies.orient.core.record.impl.ODocument;
 import com.orientechnologies.orient.core.tx.OTransaction.TXTYPE;
 import com.orientechnologies.orient.test.database.base.OrientMonoThreadDBTest;
-import java.util.Date;
-import org.junit.Ignore;
 
 @Ignore
 public class RemoteCreateDocumentSpeedTest extends OrientMonoThreadDBTest {
@@ -63,7 +64,7 @@ public class RemoteCreateDocumentSpeedTest extends OrientMonoThreadDBTest {
     record.field("birthDate", date);
     record.field("salary", 3000f + data.getCyclesDone());
 
-    database.save(record, OPERATION_MODE.ASYNCHRONOUS_NOANSWER, false, null, null);
+    database.save(record);
 
     if (data.getCyclesDone() == data.getCycles() - 1) database.commit();
 

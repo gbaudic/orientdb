@@ -1294,43 +1294,7 @@ public abstract class ODatabaseDocumentAbstract extends OListenerManger<ODatabas
    */
   @Override
   public <RET extends ORecord> RET save(final ORecord iRecord) {
-    return save(iRecord, null, OPERATION_MODE.SYNCHRONOUS, false, null, null);
-  }
-
-  /**
-   * Saves a document to the database. Behavior depends by the current running transaction if any.
-   * If no transaction is running then changes apply immediately. If an Optimistic transaction is
-   * running then the record will be changed at commit time. The current transaction will continue
-   * to see the record as modified, while others not. If a Pessimistic transaction is running, then
-   * an exclusive lock is acquired against the record. Current transaction will continue to see the
-   * record as modified, while others cannot access to it since it's locked.
-   *
-   * <p>If MVCC is enabled and the version of the document is different by the version stored in the
-   * database, then a {@link OConcurrentModificationException} exception is thrown.Before to save
-   * the document it must be valid following the constraints declared in the schema if any (can work
-   * also in schema-less mode). To validate the document the {@link ODocument#validate()} is called.
-   *
-   * @param iRecord Record to save.
-   * @param iForceCreate Flag that indicates that record should be created. If record with current
-   *     rid already exists, exception is thrown
-   * @param iRecordCreatedCallback callback that is called after creation of new record
-   * @param iRecordUpdatedCallback callback that is called after record update
-   * @return The Database instance itself giving a "fluent interface". Useful to call multiple
-   *     methods in chain.
-   * @throws OConcurrentModificationException if the version of the document is different by the
-   *     version contained in the database.
-   * @throws OValidationException if the document breaks some validation constraints defined in the
-   *     schema
-   * @see #setMVCC(boolean), {@link #isMVCC()}
-   */
-  @Override
-  public <RET extends ORecord> RET save(
-      final ORecord iRecord,
-      final OPERATION_MODE iMode,
-      boolean iForceCreate,
-      final ORecordCallback<? extends Number> iRecordCreatedCallback,
-      ORecordCallback<Integer> iRecordUpdatedCallback) {
-    return save(iRecord, null, iMode, iForceCreate, iRecordCreatedCallback, iRecordUpdatedCallback);
+    return save(iRecord, null, false);
   }
 
   /**
@@ -1355,11 +1319,11 @@ public abstract class ODatabaseDocumentAbstract extends OListenerManger<ODatabas
    *     version contained in the database.
    * @throws OValidationException if the document breaks some validation constraints defined in the
    *     schema
-   * @see #setMVCC(boolean), {@link #isMVCC()}, ODocument#validate()
+   * @see ODocument#validate()
    */
   @Override
   public <RET extends ORecord> RET save(final ORecord iRecord, final String iClusterName) {
-    return save(iRecord, iClusterName, OPERATION_MODE.SYNCHRONOUS, false, null, null);
+    return save(iRecord, iClusterName, false);
   }
 
   /**
@@ -1393,12 +1357,7 @@ public abstract class ODatabaseDocumentAbstract extends OListenerManger<ODatabas
    */
   @Override
   public <RET extends ORecord> RET save(
-      ORecord iRecord,
-      String iClusterName,
-      final OPERATION_MODE iMode,
-      boolean iForceCreate,
-      final ORecordCallback<? extends Number> iRecordCreatedCallback,
-      ORecordCallback<Integer> iRecordUpdatedCallback) {
+      ORecord iRecord, String iClusterName, boolean iForceCreate) {
     checkOpenness();
 
     if (iRecord instanceof OVertex) {
@@ -1411,8 +1370,7 @@ public abstract class ODatabaseDocumentAbstract extends OListenerManger<ODatabas
         iRecord = iRecord.getRecord();
       }
     }
-    return saveInternal(
-        iRecord, iClusterName, iMode, iForceCreate, iRecordCreatedCallback, iRecordUpdatedCallback);
+    return saveInternal(iRecord, iClusterName, null, iForceCreate, null, null);
   }
 
   private <RET extends ORecord> RET saveInternal(
