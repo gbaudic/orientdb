@@ -4,9 +4,9 @@ import static org.junit.Assert.assertEquals;
 
 import com.orientechnologies.common.io.OFileUtils;
 import com.orientechnologies.orient.core.Orient;
-import com.orientechnologies.orient.core.db.ODatabaseDocumentInternal;
 import com.orientechnologies.orient.core.db.OrientDB;
 import com.orientechnologies.orient.core.db.OrientDBConfig;
+import com.orientechnologies.orient.core.db.OrientDBInternal;
 import com.orientechnologies.orient.core.db.document.ODatabaseDocument;
 import com.orientechnologies.orient.core.db.document.ODatabaseDocumentAbstract;
 import com.orientechnologies.orient.core.exception.OStorageException;
@@ -60,7 +60,7 @@ public class TestNetworkSerializerIndipendency {
     } finally {
       if (dbTx != null && !dbTx.isClosed()) {
         dbTx.close();
-        ((ODatabaseDocumentInternal) dbTx).getStorage().close();
+        OrientDBInternal.extract(orientdb).forceDatabaseClose(dbTx.getName());
       }
 
       orientdb.execute("drop database test ").close();
@@ -95,7 +95,7 @@ public class TestNetworkSerializerIndipendency {
     } finally {
       if (dbTx != null) {
         dbTx.close();
-        ((ODatabaseDocumentInternal) dbTx).getStorage().close();
+        OrientDBInternal.extract(orientdb).forceDatabaseClose(dbTx.getName());
       }
 
       orientdb.execute("drop database test ").close();
