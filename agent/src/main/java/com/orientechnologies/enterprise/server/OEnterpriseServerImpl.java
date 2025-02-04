@@ -203,12 +203,14 @@ public class OEnterpriseServerImpl
 
   @Override
   public void onCreate(ODatabaseInternal iDatabase) {
-    OStorage storage = iDatabase.getStorage();
-    if (storages.get(storage.getName()) == null) {
-      if (storage instanceof OEnterpriseLocalPaginatedStorage) {
-        OEnterpriseLocalPaginatedStorage s = (OEnterpriseLocalPaginatedStorage) storage;
-        storages.put(storage.getName(), s);
-        dbListeners.forEach((l) -> l.onOpen(s));
+    if (!((ODatabaseDocumentInternal) iDatabase).isRemote()) {
+      OStorage storage = iDatabase.getStorage();
+      if (storages.get(storage.getName()) == null) {
+        if (storage instanceof OEnterpriseLocalPaginatedStorage) {
+          OEnterpriseLocalPaginatedStorage s = (OEnterpriseLocalPaginatedStorage) storage;
+          storages.put(storage.getName(), s);
+          dbListeners.forEach((l) -> l.onOpen(s));
+        }
       }
     }
     iDatabase.registerListener(this);
@@ -216,12 +218,14 @@ public class OEnterpriseServerImpl
 
   @Override
   public void onOpen(final ODatabaseInternal iDatabase) {
-    final OStorage storage = iDatabase.getStorage();
-    if (storage instanceof OEnterpriseLocalPaginatedStorage) {
-      OEnterpriseLocalPaginatedStorage s = (OEnterpriseLocalPaginatedStorage) storage;
-      if (storages.putIfAbsent(storage.getName(), s) == null) {
-        storages.put(storage.getName(), s);
-        dbListeners.forEach((l) -> l.onOpen(s));
+    if (!((ODatabaseDocumentInternal) iDatabase).isRemote()) {
+      final OStorage storage = iDatabase.getStorage();
+      if (storage instanceof OEnterpriseLocalPaginatedStorage) {
+        OEnterpriseLocalPaginatedStorage s = (OEnterpriseLocalPaginatedStorage) storage;
+        if (storages.putIfAbsent(storage.getName(), s) == null) {
+          storages.put(storage.getName(), s);
+          dbListeners.forEach((l) -> l.onOpen(s));
+        }
       }
     }
     iDatabase.registerListener(this);
@@ -232,11 +236,13 @@ public class OEnterpriseServerImpl
 
   @Override
   public void onDrop(final ODatabaseInternal iDatabase) {
-    final OStorage storage = iDatabase.getStorage();
-    if (storage instanceof OEnterpriseLocalPaginatedStorage) {
-      if (storages.remove(storage.getName()) != null) {
-        OEnterpriseLocalPaginatedStorage s = (OEnterpriseLocalPaginatedStorage) storage;
-        dbListeners.forEach((l) -> l.onDrop(s));
+    if (!((ODatabaseDocumentInternal) iDatabase).isRemote()) {
+      final OStorage storage = iDatabase.getStorage();
+      if (storage instanceof OEnterpriseLocalPaginatedStorage) {
+        if (storages.remove(storage.getName()) != null) {
+          OEnterpriseLocalPaginatedStorage s = (OEnterpriseLocalPaginatedStorage) storage;
+          dbListeners.forEach((l) -> l.onDrop(s));
+        }
       }
     }
   }
