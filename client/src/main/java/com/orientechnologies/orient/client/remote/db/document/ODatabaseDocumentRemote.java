@@ -661,7 +661,7 @@ public class ODatabaseDocumentRemote extends ODatabaseDocumentAbstract {
         if (beforeReadOperations(record)) return null;
 
         if (record.getInternalStatus() == ORecordElement.STATUS.NOT_LOADED) {
-          record = reload(record);
+          record = reload(record, null, true, true);
         }
 
         if (lockingStrategy == KEEP_SHARED_LOCK) {

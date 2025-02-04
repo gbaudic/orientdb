@@ -924,7 +924,7 @@ public class ODatabaseDocumentEmbedded extends ODatabaseDocumentAbstract
     if (record == null) return;
     if (record instanceof ODocument) {
       if (record.getInternalStatus() == ORecordElement.STATUS.NOT_LOADED) {
-        record = reload(record);
+        record = reload(record, null, true, true);
       }
     }
     OTransactionAbstract trans = (OTransactionAbstract) this.currentTx;
@@ -1402,7 +1402,7 @@ public class ODatabaseDocumentEmbedded extends ODatabaseDocumentAbstract
         if (beforeReadOperations(record)) return null;
 
         if (record.getInternalStatus() == ORecordElement.STATUS.NOT_LOADED) {
-          record = reload(record);
+          record = reload(record, null, true, true);
         }
 
         if (lockingStrategy == OStorage.LOCKING_STRATEGY.KEEP_SHARED_LOCK) {
