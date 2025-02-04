@@ -154,8 +154,10 @@ import com.orientechnologies.orient.core.storage.OPhysicalPosition;
 import com.orientechnologies.orient.core.storage.ORawBuffer;
 import com.orientechnologies.orient.core.storage.ORecordMetadata;
 import com.orientechnologies.orient.core.storage.OStorage;
+import com.orientechnologies.orient.core.storage.OStorage.LOCKING_STRATEGY;
+import com.orientechnologies.orient.core.storage.OStorage.STATUS;
+import com.orientechnologies.orient.core.storage.OStorageInfo;
 import com.orientechnologies.orient.core.storage.OStorageOperationResult;
-import com.orientechnologies.orient.core.storage.cluster.OPaginatedCluster;
 import com.orientechnologies.orient.core.storage.impl.local.paginated.ORecordSerializationContext;
 import com.orientechnologies.orient.core.storage.ridbag.sbtree.OBonsaiCollectionPointer;
 import com.orientechnologies.orient.core.storage.ridbag.sbtree.OSBTreeCollectionManager;
@@ -168,7 +170,6 @@ import com.orientechnologies.orient.enterprise.channel.binary.ODistributedRedire
 import com.orientechnologies.orient.enterprise.channel.binary.OTokenSecurityException;
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.OutputStream;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
@@ -179,15 +180,14 @@ import java.util.Locale;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
-import java.util.TimeZone;
 import java.util.UUID;
-import java.util.concurrent.Callable;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
 
 /** This object is bound to each remote ODatabase instances. */
-public class OStorageRemote implements ORemotePushHandler, OStorage, RecordReader.RecordFetchMode {
+public class OStorageRemote
+    implements ORemotePushHandler, OStorageInfo, RecordReader.RecordFetchMode {
   private static final OLogger logger = OLogManager.instance().logger(OStorageRemote.class);
   @Deprecated public static final String PARAM_CONNECTION_STRATEGY = "connectionStrategy";
 
@@ -519,12 +519,6 @@ public class OStorageRemote implements ORemotePushHandler, OStorage, RecordReade
     return false;
   }
 
-  /** Supported only in embedded storage. Use <code>SELECT FROM metadata:storage</code> instead. */
-  public String getCreatedAtVersion() {
-    throw new UnsupportedOperationException(
-        "Supported only in embedded storage. Use 'SELECT FROM metadata:storage' instead.");
-  }
-
   public int getSessionId() {
     OStorageRemoteSession session = getCurrentSession();
     return session != null ? session.getSessionId() : -1;
@@ -597,18 +591,6 @@ public class OStorageRemote implements ORemotePushHandler, OStorage, RecordReade
             clientConfiguration);
 
     updateStorageConfiguration(storageConfiguration);
-  }
-
-  public void create(OContextConfiguration contextConfiguration) {
-    throw new UnsupportedOperationException(
-        "Cannot create a database in a remote server. Please use the console or the OServerAdmin"
-            + " class.");
-  }
-
-  public boolean exists() {
-    throw new UnsupportedOperationException(
-        "Cannot check the existence of a database in a remote server. Please use the console or the"
-            + " OServerAdmin class.");
   }
 
   public void close(final boolean iForce) {
@@ -697,12 +679,6 @@ public class OStorageRemote implements ORemotePushHandler, OStorage, RecordReade
               + "' because no user is using it");
 
     return users.decrementAndGet();
-  }
-
-  public void delete() {
-    throw new UnsupportedOperationException(
-        "Cannot delete a database in a remote server. Please use the console or the OServerAdmin"
-            + " class.");
   }
 
   public Set<String> getClusterNames() {
@@ -805,28 +781,6 @@ public class OStorageRemote implements ORemotePushHandler, OStorage, RecordReade
     return response.getFileName();
   }
 
-  public boolean supportIncremental() {
-    // THIS IS FALSE HERE THOUGH WE HAVE SOME SUPPORT FOR SOME SPECIFIC CASES FROM REMOTE
-    return false;
-  }
-
-  public void fullIncrementalBackup(final OutputStream stream)
-      throws UnsupportedOperationException {
-    throw new UnsupportedOperationException(
-        "This operations is part of internal API and is not supported in remote storage");
-  }
-
-  public void restoreFromIncrementalBackup(final String filePath) {
-    throw new UnsupportedOperationException(
-        "This operations is part of internal API and is not supported in remote storage");
-  }
-
-  public void restoreFullIncrementalBackup(final InputStream stream)
-      throws UnsupportedOperationException {
-    throw new UnsupportedOperationException(
-        "This operations is part of internal API and is not supported in remote storage");
-  }
-
   public OStorageOperationResult<Integer> updateRecord(
       final ORecordId iRid,
       final boolean updateContent,
@@ -868,30 +822,6 @@ public class OStorageRemote implements ORemotePushHandler, OStorage, RecordReade
     Boolean result = null;
     if (response != null) result = response.getResult();
     return result != null ? result : false;
-  }
-
-  public List<String> backup(
-      OutputStream out,
-      Map<String, Object> options,
-      Callable<Object> callable,
-      final OCommandOutputListener iListener,
-      int compressionLevel,
-      int bufferSize)
-      throws IOException {
-    throw new UnsupportedOperationException(
-        "backup is not supported against remote storage. Open the database with plocal or use the"
-            + " incremental backup in the Enterprise Edition");
-  }
-
-  public void restore(
-      InputStream in,
-      Map<String, Object> options,
-      Callable<Object> callable,
-      final OCommandOutputListener iListener)
-      throws IOException {
-    throw new UnsupportedOperationException(
-        "restore is not supported against remote storage. Open the database with plocal or use"
-            + " Enterprise Edition");
   }
 
   public OContextConfiguration getClientConfiguration() {
@@ -1360,30 +1290,6 @@ public class OStorageRemote implements ORemotePushHandler, OStorage, RecordReade
     throw new UnsupportedOperationException();
   }
 
-  public String getClusterRecordConflictStrategy(int clusterId) {
-    throw new UnsupportedOperationException();
-  }
-
-  public String getClusterEncryption(int clusterId) {
-    throw new UnsupportedOperationException();
-  }
-
-  public boolean isSystemCluster(int clusterId) {
-    throw new UnsupportedOperationException();
-  }
-
-  public long getLastClusterPosition(int clusterId) {
-    throw new UnsupportedOperationException();
-  }
-
-  public long getClusterNextPosition(int clusterId) {
-    throw new UnsupportedOperationException();
-  }
-
-  public OPaginatedCluster.RECORD_STATUS getRecordStatus(ORID rid) {
-    throw new UnsupportedOperationException();
-  }
-
   public boolean dropCluster(final int iClusterId) {
 
     ODropClusterRequest request = new ODropClusterRequest(iClusterId);
@@ -1418,10 +1324,6 @@ public class OStorageRemote implements ORemotePushHandler, OStorage, RecordReade
     throw new OStorageException("Cluster " + clusterId + " is absent in storage.");
   }
 
-  public boolean setClusterAttribute(int id, OCluster.ATTRIBUTES attribute, Object value) {
-    return false;
-  }
-
   public void removeClusterFromConfiguration(int iClusterId) {
     stateLock.writeLock().lock();
     try {
@@ -1439,8 +1341,6 @@ public class OStorageRemote implements ORemotePushHandler, OStorage, RecordReade
       stateLock.writeLock().unlock();
     }
   }
-
-  public void synch() {}
 
   public String getPhysicalClusterNameById(final int iClusterId) {
     stateLock.readLock().lock();
@@ -1476,10 +1376,6 @@ public class OStorageRemote implements ORemotePushHandler, OStorage, RecordReade
     }
   }
 
-  public long getVersion() {
-    throw new UnsupportedOperationException("getVersion");
-  }
-
   public ODocument getClusterConfiguration() {
     return clusterConfiguration;
   }
@@ -1499,18 +1395,6 @@ public class OStorageRemote implements ORemotePushHandler, OStorage, RecordReade
 
   public boolean isRemote() {
     return true;
-  }
-
-  public boolean isPermanentRequester() {
-    return false;
-  }
-
-  public ORecordConflictStrategy getRecordConflictStrategy() {
-    throw new UnsupportedOperationException("getRecordConflictStrategy");
-  }
-
-  public void setConflictStrategy(final ORecordConflictStrategy iResolver) {
-    throw new UnsupportedOperationException("setConflictStrategy");
   }
 
   public String getURL() {
@@ -2262,66 +2146,6 @@ public class OStorageRemote implements ORemotePushHandler, OStorage, RecordReade
     this.connectionManager.remove((OChannelBinaryAsynchClient) network);
   }
 
-  public void setSchemaRecordId(String schemaRecordId) {
-    throw new UnsupportedOperationException();
-  }
-
-  public void setDateFormat(String dateFormat) {
-    throw new UnsupportedOperationException();
-  }
-
-  public void setTimeZone(TimeZone timeZoneValue) {
-    throw new UnsupportedOperationException();
-  }
-
-  public void setLocaleLanguage(String locale) {
-    throw new UnsupportedOperationException();
-  }
-
-  public void setCharset(String charset) {
-    throw new UnsupportedOperationException();
-  }
-
-  public void setIndexMgrRecordId(String indexMgrRecordId) {
-    throw new UnsupportedOperationException();
-  }
-
-  public void setDateTimeFormat(String dateTimeFormat) {
-    throw new UnsupportedOperationException();
-  }
-
-  public void setLocaleCountry(String localeCountry) {
-    throw new UnsupportedOperationException();
-  }
-
-  public void setClusterSelection(String clusterSelection) {
-    throw new UnsupportedOperationException();
-  }
-
-  public void setMinimumClusters(int minimumClusters) {
-    throw new UnsupportedOperationException();
-  }
-
-  public void setValidation(boolean validation) {
-    throw new UnsupportedOperationException();
-  }
-
-  public void removeProperty(String property) {
-    throw new UnsupportedOperationException();
-  }
-
-  public void setProperty(String property, String value) {
-    throw new UnsupportedOperationException();
-  }
-
-  public void setRecordSerializer(String recordSerializer, int version) {
-    throw new UnsupportedOperationException();
-  }
-
-  public void clearProperties() {
-    throw new UnsupportedOperationException();
-  }
-
   public List<String> getServerURLs() {
     return serverURLs.getUrls();
   }
@@ -2350,13 +2174,16 @@ public class OStorageRemote implements ORemotePushHandler, OStorage, RecordReade
     return componentsFactory;
   }
 
-  @Override
-  public int[] getClustersIds(Set<String> filterClusters) {
-    throw new UnsupportedOperationException();
+  public OrientDBInternal getContext() {
+    return context;
   }
 
   @Override
-  public OrientDBInternal getContext() {
-    return context;
+  public ORecordConflictStrategy getRecordConflictStrategy() {
+    throw new UnsupportedOperationException("getRecordConflictStrategy");
+  }
+
+  public void setConflictStrategy(ORecordConflictStrategy strategy) {
+    throw new UnsupportedOperationException("setConflictStrategy");
   }
 }
