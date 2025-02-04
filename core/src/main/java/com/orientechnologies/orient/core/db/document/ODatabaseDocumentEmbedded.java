@@ -110,6 +110,7 @@ import com.orientechnologies.orient.core.sql.executor.OResultSetReady;
 import com.orientechnologies.orient.core.sql.parser.OLocalResultSet;
 import com.orientechnologies.orient.core.sql.parser.OLocalResultSetLifecycleDecorator;
 import com.orientechnologies.orient.core.sql.parser.OStatement;
+import com.orientechnologies.orient.core.storage.OPhysicalPosition;
 import com.orientechnologies.orient.core.storage.ORawBuffer;
 import com.orientechnologies.orient.core.storage.ORecordMetadata;
 import com.orientechnologies.orient.core.storage.OStorage;
@@ -2127,5 +2128,30 @@ public class ODatabaseDocumentEmbedded extends ODatabaseDocumentAbstract
   public void internalCommitPreallocate(OTransactionOptimistic oTransactionOptimistic) {
     ((OAbstractPaginatedStorage) getStorage()).preallocateRids(oTransactionOptimistic);
     ((OAbstractPaginatedStorage) getStorage()).commitPreAllocated(oTransactionOptimistic);
+  }
+
+  public OPhysicalPosition[] higherPhysicalPositions(
+      int clusterId, OPhysicalPosition physicalPosition) {
+    return getStorage().higherPhysicalPositions(clusterId, physicalPosition);
+  }
+
+  public OPhysicalPosition[] lowerPhysicalPositions(
+      int clusterId, OPhysicalPosition physicalPosition) {
+    return getStorage().lowerPhysicalPositions(clusterId, physicalPosition);
+  }
+
+  public OPhysicalPosition[] ceilingPhysicalPositions(
+      int clusterId, OPhysicalPosition physicalPosition) {
+    return getStorage().ceilingPhysicalPositions(clusterId, physicalPosition);
+  }
+
+  public OPhysicalPosition[] floorPhysicalPositions(
+      int clusterId, OPhysicalPosition physicalPosition) {
+    return getStorage().floorPhysicalPositions(clusterId, physicalPosition);
+  }
+
+  @Override
+  public long countRecords() {
+    return getStorage().countRecords();
   }
 }

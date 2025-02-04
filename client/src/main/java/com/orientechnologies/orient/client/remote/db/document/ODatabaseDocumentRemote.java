@@ -86,6 +86,7 @@ import com.orientechnologies.orient.core.serialization.serializer.record.ORecord
 import com.orientechnologies.orient.core.serialization.serializer.record.binary.ORecordSerializerNetworkV37Client;
 import com.orientechnologies.orient.core.sql.executor.OResult;
 import com.orientechnologies.orient.core.sql.executor.OResultSet;
+import com.orientechnologies.orient.core.storage.OPhysicalPosition;
 import com.orientechnologies.orient.core.storage.ORawBuffer;
 import com.orientechnologies.orient.core.storage.ORecordMetadata;
 import com.orientechnologies.orient.core.storage.OStorage;
@@ -1221,5 +1222,30 @@ public class ODatabaseDocumentRemote extends ODatabaseDocumentAbstract {
   @Override
   public void remoteRollback(OTransactionOptimistic oTransactionOptimistic) {
     storage.rollback(oTransactionOptimistic);
+  }
+
+  public OPhysicalPosition[] higherPhysicalPositions(
+      int clusterId, OPhysicalPosition physicalPosition) {
+    return getStorageRemote().higherPhysicalPositions(clusterId, physicalPosition);
+  }
+
+  public OPhysicalPosition[] lowerPhysicalPositions(
+      int clusterId, OPhysicalPosition physicalPosition) {
+    return getStorageRemote().lowerPhysicalPositions(clusterId, physicalPosition);
+  }
+
+  public OPhysicalPosition[] ceilingPhysicalPositions(
+      int clusterId, OPhysicalPosition physicalPosition) {
+    return getStorageRemote().ceilingPhysicalPositions(clusterId, physicalPosition);
+  }
+
+  public OPhysicalPosition[] floorPhysicalPositions(
+      int clusterId, OPhysicalPosition physicalPosition) {
+    return getStorageRemote().floorPhysicalPositions(clusterId, physicalPosition);
+  }
+
+  @Override
+  public long countRecords() {
+    return getStorageRemote().countRecords();
   }
 }
