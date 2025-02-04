@@ -15,15 +15,13 @@
  */
 package com.orientechnologies.orient.test.database.speed;
 
-import java.util.Date;
-
-import org.junit.Ignore;
-
 import com.orientechnologies.orient.core.Orient;
 import com.orientechnologies.orient.core.config.OGlobalConfiguration;
 import com.orientechnologies.orient.core.record.impl.ODocument;
 import com.orientechnologies.orient.core.tx.OTransaction.TXTYPE;
 import com.orientechnologies.orient.test.database.base.OrientMonoThreadDBTest;
+import java.util.Date;
+import org.junit.Ignore;
 
 @Ignore
 public class LocalCreateAsynchDocumentSpeedTest extends OrientMonoThreadDBTest {
