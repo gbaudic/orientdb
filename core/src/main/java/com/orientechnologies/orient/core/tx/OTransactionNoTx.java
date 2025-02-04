@@ -69,51 +69,6 @@ public class OTransactionNoTx extends OTransactionAbstract {
 
   public void rollback() {}
 
-  @Deprecated
-  public ORecord loadRecord(
-      final ORID iRid,
-      final ORecord iRecord,
-      final String iFetchPlan,
-      final boolean ignoreCache,
-      final boolean loadTombstone,
-      final OStorage.LOCKING_STRATEGY iLockingStrategy) {
-    if (iRid.isNew()) return null;
-
-    return database.executeReadRecord(
-        (ORecordId) iRid,
-        iRecord,
-        -1,
-        iFetchPlan,
-        ignoreCache,
-        !ignoreCache,
-        loadTombstone,
-        iLockingStrategy,
-        new SimpleRecordReader(database.isPrefetchRecords()));
-  }
-
-  @Deprecated
-  public ORecord loadRecord(
-      final ORID iRid,
-      final ORecord iRecord,
-      final String iFetchPlan,
-      final boolean ignoreCache,
-      final boolean iUpdateCache,
-      final boolean loadTombstone,
-      final OStorage.LOCKING_STRATEGY iLockingStrategy) {
-    if (iRid.isNew()) return null;
-
-    return database.executeReadRecord(
-        (ORecordId) iRid,
-        iRecord,
-        -1,
-        iFetchPlan,
-        ignoreCache,
-        iUpdateCache,
-        loadTombstone,
-        iLockingStrategy,
-        new SimpleRecordReader(database.isPrefetchRecords()));
-  }
-
   public ORecord loadRecord(
       final ORID iRid, final ORecord iRecord, final String iFetchPlan, final boolean ignoreCache) {
     if (iRid.isNew()) return null;
@@ -125,7 +80,6 @@ public class OTransactionNoTx extends OTransactionAbstract {
         iFetchPlan,
         ignoreCache,
         !ignoreCache,
-        false,
         OStorage.LOCKING_STRATEGY.NONE,
         new SimpleRecordReader(database.isPrefetchRecords()));
   }
@@ -155,7 +109,6 @@ public class OTransactionNoTx extends OTransactionAbstract {
             fetchPlan,
             ignoreCache,
             !ignoreCache,
-            false,
             OStorage.LOCKING_STRATEGY.NONE,
             recordReader);
 
@@ -181,7 +134,6 @@ public class OTransactionNoTx extends OTransactionAbstract {
         fetchPlan,
         ignoreCache,
         !ignoreCache,
-        false,
         OStorage.LOCKING_STRATEGY.NONE,
         new LatestVersionRecordReader());
   }

@@ -122,7 +122,6 @@ public interface ODatabaseDocumentInternal extends ODatabaseSession, ODatabaseIn
       final String fetchPlan,
       final boolean ignoreCache,
       final boolean iUpdateCache,
-      final boolean loadTombstones,
       final OStorage.LOCKING_STRATEGY lockingStrategy,
       RecordReader recordReader);
 
@@ -134,8 +133,6 @@ public interface ODatabaseDocumentInternal extends ODatabaseSession, ODatabaseIn
   OMetadataInternal getMetadata();
 
   ODatabaseDocumentInternal copy();
-
-  void recycle(ORecord record);
 
   void checkIfActive();
 

@@ -936,11 +936,6 @@ public class ODatabaseDocumentEmbedded extends ODatabaseDocumentAbstract
   }
 
   @Override
-  public void recycle(final ORecord record) {
-    throw new UnsupportedOperationException();
-  }
-
-  @Override
   public int addBlobCluster(final String iClusterName, final Object... iParameters) {
     int id;
     if (!existsCluster(iClusterName)) {
@@ -974,7 +969,7 @@ public class ODatabaseDocumentEmbedded extends ODatabaseDocumentAbstract
     if (record == null) return;
     if (record instanceof ODocument) {
       if (record.getInternalStatus() == ORecordElement.STATUS.NOT_LOADED) {
-        ((ODocument) record).reload();
+        record = reload(record);
       }
     }
     OTransactionAbstract trans = (OTransactionAbstract) this.currentTx;
@@ -1419,7 +1414,6 @@ public class ODatabaseDocumentEmbedded extends ODatabaseDocumentAbstract
       final String fetchPlan,
       final boolean ignoreCache,
       final boolean iUpdateCache,
-      final boolean loadTombstones,
       final OStorage.LOCKING_STRATEGY lockingStrategy,
       RecordReader recordReader) {
     checkOpenness();
@@ -1452,7 +1446,9 @@ public class ODatabaseDocumentEmbedded extends ODatabaseDocumentAbstract
         OFetchHelper.checkFetchPlanValid(fetchPlan);
         if (beforeReadOperations(record)) return null;
 
-        if (record.getInternalStatus() == ORecordElement.STATUS.NOT_LOADED) record.reload();
+        if (record.getInternalStatus() == ORecordElement.STATUS.NOT_LOADED) {
+          record = reload(record);
+        }
 
         if (lockingStrategy == OStorage.LOCKING_STRATEGY.KEEP_SHARED_LOCK) {
           logger.warn(

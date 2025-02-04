@@ -260,7 +260,6 @@ public abstract class ODatabaseDocumentAbstract extends OListenerManger<ODatabas
         iFetchPlan,
         iIgnoreCache,
         !iIgnoreCache,
-        false,
         OStorage.LOCKING_STRATEGY.DEFAULT,
         new SimpleRecordReader(prefetchRecords));
   }
@@ -694,14 +693,7 @@ public abstract class ODatabaseDocumentAbstract extends OListenerManger<ODatabas
   @Override
   public <RET extends ORecord> RET load(final ORecord iRecord, final String iFetchPlan) {
     checkIfActive();
-    return (RET)
-        currentTx.loadRecord(
-            iRecord.getIdentity(),
-            iRecord,
-            iFetchPlan,
-            false,
-            false,
-            OStorage.LOCKING_STRATEGY.DEFAULT);
+    return (RET) currentTx.loadRecord(iRecord.getIdentity(), iRecord, iFetchPlan, false);
   }
 
   @SuppressWarnings("unchecked")
@@ -838,7 +830,6 @@ public abstract class ODatabaseDocumentAbstract extends OListenerManger<ODatabas
         iFetchPlan,
         iIgnoreCache,
         !iIgnoreCache,
-        false,
         OStorage.LOCKING_STRATEGY.NONE,
         new SimpleRecordReader(prefetchRecords));
   }
@@ -864,7 +855,6 @@ public abstract class ODatabaseDocumentAbstract extends OListenerManger<ODatabas
       final String fetchPlan,
       final boolean ignoreCache,
       final boolean iUpdateCache,
-      final boolean loadTombstones,
       final OStorage.LOCKING_STRATEGY lockingStrategy,
       RecordReader recordReader);
 
@@ -1177,8 +1167,8 @@ public abstract class ODatabaseDocumentAbstract extends OListenerManger<ODatabas
 
       } catch (ONeedRetryException ignore) {
         // RETRY
-        if (!outDocumentModified) outDocument.reload();
-        else if (inDocument != null) inDocument.reload();
+        if (!outDocumentModified) outDocument = (ODocument) reload(outDocument);
+        else if (inDocument != null) inDocument = (ODocument) reload(inDocument);
       }
     }
     return edge;

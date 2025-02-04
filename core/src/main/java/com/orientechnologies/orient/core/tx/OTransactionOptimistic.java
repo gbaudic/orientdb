@@ -194,9 +194,8 @@ public class OTransactionOptimistic extends OTransactionRealAbstract {
       final ORecord iRecord,
       final String fetchPlan,
       final boolean ignoreCache,
-      final boolean loadTombstone,
       final OStorage.LOCKING_STRATEGY lockingStrategy) {
-    return loadRecord(rid, iRecord, fetchPlan, ignoreCache, true, loadTombstone, lockingStrategy);
+    return loadRecord(rid, iRecord, fetchPlan, ignoreCache, true, lockingStrategy);
   }
 
   public ORecord loadRecord(
@@ -205,7 +204,6 @@ public class OTransactionOptimistic extends OTransactionRealAbstract {
       final String fetchPlan,
       final boolean ignoreCache,
       final boolean iUpdateCache,
-      final boolean loadTombstone,
       final OStorage.LOCKING_STRATEGY lockingStrategy) {
     checkTransactionValid();
 
@@ -240,7 +238,6 @@ public class OTransactionOptimistic extends OTransactionRealAbstract {
             fetchPlan,
             ignoreCache,
             iUpdateCache,
-            loadTombstone,
             lockingStrategy,
             new SimpleRecordReader(database.isPrefetchRecords()));
 
@@ -283,7 +280,6 @@ public class OTransactionOptimistic extends OTransactionRealAbstract {
             fetchPlan,
             ignoreCache,
             !ignoreCache,
-            false,
             OStorage.LOCKING_STRATEGY.NONE,
             new SimpleRecordReader(database.isPrefetchRecords()));
 
@@ -344,7 +340,6 @@ public class OTransactionOptimistic extends OTransactionRealAbstract {
               fetchPlan,
               ignoreCache,
               !ignoreCache,
-              false,
               OStorage.LOCKING_STRATEGY.NONE,
               recordReader);
 
@@ -370,7 +365,7 @@ public class OTransactionOptimistic extends OTransactionRealAbstract {
 
   @Override
   public ORecord loadRecord(ORID rid, ORecord record, String fetchPlan, boolean ignoreCache) {
-    return loadRecord(rid, record, fetchPlan, ignoreCache, false, OStorage.LOCKING_STRATEGY.NONE);
+    return loadRecord(rid, record, fetchPlan, ignoreCache, OStorage.LOCKING_STRATEGY.NONE);
   }
 
   public void deleteRecord(final ORecord iRecord) {

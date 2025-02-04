@@ -491,11 +491,6 @@ public class ODatabaseDocumentRemote extends ODatabaseDocumentAbstract {
         this, query, new OLiveQueryClientListener(this.copy(), listener), args);
   }
 
-  @Override
-  public void recycle(ORecord record) {
-    throw new UnsupportedOperationException();
-  }
-
   public static void updateSchema(OStorageRemote storage, ODocument schema) {
     //    storage.get
     OSharedContext shared = storage.getSharedContext();
@@ -673,7 +668,6 @@ public class ODatabaseDocumentRemote extends ODatabaseDocumentAbstract {
       final String fetchPlan,
       final boolean ignoreCache,
       final boolean iUpdateCache,
-      final boolean loadTombstones,
       final OStorage.LOCKING_STRATEGY lockingStrategy,
       RecordReader recordReader) {
     checkOpenness();
@@ -702,7 +696,9 @@ public class ODatabaseDocumentRemote extends ODatabaseDocumentAbstract {
         OFetchHelper.checkFetchPlanValid(fetchPlan);
         if (beforeReadOperations(record)) return null;
 
-        if (record.getInternalStatus() == ORecordElement.STATUS.NOT_LOADED) record.reload();
+        if (record.getInternalStatus() == ORecordElement.STATUS.NOT_LOADED) {
+          record = reload(record);
+        }
 
         if (lockingStrategy == KEEP_SHARED_LOCK) {
           logger.warn(
