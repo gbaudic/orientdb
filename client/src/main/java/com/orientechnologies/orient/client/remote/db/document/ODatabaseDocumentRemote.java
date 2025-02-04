@@ -1249,4 +1249,9 @@ public class ODatabaseDocumentRemote extends ODatabaseDocumentAbstract {
   public long countRecords() {
     return getStorageRemote().countRecords();
   }
+
+  @Override
+  public boolean isReusable() {
+    return !getStorageRemote().isClosed();
+  }
 }

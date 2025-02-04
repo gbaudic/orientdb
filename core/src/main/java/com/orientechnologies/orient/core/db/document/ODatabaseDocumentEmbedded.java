@@ -2156,4 +2156,9 @@ public class ODatabaseDocumentEmbedded extends ODatabaseDocumentAbstract
   public long countRecords() {
     return getStorage().countRecords();
   }
+
+  @Override
+  public boolean isReusable() {
+    return !getStorage().isClosed();
+  }
 }

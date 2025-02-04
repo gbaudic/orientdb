@@ -326,4 +326,6 @@ public interface ODatabaseDocumentInternal extends ODatabaseSession, ODatabaseIn
   OPhysicalPosition[] floorPhysicalPositions(int clusterId, OPhysicalPosition physicalPosition);
 
   long countRecords();
+
+  boolean isReusable();
 }
