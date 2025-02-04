@@ -651,8 +651,8 @@ public class ODatabaseDocumentRemote extends ODatabaseDocumentAbstract {
         record = getLocalCache().findRecord(rid);
 
       if (record != null) {
-        if (iRecord != null) {
-          iRecord.fromStream(record.toStream());
+        if (iRecord != null && iRecord != record) {
+          ORecordInternal.fromStream(iRecord, record.toStream(), this);
           ORecordInternal.setVersion(iRecord, record.getVersion());
           record = iRecord;
         }
@@ -713,7 +713,7 @@ public class ODatabaseDocumentRemote extends ODatabaseDocumentAbstract {
 
       if (beforeReadOperations(iRecord)) return null;
 
-      iRecord.fromStream(recordBuffer.buffer);
+      ORecordInternal.fromStream(iRecord, recordBuffer.buffer, this);
 
       afterReadOperations(iRecord);
       if (iUpdateCache) getLocalCache().updateRecord(iRecord);

@@ -1393,7 +1393,7 @@ public class ODatabaseDocumentEmbedded extends ODatabaseDocumentAbstract
         record = getLocalCache().findRecord(rid);
 
       if (record != null) {
-        if (iRecord != null) {
+        if (iRecord != null && iRecord != record) {
           ORecordInternal.fromStream(iRecord, record.toStream(), this);
           ORecordInternal.setVersion(iRecord, record.getVersion());
           record = iRecord;
