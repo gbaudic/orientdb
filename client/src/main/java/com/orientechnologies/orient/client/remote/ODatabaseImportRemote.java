@@ -3,6 +3,7 @@ package com.orientechnologies.orient.client.remote;
 import com.orientechnologies.common.exception.OException;
 import com.orientechnologies.common.log.OLogManager;
 import com.orientechnologies.common.log.OLogger;
+import com.orientechnologies.orient.client.remote.db.document.ODatabaseDocumentRemote;
 import com.orientechnologies.orient.core.command.OCommandOutputListener;
 import com.orientechnologies.orient.core.db.ODatabaseDocumentInternal;
 import com.orientechnologies.orient.core.db.tool.ODatabaseImpExpAbstract;
@@ -40,7 +41,7 @@ public class ODatabaseImportRemote extends ODatabaseImpExpAbstract {
 
   public void importDatabase() throws ODatabaseImportException {
     OStorageRemote storage =
-        (OStorageRemote) ((ODatabaseDocumentInternal) getDatabase()).getStorage();
+        (OStorageRemote) ((ODatabaseDocumentRemote) getDatabase()).getStorageRemote();
     File file = new File(getFileName());
     try {
       storage.importDatabase(options, new FileInputStream(file), file.getName(), getListener());
