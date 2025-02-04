@@ -19,7 +19,6 @@
  */
 package com.orientechnologies.orient.core.tx;
 
-import com.orientechnologies.orient.core.db.ODatabaseSession;
 import com.orientechnologies.orient.core.db.document.ODatabaseDocument;
 import com.orientechnologies.orient.core.db.record.OIdentifiable;
 import com.orientechnologies.orient.core.db.record.ORecordOperation;
@@ -29,7 +28,6 @@ import com.orientechnologies.orient.core.index.OIndex;
 import com.orientechnologies.orient.core.metadata.schema.OClass;
 import com.orientechnologies.orient.core.record.ORecord;
 import com.orientechnologies.orient.core.record.impl.ODocument;
-import com.orientechnologies.orient.core.storage.ORecordCallback;
 import com.orientechnologies.orient.core.storage.OStorage;
 import java.util.List;
 
@@ -184,30 +182,18 @@ public interface OTransaction {
    *
    * @param record the record to save.
    * @param clusterName record's cluster name.
-   * @param operationMode the operation mode.
    * @param forceCreate the force creation flag, {@code true} to force the creation of the record,
    *     {@code false} to allow updates.
-   * @param createdCallback the callback to invoke when the record save operation triggered the
-   *     creation of the record.
-   * @param updatedCallback the callback to invoke when the record save operation triggered the
-   *     update of the record.
    * @return the record saved.
    */
-  ORecord saveRecord(
-      ORecord record,
-      String clusterName,
-      ODatabaseSession.OPERATION_MODE operationMode,
-      boolean forceCreate,
-      ORecordCallback<? extends Number> createdCallback,
-      ORecordCallback<Integer> updatedCallback);
+  ORecord saveRecord(ORecord record, String clusterName, boolean forceCreate);
 
   /**
    * Deletes the given record in this transaction.
    *
    * @param record the record to delete.
-   * @param mode the operation mode.
    */
-  void deleteRecord(ORecord record, ODatabaseSession.OPERATION_MODE mode);
+  void deleteRecord(ORecord record);
 
   /**
    * Resolves a record with the given RID in the context of this transaction.

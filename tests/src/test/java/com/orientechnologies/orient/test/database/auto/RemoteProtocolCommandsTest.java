@@ -52,7 +52,7 @@ public class RemoteProtocolCommandsTest extends DocumentDBBaseTest {
     doc.field("test", "test");
     ORecordId bad = new ORecordId(-1, -1);
     OStorageOperationResult<OPhysicalPosition> res =
-        storage.createRecord(bad, doc.toStream(), doc.getVersion(), ODocument.RECORD_TYPE, null);
+        storage.createRecord(bad, doc.toStream(), doc.getVersion(), ODocument.RECORD_TYPE);
 
     // assertTrue(" the cluster is not valid", bad.clusterId >= 0);
     String ids = "";

@@ -470,13 +470,6 @@ public interface ODatabase<T> extends OBackupable, Closeable {
    */
   void freeze(boolean throwException);
 
-  @Deprecated
-  enum OPERATION_MODE {
-    SYNCHRONOUS,
-    ASYNCHRONOUS,
-    ASYNCHRONOUS_NOANSWER
-  }
-
   /**
    * Creates a new entity instance.
    *

@@ -21,6 +21,6 @@ public final class SimpleRecordReader implements RecordReader {
       boolean ignoreCache,
       final int recordVersion)
       throws ORecordNotFoundException {
-    return storage.readRecord(rid, fetchPlan, ignoreCache, prefetchRecords, null).getResult();
+    return storage.readRecord(rid, fetchPlan, ignoreCache, prefetchRecords).getResult();
   }
 }

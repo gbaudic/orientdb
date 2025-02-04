@@ -303,8 +303,7 @@ public class OStorageConfigurationImpl implements OSerializableStream, OStorageC
     try {
       initConfiguration(configuration);
 
-      final byte[] record =
-          storage.readRecord(CONFIG_RID, null, false, false, null).getResult().buffer;
+      final byte[] record = storage.readRecord(CONFIG_RID, null, false, false).getResult().buffer;
 
       if (record == null)
         throw new OStorageException(
@@ -322,7 +321,7 @@ public class OStorageConfigurationImpl implements OSerializableStream, OStorageC
     lock.writeLock().lock();
     try {
       final byte[] record = toStream(streamCharset);
-      storage.updateRecord(CONFIG_RID, true, record, -1, OBlob.RECORD_TYPE, 0, null);
+      storage.updateRecord(CONFIG_RID, true, record, -1, OBlob.RECORD_TYPE);
       if (updateListener != null) {
         updateListener.onUpdate(this);
       }
@@ -832,7 +831,7 @@ public class OStorageConfigurationImpl implements OSerializableStream, OStorageC
   public void create() throws IOException {
     lock.writeLock().lock();
     try {
-      storage.createRecord(CONFIG_RID, new byte[] {0, 0, 0, 0}, 0, OBlob.RECORD_TYPE, null);
+      storage.createRecord(CONFIG_RID, new byte[] {0, 0, 0, 0}, 0, OBlob.RECORD_TYPE);
     } finally {
       lock.writeLock().unlock();
     }

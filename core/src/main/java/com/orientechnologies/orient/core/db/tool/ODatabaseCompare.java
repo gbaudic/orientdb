@@ -892,15 +892,12 @@ public class ODatabaseCompare extends ODatabaseImpExpAbstract {
                 makeDbCall(
                     databaseOne,
                     database ->
-                        database.getStorage().readRecord(rid, null, true, false, null).getResult());
+                        database.getStorage().readRecord(rid, null, true, false).getResult());
             final ORawBuffer buffer2 =
                 makeDbCall(
                     databaseTwo,
                     database ->
-                        database
-                            .getStorage()
-                            .readRecord(rid2, null, true, false, null)
-                            .getResult());
+                        database.getStorage().readRecord(rid2, null, true, false).getResult());
 
             //noinspection StatementWithEmptyBody
             if (buffer1 == null && buffer2 == null) {

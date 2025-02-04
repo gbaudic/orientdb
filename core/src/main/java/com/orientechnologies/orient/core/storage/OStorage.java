@@ -93,23 +93,17 @@ public interface OStorage extends OBackupable, OStorageInfo {
 
   // CRUD OPERATIONS
   OStorageOperationResult<ORawBuffer> readRecord(
-      ORecordId iRid,
-      String iFetchPlan,
-      boolean iIgnoreCache,
-      boolean prefetchRecords,
-      ORecordCallback<ORawBuffer> iCallback);
+      ORecordId iRid, String iFetchPlan, boolean iIgnoreCache, boolean prefetchRecords);
 
   OStorageOperationResult<ORawBuffer> readRecordIfVersionIsNotLatest(
       ORecordId rid, String fetchPlan, boolean ignoreCache, int recordVersion)
       throws ORecordNotFoundException;
 
-  OStorageOperationResult<Boolean> deleteRecord(
-      ORecordId iRecordId, int iVersion, int iMode, ORecordCallback<Boolean> iCallback);
+  OStorageOperationResult<Boolean> deleteRecord(ORecordId iRecordId, int iVersion);
 
   ORecordMetadata getRecordMetadata(final ORID rid);
 
-  boolean cleanOutRecord(
-      ORecordId recordId, int recordVersion, int iMode, ORecordCallback<Boolean> callback);
+  boolean cleanOutRecord(ORecordId recordId, int recordVersion);
 
   // TX OPERATIONS
   List<ORecordOperation> commit(OTransactionInternal iTx);

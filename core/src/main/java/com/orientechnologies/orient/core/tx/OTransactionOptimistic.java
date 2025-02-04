@@ -23,9 +23,7 @@ package com.orientechnologies.orient.core.tx;
 import com.orientechnologies.common.exception.OException;
 import com.orientechnologies.common.log.OLogManager;
 import com.orientechnologies.common.log.OLogger;
-import com.orientechnologies.orient.core.db.ODatabase.OPERATION_MODE;
 import com.orientechnologies.orient.core.db.ODatabaseDocumentInternal;
-import com.orientechnologies.orient.core.db.ODatabaseSession;
 import com.orientechnologies.orient.core.db.document.LatestVersionRecordReader;
 import com.orientechnologies.orient.core.db.document.RecordReader;
 import com.orientechnologies.orient.core.db.document.SimpleRecordReader;
@@ -50,7 +48,6 @@ import com.orientechnologies.orient.core.record.impl.ODirtyManager;
 import com.orientechnologies.orient.core.record.impl.ODocument;
 import com.orientechnologies.orient.core.record.impl.ODocumentInternal;
 import com.orientechnologies.orient.core.schedule.OScheduledEvent;
-import com.orientechnologies.orient.core.storage.ORecordCallback;
 import com.orientechnologies.orient.core.storage.OStorage;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -134,7 +131,6 @@ public class OTransactionOptimistic extends OTransactionRealAbstract {
       if (sentToServer || !allEntries.isEmpty() || !indexEntries.isEmpty()) {
         database.internalCommitPreallocate(this);
       }
-      invokeCallbacks();
       close();
       status = TXSTATUS.COMPLETED;
     } else if (txStartCounter > 0) {
@@ -377,35 +373,29 @@ public class OTransactionOptimistic extends OTransactionRealAbstract {
     return loadRecord(rid, record, fetchPlan, ignoreCache, false, OStorage.LOCKING_STRATEGY.NONE);
   }
 
-  public void deleteRecord(final ORecord iRecord, final OPERATION_MODE iMode) {
+  public void deleteRecord(final ORecord iRecord) {
     if (!iRecord.getIdentity().isValid()) return;
     Set<ORecord> records = ORecordInternal.getDirtyManager(iRecord).getUpdateRecords();
     if (records != null) {
       for (final ORecord rec : records) {
-        saveRecord(rec, null, ODatabaseSession.OPERATION_MODE.SYNCHRONOUS, false, null, null);
+        saveRecord(rec, null, false);
       }
     }
 
     final Set<ORecord> newRecords = ORecordInternal.getDirtyManager(iRecord).getNewRecords();
     if (newRecords != null) {
       for (final ORecord rec : newRecords) {
-        saveRecord(rec, null, ODatabaseSession.OPERATION_MODE.SYNCHRONOUS, false, null, null);
+        saveRecord(rec, null, false);
       }
     }
     addRecord(iRecord, ORecordOperation.DELETED, null);
   }
 
   public ORecord saveRecord(
-      final ORecord iRecord,
-      final String iClusterName,
-      final OPERATION_MODE iMode,
-      final boolean iForceCreate,
-      final ORecordCallback<? extends Number> iRecordCreatedCallback,
-      final ORecordCallback<Integer> iRecordUpdatedCallback) {
+      final ORecord iRecord, final String iClusterName, final boolean iForceCreate) {
     if (iRecord == null) {
       return null;
     }
-    ORecordOperation recordOperation = null;
     boolean originalSaved = false;
     final ODirtyManager dirtyManager = ORecordInternal.getDirtyManager(iRecord);
     do {
@@ -417,7 +407,7 @@ public class OTransactionOptimistic extends OTransactionRealAbstract {
           if (rec instanceof ODocument)
             ODocumentInternal.convertAllMultiValuesToTrackedVersions((ODocument) rec);
           if (rec == iRecord) {
-            recordOperation = addRecord(rec, ORecordOperation.CREATED, iClusterName);
+            addRecord(rec, ORecordOperation.CREATED, iClusterName);
             originalSaved = true;
           } else addRecord(rec, ORecordOperation.CREATED, database.getClusterName(rec));
         }
@@ -436,7 +426,7 @@ public class OTransactionOptimistic extends OTransactionRealAbstract {
                       ? ORecordOperation.UPDATED
                       : ORecordOperation.CREATED;
             }
-            recordOperation = addRecord(rec, operation, iClusterName);
+            addRecord(rec, operation, iClusterName);
             originalSaved = true;
           } else addRecord(rec, ORecordOperation.UPDATED, database.getClusterName(rec));
         }
@@ -451,13 +441,7 @@ public class OTransactionOptimistic extends OTransactionRealAbstract {
         operation =
             iRecord.getIdentity().isValid() ? ORecordOperation.UPDATED : ORecordOperation.CREATED;
       }
-      recordOperation = addRecord(iRecord, operation, iClusterName);
-    }
-    if (recordOperation != null) {
-      if (iRecordCreatedCallback != null)
-        //noinspection unchecked
-        recordOperation.createdCallback = (ORecordCallback<Long>) iRecordCreatedCallback;
-      if (iRecordUpdatedCallback != null) recordOperation.updatedCallback = iRecordUpdatedCallback;
+      addRecord(iRecord, operation, iClusterName);
     }
     return iRecord;
   }
@@ -639,25 +623,8 @@ public class OTransactionOptimistic extends OTransactionRealAbstract {
     if (sentToServer || !allEntries.isEmpty() || !indexEntries.isEmpty()) {
       database.internalCommit(this);
     }
-    invokeCallbacks();
     close();
     status = TXSTATUS.COMPLETED;
-  }
-
-  private void invokeCallbacks() {
-    for (final ORecordOperation recordOperation : allEntries.values()) {
-      final ORecord record = recordOperation.getRecord();
-      final ORID identity = record.getIdentity();
-      locks.keySet();
-      if (recordOperation.type == ORecordOperation.CREATED
-          && recordOperation.createdCallback != null) {
-        recordOperation.createdCallback.call(
-            new ORecordId(identity), identity.getClusterPosition());
-      } else if (recordOperation.type == ORecordOperation.UPDATED
-          && recordOperation.updatedCallback != null) {
-        recordOperation.updatedCallback.call(new ORecordId(identity), record.getVersion());
-      }
-    }
   }
 
   @Override

@@ -89,7 +89,6 @@ import com.orientechnologies.orient.core.serialization.serializer.record.binary.
 import com.orientechnologies.orient.core.sql.executor.OResult;
 import com.orientechnologies.orient.core.sql.executor.OResultSet;
 import com.orientechnologies.orient.core.storage.ORawBuffer;
-import com.orientechnologies.orient.core.storage.ORecordCallback;
 import com.orientechnologies.orient.core.storage.ORecordMetadata;
 import com.orientechnologies.orient.core.storage.OStorage;
 import com.orientechnologies.orient.core.storage.OStorageInfo;
@@ -539,12 +538,7 @@ public class ODatabaseDocumentRemote extends ODatabaseDocumentAbstract {
   }
 
   @Override
-  public void executeDeleteRecord(
-      OIdentifiable record,
-      int iVersion,
-      boolean iRequired,
-      OPERATION_MODE iMode,
-      boolean prohibitTombstones) {
+  public void executeDeleteRecord(OIdentifiable record, int iVersion, boolean iRequired) {
     OTransactionOptimisticClient tx =
         new OTransactionOptimisticClient(this) {
           @Override
@@ -554,16 +548,16 @@ public class ODatabaseDocumentRemote extends ODatabaseDocumentAbstract {
     Set<ORecord> records = ORecordInternal.getDirtyManager((ORecord) record).getUpdateRecords();
     if (records != null) {
       for (ORecord rec : records) {
-        tx.saveRecord(rec, null, ODatabase.OPERATION_MODE.SYNCHRONOUS, false, null, null);
+        tx.saveRecord(rec, null, false);
       }
     }
     Set<ORecord> newRecords = ORecordInternal.getDirtyManager((ORecord) record).getNewRecords();
     if (newRecords != null) {
       for (ORecord rec : newRecords) {
-        tx.saveRecord(rec, null, ODatabase.OPERATION_MODE.SYNCHRONOUS, false, null, null);
+        tx.saveRecord(rec, null, false);
       }
     }
-    tx.deleteRecord((ORecord) record, iMode);
+    tx.deleteRecord((ORecord) record);
     tx.commit();
   }
 
@@ -655,21 +649,14 @@ public class ODatabaseDocumentRemote extends ODatabaseDocumentAbstract {
   }
 
   @Override
-  public ORecord saveAll(
-      ORecord iRecord,
-      String iClusterName,
-      OPERATION_MODE iMode,
-      boolean iForceCreate,
-      ORecordCallback<? extends Number> iRecordCreatedCallback,
-      ORecordCallback<Integer> iRecordUpdatedCallback) {
+  public ORecord saveAll(ORecord iRecord, String iClusterName, boolean iForceCreate) {
     OTransactionOptimisticClient tx =
         new OTransactionOptimisticClient(this) {
           @Override
           protected void checkTransactionValid() {}
         };
     tx.begin();
-    tx.saveRecord(
-        iRecord, iClusterName, iMode, iForceCreate, iRecordCreatedCallback, iRecordUpdatedCallback);
+    tx.saveRecord(iRecord, iClusterName, iForceCreate);
     tx.commit();
 
     return iRecord;
@@ -884,7 +871,7 @@ public class ODatabaseDocumentRemote extends ODatabaseDocumentAbstract {
     }
 
     try {
-      currentTx.deleteRecord(record, OPERATION_MODE.SYNCHRONOUS);
+      currentTx.deleteRecord(record);
     } catch (OException e) {
       throw e;
     } catch (Exception e) {

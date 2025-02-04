@@ -119,7 +119,6 @@ import com.orientechnologies.orient.core.storage.OCluster;
 import com.orientechnologies.orient.core.storage.OIdentifiableStorage;
 import com.orientechnologies.orient.core.storage.OPhysicalPosition;
 import com.orientechnologies.orient.core.storage.ORawBuffer;
-import com.orientechnologies.orient.core.storage.ORecordCallback;
 import com.orientechnologies.orient.core.storage.ORecordMetadata;
 import com.orientechnologies.orient.core.storage.OStorage;
 import com.orientechnologies.orient.core.storage.OStorageOperationResult;
@@ -984,7 +983,6 @@ public abstract class OAbstractPaginatedStorage
               new byte[] {0, 0, 0, 0},
               0,
               OBlob.RECORD_TYPE,
-              null,
               doGetAndCheckCluster(0),
               null);
         });
@@ -1872,18 +1870,14 @@ public abstract class OAbstractPaginatedStorage
   }
 
   public final OStorageOperationResult<OPhysicalPosition> createRecord(
-      final ORecordId rid,
-      final byte[] content,
-      final int recordVersion,
-      final byte recordType,
-      final ORecordCallback<Long> callback) {
+      final ORecordId rid, final byte[] content, final int recordVersion, final byte recordType) {
     try {
 
       final OCluster cluster = doGetAndCheckCluster(rid.getClusterId());
       if (transaction.get() != null) {
         final OAtomicOperation atomicOperation = atomicOperationsManager.getCurrentOperation();
         return doCreateRecord(
-            atomicOperation, rid, content, recordVersion, recordType, callback, cluster, null);
+            atomicOperation, rid, content, recordVersion, recordType, cluster, null);
       }
 
       stateLock.readLock().lock();
@@ -1896,14 +1890,7 @@ public abstract class OAbstractPaginatedStorage
             null,
             atomicOperation ->
                 doCreateRecord(
-                    atomicOperation,
-                    rid,
-                    content,
-                    recordVersion,
-                    recordType,
-                    callback,
-                    cluster,
-                    null));
+                    atomicOperation, rid, content, recordVersion, recordType, cluster, null));
       } finally {
         stateLock.readLock().unlock();
       }
@@ -2076,8 +2063,7 @@ public abstract class OAbstractPaginatedStorage
       final ORecordId rid,
       final String iFetchPlan,
       final boolean iIgnoreCache,
-      final boolean prefetchRecords,
-      final ORecordCallback<ORawBuffer> iCallback) {
+      final boolean prefetchRecords) {
     try {
       return new OStorageOperationResult<>(readRecord(rid, prefetchRecords));
     } catch (final RuntimeException ee) {
@@ -2112,9 +2098,7 @@ public abstract class OAbstractPaginatedStorage
       final boolean updateContent,
       final byte[] content,
       final int version,
-      final byte recordType,
-      @SuppressWarnings("unused") final int mode,
-      final ORecordCallback<Integer> callback) {
+      final byte recordType) {
     try {
       assert transaction.get() == null;
 
@@ -2134,14 +2118,7 @@ public abstract class OAbstractPaginatedStorage
               null,
               atomicOperation ->
                   doUpdateRecord(
-                      atomicOperation,
-                      rid,
-                      updateContent,
-                      content,
-                      version,
-                      recordType,
-                      callback,
-                      cluster));
+                      atomicOperation, rid, updateContent, content, version, recordType, cluster));
         } finally {
           lock.unlock();
         }
@@ -2171,10 +2148,7 @@ public abstract class OAbstractPaginatedStorage
 
   @Override
   public final OStorageOperationResult<Boolean> deleteRecord(
-      final ORecordId rid,
-      final int version,
-      final int mode,
-      final ORecordCallback<Boolean> callback) {
+      final ORecordId rid, final int version) {
     try {
       assert transaction.get() == null;
 
@@ -3759,12 +3733,8 @@ public abstract class OAbstractPaginatedStorage
   }
 
   @Override
-  public final boolean cleanOutRecord(
-      final ORecordId recordId,
-      final int recordVersion,
-      final int iMode,
-      final ORecordCallback<Boolean> callback) {
-    return deleteRecord(recordId, recordVersion, iMode, callback).getResult();
+  public final boolean cleanOutRecord(final ORecordId recordId, final int recordVersion) {
+    return deleteRecord(recordId, recordVersion).getResult();
   }
 
   @Override
@@ -4616,7 +4586,6 @@ public abstract class OAbstractPaginatedStorage
       final byte[] content,
       int recordVersion,
       final byte recordType,
-      final ORecordCallback<Long> callback,
       final OCluster cluster,
       final OPhysicalPosition allocated) {
     if (content == null) {
@@ -4644,10 +4613,6 @@ public abstract class OAbstractPaginatedStorage
           new OStorageException("Error during creation of record"), e);
     }
 
-    if (callback != null) {
-      callback.call(rid, ppos.clusterPosition);
-    }
-
     if (logger.isDebugEnabled()) {
       logger.debug("Created record %s v.%s size=%d bytes", rid, recordVersion, content.length);
     }
@@ -4664,7 +4629,6 @@ public abstract class OAbstractPaginatedStorage
       byte[] content,
       final int version,
       final byte recordType,
-      final ORecordCallback<Integer> callback,
       final OCluster cluster) {
 
     Orient.instance().getProfiler().startChrono();
@@ -4674,9 +4638,6 @@ public abstract class OAbstractPaginatedStorage
           cluster.getPhysicalPosition(new OPhysicalPosition(rid.getClusterPosition()));
       if (!checkForRecordValidity(ppos)) {
         final int recordVersion = -1;
-        if (callback != null) {
-          callback.call(rid, recordVersion);
-        }
 
         return new OStorageOperationResult<>(recordVersion);
       }
@@ -4718,10 +4679,6 @@ public abstract class OAbstractPaginatedStorage
         newRecordVersion = ppos.recordVersion;
       } else {
         newRecordVersion = version;
-      }
-
-      if (callback != null) {
-        callback.call(rid, newRecordVersion);
       }
 
       if (logger.isDebugEnabled()) {
@@ -5302,7 +5259,6 @@ public abstract class OAbstractPaginatedStorage
                           stream,
                           rec.getVersion(),
                           recordType,
-                          null,
                           cluster,
                           allocated)
                       .getResult();
@@ -5318,7 +5274,6 @@ public abstract class OAbstractPaginatedStorage
                       stream,
                       -2,
                       ORecordInternal.getRecordType(rec),
-                      null,
                       cluster);
               ORecordInternal.setVersion(rec, updateRes.getResult());
               if (updateRes.getModifiedRecordContent() != null) {
@@ -5348,7 +5303,6 @@ public abstract class OAbstractPaginatedStorage
                     stream,
                     rec.getVersion(),
                     ORecordInternal.getRecordType(rec),
-                    null,
                     cluster);
             txEntry.setResultData(updateRes.getResult());
             ORecordInternal.setVersion(rec, updateRes.getResult());

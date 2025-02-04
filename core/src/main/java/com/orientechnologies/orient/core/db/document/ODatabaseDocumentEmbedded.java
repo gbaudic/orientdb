@@ -113,7 +113,6 @@ import com.orientechnologies.orient.core.sql.parser.OLocalResultSet;
 import com.orientechnologies.orient.core.sql.parser.OLocalResultSetLifecycleDecorator;
 import com.orientechnologies.orient.core.sql.parser.OStatement;
 import com.orientechnologies.orient.core.storage.ORawBuffer;
-import com.orientechnologies.orient.core.storage.ORecordCallback;
 import com.orientechnologies.orient.core.storage.ORecordMetadata;
 import com.orientechnologies.orient.core.storage.OStorage;
 import com.orientechnologies.orient.core.storage.OStorageInfo;
@@ -958,11 +957,7 @@ public class ODatabaseDocumentEmbedded extends ODatabaseDocumentAbstract
    * use. @Internal
    */
   public void executeDeleteRecord(
-      OIdentifiable identifiable,
-      final int iVersion,
-      final boolean iRequired,
-      final OPERATION_MODE iMode,
-      boolean prohibitTombstones) {
+      OIdentifiable identifiable, final int iVersion, final boolean iRequired) {
     checkOpenness();
     checkIfActive();
 
@@ -988,7 +983,7 @@ public class ODatabaseDocumentEmbedded extends ODatabaseDocumentAbstract
       tx.setNoTxLocks(trans.getInternalLocks());
       this.currentTx = tx;
       tx.begin();
-      tx.deleteRecord(record, iMode);
+      tx.deleteRecord(record);
       commit();
     } finally {
       this.currentTx = trans;
@@ -1156,7 +1151,7 @@ public class ODatabaseDocumentEmbedded extends ODatabaseDocumentAbstract
           ((ODocument) record).getClassName());
 
     try {
-      currentTx.deleteRecord(record, OPERATION_MODE.SYNCHRONOUS);
+      currentTx.deleteRecord(record);
     } catch (OException e) {
       throw e;
     } catch (Exception e) {
@@ -1358,13 +1353,7 @@ public class ODatabaseDocumentEmbedded extends ODatabaseDocumentAbstract
   }
 
   @Override
-  public ORecord saveAll(
-      ORecord iRecord,
-      String iClusterName,
-      OPERATION_MODE iMode,
-      boolean iForceCreate,
-      ORecordCallback<? extends Number> iRecordCreatedCallback,
-      ORecordCallback<Integer> iRecordUpdatedCallback) {
+  public ORecord saveAll(ORecord iRecord, String iClusterName, boolean iForceCreate) {
     OTransactionAbstract trans = (OTransactionAbstract) this.currentTx;
     try {
       OTransactionOptimistic tx = new OTransactionOptimistic(this);
@@ -1372,13 +1361,7 @@ public class ODatabaseDocumentEmbedded extends ODatabaseDocumentAbstract
       this.currentTx = tx;
       tx.begin();
 
-      tx.saveRecord(
-          iRecord,
-          iClusterName,
-          iMode,
-          iForceCreate,
-          iRecordCreatedCallback,
-          iRecordUpdatedCallback);
+      tx.saveRecord(iRecord, iClusterName, iForceCreate);
       commit();
     } finally {
       this.currentTx = trans;

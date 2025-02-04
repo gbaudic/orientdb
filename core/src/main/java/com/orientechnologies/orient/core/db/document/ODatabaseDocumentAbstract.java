@@ -89,7 +89,6 @@ import com.orientechnologies.orient.core.serialization.serializer.binary.OBinary
 import com.orientechnologies.orient.core.serialization.serializer.record.ORecordSerializer;
 import com.orientechnologies.orient.core.serialization.serializer.record.ORecordSerializerFactory;
 import com.orientechnologies.orient.core.sql.executor.OResultSet;
-import com.orientechnologies.orient.core.storage.ORecordCallback;
 import com.orientechnologies.orient.core.storage.OStorage;
 import com.orientechnologies.orient.core.storage.OStorageInfo;
 import com.orientechnologies.orient.core.storage.OStorageOperationResult;
@@ -1370,27 +1369,15 @@ public abstract class ODatabaseDocumentAbstract extends OListenerManger<ODatabas
         iRecord = iRecord.getRecord();
       }
     }
-    return saveInternal(iRecord, iClusterName, null, iForceCreate, null, null);
+    return saveInternal(iRecord, iClusterName, iForceCreate);
   }
 
   private <RET extends ORecord> RET saveInternal(
-      ORecord iRecord,
-      String iClusterName,
-      OPERATION_MODE iMode,
-      boolean iForceCreate,
-      ORecordCallback<? extends Number> iRecordCreatedCallback,
-      ORecordCallback<Integer> iRecordUpdatedCallback) {
+      ORecord iRecord, String iClusterName, boolean iForceCreate) {
 
     if (!(iRecord instanceof ODocument)) {
       assignAndCheckCluster(iRecord, iClusterName);
-      return (RET)
-          currentTx.saveRecord(
-              iRecord,
-              iClusterName,
-              iMode,
-              iForceCreate,
-              iRecordCreatedCallback,
-              iRecordUpdatedCallback);
+      return (RET) currentTx.saveRecord(iRecord, iClusterName, iForceCreate);
     }
 
     ODocument doc = (ODocument) iRecord;
@@ -1419,15 +1406,7 @@ public abstract class ODatabaseDocumentAbstract extends OListenerManger<ODatabas
     if (!getSerializer().equals(ORecordInternal.getRecordSerializer(doc))) {
       ORecordInternal.setRecordSerializer(doc, getSerializer());
     }
-    doc =
-        (ODocument)
-            currentTx.saveRecord(
-                iRecord,
-                iClusterName,
-                iMode,
-                iForceCreate,
-                iRecordCreatedCallback,
-                iRecordUpdatedCallback);
+    doc = (ODocument) currentTx.saveRecord(iRecord, iClusterName, iForceCreate);
 
     return (RET) doc;
   }

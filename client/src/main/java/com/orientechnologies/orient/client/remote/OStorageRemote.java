@@ -26,7 +26,6 @@ import com.orientechnologies.common.exception.OException;
 import com.orientechnologies.common.io.OIOException;
 import com.orientechnologies.common.log.OLogManager;
 import com.orientechnologies.common.log.OLogger;
-import com.orientechnologies.common.thread.OThreadPoolExecutors;
 import com.orientechnologies.common.util.OCallable;
 import com.orientechnologies.common.util.OCommonConst;
 import com.orientechnologies.orient.client.ONotSendRequestException;
@@ -152,7 +151,6 @@ import com.orientechnologies.orient.core.serialization.serializer.record.binary.
 import com.orientechnologies.orient.core.storage.OCluster;
 import com.orientechnologies.orient.core.storage.OPhysicalPosition;
 import com.orientechnologies.orient.core.storage.ORawBuffer;
-import com.orientechnologies.orient.core.storage.ORecordCallback;
 import com.orientechnologies.orient.core.storage.ORecordMetadata;
 import com.orientechnologies.orient.core.storage.OStorage;
 import com.orientechnologies.orient.core.storage.OStorageOperationResult;
@@ -184,7 +182,6 @@ import java.util.TimeZone;
 import java.util.UUID;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.ExecutorService;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
 
@@ -209,7 +206,6 @@ public class OStorageRemote implements ORemotePushHandler, OStorage {
       new OSBTreeCollectionManagerRemote();
   private final ORemoteURLs serverURLs;
   private final Map<String, OCluster> clusterMap = new ConcurrentHashMap<String, OCluster>();
-  private final ExecutorService asynchExecutor;
   private final ODocument clusterConfiguration = new ODocument();
   private final AtomicInteger users = new AtomicInteger(0);
   private final OContextConfiguration clientConfiguration;
@@ -285,8 +281,6 @@ public class OStorageRemote implements ORemotePushHandler, OStorage {
         clientConfiguration.getValueAsInteger(OGlobalConfiguration.NETWORK_SOCKET_RETRY_DELAY);
     serverURLs = hosts;
 
-    asynchExecutor = OThreadPoolExecutors.newSingleThreadScheduledPool("OStorageRemote Async");
-
     this.connectionManager = connectionManager;
     this.context = context;
   }
@@ -326,28 +320,19 @@ public class OStorageRemote implements ORemotePushHandler, OStorage {
     this.sharedContext = sharedContext;
   }
 
-  public <T extends OBinaryResponse> T asyncNetworkOperationNoRetry(
-      final OBinaryAsyncRequest<T> request,
-      int mode,
-      final ORecordId recordId,
-      final ORecordCallback<T> callback,
-      final String errorMessage) {
-    return asyncNetworkOperationRetry(request, mode, recordId, callback, errorMessage, 0);
+  @Deprecated
+  public <T extends OBinaryResponse> T networkOperationNoRetry(
+      final OBinaryAsyncRequest<T> request, final ORecordId recordId, final String errorMessage) {
+    return networkOperationRetry(request, recordId, errorMessage, 0);
   }
 
-  public <T extends OBinaryResponse> T asyncNetworkOperationRetry(
+  @Deprecated
+  public <T extends OBinaryResponse> T networkOperationRetry(
       final OBinaryAsyncRequest<T> request,
-      int mode,
       final ORecordId recordId,
-      final ORecordCallback<T> callback,
       final String errorMessage,
       int retry) {
-    final int pMode;
-    if (mode == 1 && callback == null)
-      // ASYNCHRONOUS MODE NO ANSWER
-      pMode = 2;
-    else pMode = mode;
-    request.setMode((byte) pMode);
+    request.setMode((byte) 0);
     return baseNetworkOperation(
         (network, session) -> {
           // Send The request
@@ -363,42 +348,16 @@ public class OStorageRemote implements ORemotePushHandler, OStorage {
           }
           final T response = request.createResponse();
           T ret = null;
-          if (pMode == 0) {
-            // SYNC
-            try {
-              beginResponse(network, session);
-              response.read(network, session);
-            } finally {
-              endResponse(network);
-            }
-            ret = response;
-            connectionManager.release(network);
-          } else if (pMode == 1) {
-            // ASYNC
-            asynchExecutor.submit(
-                () -> {
-                  try {
-                    try {
-                      beginResponse(network, session);
-                      response.read(network, session);
-                    } finally {
-                      endResponse(network);
-                    }
-                    callback.call(recordId, response);
-                    connectionManager.release(network);
-                  } catch (Exception e) {
-                    connectionManager.remove(network);
-                    logger.error("Exception on async query", e);
-                  } catch (Error e) {
-                    connectionManager.remove(network);
-                    logger.error("Exception on async query", e);
-                    throw e;
-                  }
-                });
-          } else {
-            // NO RESPONSE
-            connectionManager.release(network);
+          // SYNC
+          try {
+            beginResponse(network, session);
+            response.read(network, session);
+          } finally {
+            endResponse(network);
           }
+          ret = response;
+          connectionManager.release(network);
+
           return ret;
         },
         errorMessage,
@@ -761,39 +720,23 @@ public class OStorageRemote implements ORemotePushHandler, OStorage {
       final ORecordId iRid,
       final byte[] iContent,
       final int iRecordVersion,
-      final byte iRecordType,
-      final int iMode,
-      final ORecordCallback<Long> iCallback) {
+      final byte iRecordType) {
 
     final OSBTreeCollectionManager collectionManager =
         ODatabaseRecordThreadLocal.instance().get().getSbTreeCollectionManager();
-    ORecordCallback<OCreateRecordResponse> realCallback = null;
-    if (iCallback != null) {
-      realCallback =
-          (iRID, response) -> {
-            iCallback.call(response.getIdentity(), response.getIdentity().getClusterPosition());
-            updateCollectionsFromChanges(collectionManager, response.getChangedIds());
-          };
-    }
+
     // The Upper layer require to return this also if it not really received response from the
     // network
     final OPhysicalPosition ppos = new OPhysicalPosition(iRecordType);
     final OCreateRecordRequest request = new OCreateRecordRequest(iContent, iRid, iRecordType);
     final OCreateRecordResponse response =
-        asyncNetworkOperationNoRetry(
-            request,
-            iMode,
-            iRid,
-            realCallback,
-            "Error on create record in cluster " + iRid.getClusterId());
+        networkOperationNoRetry(
+            request, iRid, "Error on create record in cluster " + iRid.getClusterId());
     if (response != null) {
       ppos.clusterPosition = response.getIdentity().getClusterPosition();
       ppos.recordVersion = response.getVersion();
-      // THIS IS A COMPATIBILITY FIX TO AVOID TO FILL THE CLUSTER ID IN CASE OF ASYNC
-      if (iMode == 0) {
-        iRid.setClusterId(response.getIdentity().getClusterId());
-        iRid.setClusterPosition(response.getIdentity().getClusterPosition());
-      }
+      iRid.setClusterId(response.getIdentity().getClusterId());
+      iRid.setClusterPosition(response.getIdentity().getClusterPosition());
       updateCollectionsFromChanges(collectionManager, response.getChangedIds());
     }
 
@@ -842,8 +785,7 @@ public class OStorageRemote implements ORemotePushHandler, OStorage {
       final ORecordId iRid,
       final String iFetchPlan,
       final boolean iIgnoreCache,
-      boolean prefetchRecords,
-      final ORecordCallback<ORawBuffer> iCallback) {
+      boolean prefetchRecords) {
 
     if (getCurrentSession().commandExecuting)
       // PENDING NETWORK OPERATION, CAN'T EXECUTE IT NOW
@@ -889,27 +831,15 @@ public class OStorageRemote implements ORemotePushHandler, OStorage {
       final boolean updateContent,
       final byte[] iContent,
       final int iVersion,
-      final byte iRecordType,
-      final int iMode,
-      final ORecordCallback<Integer> iCallback) {
+      final byte iRecordType) {
 
     final OSBTreeCollectionManager collectionManager =
         ODatabaseRecordThreadLocal.instance().get().getSbTreeCollectionManager();
 
-    ORecordCallback<OUpdateRecordResponse> realCallback = null;
-    if (iCallback != null) {
-      realCallback =
-          (iRID, response) -> {
-            iCallback.call(iRID, response.getVersion());
-            updateCollectionsFromChanges(collectionManager, response.getChanges());
-          };
-    }
-
     OUpdateRecordRequest request =
         new OUpdateRecordRequest(iRid, iContent, iVersion, updateContent, iRecordType);
     OUpdateRecordResponse response =
-        asyncNetworkOperationNoRetry(
-            request, iMode, iRid, realCallback, "Error on update record " + iRid);
+        networkOperationNoRetry(request, iRid, "Error on update record " + iRid);
 
     Integer resVersion = null;
     if (response != null) {
@@ -920,38 +850,20 @@ public class OStorageRemote implements ORemotePushHandler, OStorage {
     return new OStorageOperationResult<Integer>(resVersion);
   }
 
-  public OStorageOperationResult<Boolean> deleteRecord(
-      final ORecordId iRid,
-      final int iVersion,
-      final int iMode,
-      final ORecordCallback<Boolean> iCallback) {
-    ORecordCallback<ODeleteRecordResponse> realCallback = null;
-    if (iCallback != null)
-      realCallback = (iRID, response) -> iCallback.call(iRID, response.getResult());
-
+  public OStorageOperationResult<Boolean> deleteRecord(final ORecordId iRid, final int iVersion) {
     final ODeleteRecordRequest request = new ODeleteRecordRequest(iRid, iVersion);
     final ODeleteRecordResponse response =
-        asyncNetworkOperationNoRetry(
-            request, iMode, iRid, realCallback, "Error on delete record " + iRid);
+        networkOperationNoRetry(request, iRid, "Error on delete record " + iRid);
     Boolean resDelete = null;
     if (response != null) resDelete = response.getResult();
     return new OStorageOperationResult<Boolean>(resDelete);
   }
 
-  public boolean cleanOutRecord(
-      final ORecordId recordId,
-      final int recordVersion,
-      final int iMode,
-      final ORecordCallback<Boolean> callback) {
-
-    ORecordCallback<OCleanOutRecordResponse> realCallback = null;
-    if (callback != null)
-      realCallback = (iRID, response) -> callback.call(iRID, response.getResult());
+  public boolean cleanOutRecord(final ORecordId recordId, final int recordVersion) {
 
     final OCleanOutRecordRequest request = new OCleanOutRecordRequest(recordVersion, recordId);
     final OCleanOutRecordResponse response =
-        asyncNetworkOperationNoRetry(
-            request, iMode, recordId, realCallback, "Error on delete record " + recordId);
+        networkOperationNoRetry(request, recordId, "Error on delete record " + recordId);
     Boolean result = null;
     if (response != null) result = response.getResult();
     return result != null ? result : false;
@@ -1482,7 +1394,6 @@ public class OStorageRemote implements ORemotePushHandler, OStorage {
   }
 
   public String getClusterName(int clusterId) {
-    final OCluster cluster;
     stateLock.readLock().lock();
     try {
 

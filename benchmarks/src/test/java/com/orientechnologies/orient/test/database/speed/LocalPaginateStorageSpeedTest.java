@@ -54,7 +54,7 @@ public class LocalPaginateStorageSpeedTest extends OrientMonoThreadDBTest {
 
     content = record.toStream();
 
-    storage.createRecord(new ORecordId(), content, 0, (byte) 'd', null);
+    storage.createRecord(new ORecordId(), content, 0, (byte) 'd');
   }
 
   @Override

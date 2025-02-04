@@ -21,7 +21,6 @@ package com.orientechnologies.orient.core.tx;
 
 import com.orientechnologies.common.concur.ONeedRetryException;
 import com.orientechnologies.common.exception.OException;
-import com.orientechnologies.orient.core.db.ODatabase.OPERATION_MODE;
 import com.orientechnologies.orient.core.db.ODatabaseDocumentInternal;
 import com.orientechnologies.orient.core.db.document.LatestVersionRecordReader;
 import com.orientechnologies.orient.core.db.document.RecordReader;
@@ -36,7 +35,6 @@ import com.orientechnologies.orient.core.index.OIndex;
 import com.orientechnologies.orient.core.metadata.schema.OClass;
 import com.orientechnologies.orient.core.record.ORecord;
 import com.orientechnologies.orient.core.record.impl.ODocument;
-import com.orientechnologies.orient.core.storage.ORecordCallback;
 import com.orientechnologies.orient.core.storage.OStorage;
 import com.orientechnologies.orient.core.tx.OTransactionIndexChanges.OPERATION;
 import java.util.Collection;
@@ -190,28 +188,16 @@ public class OTransactionNoTx extends OTransactionAbstract {
 
   /**
    * Update the record.
-   *
    * @param iRecord
    * @param iForceCreate
    * @param iRecordCreatedCallback
    * @param iRecordUpdatedCallback
    */
   public ORecord saveRecord(
-      final ORecord iRecord,
-      final String iClusterName,
-      final OPERATION_MODE iMode,
-      boolean iForceCreate,
-      final ORecordCallback<? extends Number> iRecordCreatedCallback,
-      ORecordCallback<Integer> iRecordUpdatedCallback) {
+      final ORecord iRecord, final String iClusterName, boolean iForceCreate) {
     try {
 
-      return database.saveAll(
-          iRecord,
-          iClusterName,
-          iMode,
-          iForceCreate,
-          iRecordCreatedCallback,
-          iRecordUpdatedCallback);
+      return database.saveAll(iRecord, iClusterName, iForceCreate);
 
     } catch (Exception e) {
       // REMOVE IT FROM THE CACHE TO AVOID DIRTY RECORDS
@@ -239,11 +225,11 @@ public class OTransactionNoTx extends OTransactionAbstract {
   }
 
   /** Deletes the record. */
-  public void deleteRecord(final ORecord iRecord, final OPERATION_MODE iMode) {
+  public void deleteRecord(final ORecord iRecord) {
     if (!iRecord.getIdentity().isPersistent()) return;
 
     try {
-      database.executeDeleteRecord(iRecord, iRecord.getVersion(), true, iMode, false);
+      database.executeDeleteRecord(iRecord, iRecord.getVersion(), true);
     } catch (Exception e) {
       // REMOVE IT FROM THE CACHE TO AVOID DIRTY RECORDS
       final ORecordId rid = (ORecordId) iRecord.getIdentity();

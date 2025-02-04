@@ -49,8 +49,7 @@ public class OTruncateRecordStatement extends OSimpleExecStatement {
     for (ORid rec : recs) {
       try {
         final ORecordId rid = rec.toRecordId((OResult) null, ctx);
-        final OStorageOperationResult<Boolean> result =
-            database.getStorage().deleteRecord(rid, -1, 0, null);
+        final OStorageOperationResult<Boolean> result = database.getStorage().deleteRecord(rid, -1);
         database.getLocalCache().deleteRecord(rid);
 
         if (result.getResult()) {
