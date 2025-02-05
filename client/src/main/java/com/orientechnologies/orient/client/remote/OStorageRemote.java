@@ -130,7 +130,6 @@ import com.orientechnologies.orient.core.db.OLiveQueryMonitor;
 import com.orientechnologies.orient.core.db.OSharedContext;
 import com.orientechnologies.orient.core.db.OrientDBConfig;
 import com.orientechnologies.orient.core.db.OrientDBInternal;
-import com.orientechnologies.orient.core.db.document.RecordReader;
 import com.orientechnologies.orient.core.db.record.OCurrentStorageComponentsFactory;
 import com.orientechnologies.orient.core.db.record.OIdentifiable;
 import com.orientechnologies.orient.core.db.record.ORecordOperation;
@@ -186,8 +185,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
 
 /** This object is bound to each remote ODatabase instances. */
-public class OStorageRemote
-    implements ORemotePushHandler, OStorageInfo, RecordReader.RecordFetchMode {
+public class OStorageRemote implements ORemotePushHandler, OStorageInfo {
   private static final OLogger logger = OLogManager.instance().logger(OStorageRemote.class);
   @Deprecated public static final String PARAM_CONNECTION_STRATEGY = "connectionStrategy";
 

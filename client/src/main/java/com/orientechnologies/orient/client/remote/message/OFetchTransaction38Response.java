@@ -15,7 +15,6 @@ import com.orientechnologies.orient.core.serialization.serializer.record.binary.
 import com.orientechnologies.orient.core.serialization.serializer.record.binary.ORecordSerializerNetworkV37;
 import com.orientechnologies.orient.core.serialization.serializer.record.binary.ORecordSerializerNetworkV37Client;
 import com.orientechnologies.orient.core.storage.ORawBuffer;
-import com.orientechnologies.orient.core.storage.OStorageOperationResult;
 import com.orientechnologies.orient.core.tx.OTransactionIndexChanges;
 import com.orientechnologies.orient.enterprise.channel.binary.OChannelDataInput;
 import com.orientechnologies.orient.enterprise.channel.binary.OChannelDataOutput;
@@ -59,10 +58,9 @@ public class OFetchTransaction38Response implements OBinaryResponse {
       request.setRecordType(ORecordInternal.getRecordType(txEntry.getRecord()));
       if (txEntry.type == ORecordOperation.UPDATED && txEntry.getRecord() instanceof ODocument) {
         ODocument doc = (ODocument) txEntry.getRecord();
-        OStorageOperationResult<ORawBuffer> result =
-            database.getStorage().readRecord((ORecordId) doc.getIdentity(), "", false, false);
+        ORawBuffer result = database.getStorage().readRecord((ORecordId) doc.getIdentity());
         ODocument docFromPersistence = new ODocument(doc.getIdentity());
-        docFromPersistence.fromStream(result.getResult().getBuffer());
+        docFromPersistence.fromStream(result.getBuffer());
         request.setOriginal(
             ORecordSerializerNetworkV37Client.INSTANCE.toStream(docFromPersistence));
         ODocumentSerializerDelta delta = ODocumentSerializerDelta.instance();

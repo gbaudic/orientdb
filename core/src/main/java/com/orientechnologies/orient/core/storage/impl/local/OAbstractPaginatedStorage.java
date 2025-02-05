@@ -63,7 +63,6 @@ import com.orientechnologies.orient.core.db.ODatabaseDocumentInternal;
 import com.orientechnologies.orient.core.db.ODatabaseRecordThreadLocal;
 import com.orientechnologies.orient.core.db.OrientDBConfig;
 import com.orientechnologies.orient.core.db.OrientDBInternal;
-import com.orientechnologies.orient.core.db.document.RecordReader;
 import com.orientechnologies.orient.core.db.record.OCurrentStorageComponentsFactory;
 import com.orientechnologies.orient.core.db.record.OIdentifiable;
 import com.orientechnologies.orient.core.db.record.ORecordOperation;
@@ -245,8 +244,7 @@ public abstract class OAbstractPaginatedStorage
         OBackgroundExceptionListener,
         OFreezableStorageComponent,
         OPageIsBrokenListener,
-        OStorage,
-        RecordReader.RecordFetchMode {
+        OStorage {
 
   private static final String CONF_UTF_8_ENTRY_NAME = "database_utf8.ocf";
   private static final String CONF_ENTRY_NAME = "database.ocf";
@@ -2037,13 +2035,9 @@ public abstract class OAbstractPaginatedStorage
   }
 
   @Override
-  public OStorageOperationResult<ORawBuffer> readRecord(
-      final ORecordId rid,
-      final String iFetchPlan,
-      final boolean iIgnoreCache,
-      final boolean prefetchRecords) {
+  public ORawBuffer readRecord(ORecordId rid) {
     try {
-      return new OStorageOperationResult<>(readRecord(rid, prefetchRecords));
+      return readRecord(rid, false);
     } catch (final RuntimeException ee) {
       throw logAndPrepareForRethrow(ee);
     } catch (final Error ee) {
@@ -2054,14 +2048,10 @@ public abstract class OAbstractPaginatedStorage
   }
 
   @Override
-  public final OStorageOperationResult<ORawBuffer> readRecordIfVersionIsNotLatest(
-      final ORecordId rid,
-      final String fetchPlan,
-      final boolean ignoreCache,
-      final int recordVersion)
-      throws ORecordNotFoundException {
+  public final ORawBuffer readRecordIfVersionIsNotLatest(
+      final ORecordId rid, final int recordVersion) throws ORecordNotFoundException {
     try {
-      return new OStorageOperationResult<>(readRecordIfNotLatest(rid, recordVersion));
+      return readRecordIfNotLatest(rid, recordVersion);
     } catch (final RuntimeException ee) {
       throw logAndPrepareForRethrow(ee);
     } catch (final Error ee) {

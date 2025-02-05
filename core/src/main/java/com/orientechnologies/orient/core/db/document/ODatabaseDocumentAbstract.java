@@ -261,7 +261,7 @@ public abstract class ODatabaseDocumentAbstract extends OListenerManger<ODatabas
         iIgnoreCache,
         !iIgnoreCache,
         OStorage.LOCKING_STRATEGY.DEFAULT,
-        new SimpleRecordReader(prefetchRecords));
+        this::directRead);
   }
 
   /** Deletes the record checking the version. */
@@ -825,7 +825,7 @@ public abstract class ODatabaseDocumentAbstract extends OListenerManger<ODatabas
         iIgnoreCache,
         !iIgnoreCache,
         OStorage.LOCKING_STRATEGY.NONE,
-        new SimpleRecordReader(prefetchRecords));
+        this::directRead);
   }
 
   @Override

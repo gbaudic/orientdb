@@ -45,7 +45,6 @@ import com.orientechnologies.orient.core.db.OLiveQueryResultListener;
 import com.orientechnologies.orient.core.db.OSharedContext;
 import com.orientechnologies.orient.core.db.OSharedContextEmbedded;
 import com.orientechnologies.orient.core.db.OrientDBConfig;
-import com.orientechnologies.orient.core.db.document.RecordReader.RecordFetchMode;
 import com.orientechnologies.orient.core.db.record.OClassTrigger;
 import com.orientechnologies.orient.core.db.record.OIdentifiable;
 import com.orientechnologies.orient.core.db.record.ORecordElement;
@@ -1437,9 +1436,7 @@ public class ODatabaseDocumentEmbedded extends ODatabaseDocumentAbstract
           if (iRecord != null) version = iRecord.getVersion();
           else version = recordVersion;
 
-          recordBuffer =
-              recordReader.readRecord(
-                  (RecordFetchMode) getStorage(), rid, fetchPlan, ignoreCache, version);
+          recordBuffer = recordReader.readRecord(rid, fetchPlan, ignoreCache, version);
         }
 
         if (recordBuffer == null) return null;
@@ -2164,5 +2161,15 @@ public class ODatabaseDocumentEmbedded extends ODatabaseDocumentAbstract
   @Override
   public OBonsaiCollectionPointer createSBTree(int clusterId, UUID ownerUUID) {
     return getStorage().createSBTree(clusterId, ownerUUID);
+  }
+
+  public ORawBuffer directRead(
+      ORecordId rid, String fetchPlan, boolean ignoreCache, int recordVersion) {
+    return getStorage().readRecord(rid);
+  }
+
+  public ORawBuffer readIfVersionIsNotLatest(
+      ORecordId rid, String fetchPlan, boolean ignoreCache, int recordVersion) {
+    return getStorage().readRecordIfVersionIsNotLatest(rid, recordVersion);
   }
 }

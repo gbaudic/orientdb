@@ -24,9 +24,7 @@ import com.orientechnologies.common.exception.OException;
 import com.orientechnologies.common.log.OLogManager;
 import com.orientechnologies.common.log.OLogger;
 import com.orientechnologies.orient.core.db.ODatabaseDocumentInternal;
-import com.orientechnologies.orient.core.db.document.LatestVersionRecordReader;
 import com.orientechnologies.orient.core.db.document.RecordReader;
-import com.orientechnologies.orient.core.db.document.SimpleRecordReader;
 import com.orientechnologies.orient.core.db.record.OIdentifiable;
 import com.orientechnologies.orient.core.db.record.ORecordOperation;
 import com.orientechnologies.orient.core.exception.ODatabaseException;
@@ -239,7 +237,7 @@ public class OTransactionOptimistic extends OTransactionRealAbstract {
             ignoreCache,
             iUpdateCache,
             lockingStrategy,
-            new SimpleRecordReader(database.isPrefetchRecords()));
+            database::directRead);
 
     if (record != null && isolationLevel == ISOLATION_LEVEL.REPEATABLE_READ) {
       // KEEP THE RECORD IN TX TO ASSURE REPEATABLE READS
@@ -281,7 +279,7 @@ public class OTransactionOptimistic extends OTransactionRealAbstract {
             ignoreCache,
             !ignoreCache,
             OStorage.LOCKING_STRATEGY.NONE,
-            new SimpleRecordReader(database.isPrefetchRecords()));
+            database::readIfVersionIsNotLatest);
 
     if (record != null && isolationLevel == ISOLATION_LEVEL.REPEATABLE_READ) {
       // KEEP THE RECORD IN TX TO ASSURE REPEATABLE READS
@@ -327,9 +325,9 @@ public class OTransactionOptimistic extends OTransactionRealAbstract {
     try {
       final RecordReader recordReader;
       if (force) {
-        recordReader = new SimpleRecordReader(database.isPrefetchRecords());
+        recordReader = database::directRead;
       } else {
-        recordReader = new LatestVersionRecordReader();
+        recordReader = database::readIfVersionIsNotLatest;
       }
 
       final ORecord loadedRecord =

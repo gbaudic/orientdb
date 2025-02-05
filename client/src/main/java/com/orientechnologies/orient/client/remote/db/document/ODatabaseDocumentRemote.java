@@ -693,8 +693,7 @@ public class ODatabaseDocumentRemote extends ODatabaseDocumentAbstract {
         if (iRecord != null) version = iRecord.getVersion();
         else version = recordVersion;
 
-        recordBuffer =
-            recordReader.readRecord(getStorageRemote(), rid, fetchPlan, ignoreCache, version);
+        recordBuffer = recordReader.readRecord(rid, fetchPlan, ignoreCache, version);
       }
 
       if (recordBuffer == null) return null;
@@ -1260,5 +1259,17 @@ public class ODatabaseDocumentRemote extends ODatabaseDocumentAbstract {
   @Override
   public OBonsaiCollectionPointer createSBTree(int clusterId, UUID ownerUUID) {
     throw new UnsupportedOperationException();
+  }
+
+  public ORawBuffer directRead(
+      ORecordId rid, String fetchPlan, boolean ignoreCache, int recordVersion) {
+    return getStorageRemote().readRecord(rid, fetchPlan, ignoreCache, ignoreCache).getResult();
+  }
+
+  public ORawBuffer readIfVersionIsNotLatest(
+      ORecordId rid, String fetchPlan, boolean ignoreCache, int recordVersion) {
+    return getStorageRemote()
+        .readRecordIfVersionIsNotLatest(rid, fetchPlan, ignoreCache, recordVersion)
+        .getResult();
   }
 }

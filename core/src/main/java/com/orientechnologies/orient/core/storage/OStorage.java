@@ -101,12 +101,9 @@ public interface OStorage extends OBackupable, OStorageInfo {
 
   boolean isClosed();
 
-  // CRUD OPERATIONS
-  OStorageOperationResult<ORawBuffer> readRecord(
-      ORecordId iRid, String iFetchPlan, boolean iIgnoreCache, boolean prefetchRecords);
+  ORawBuffer readRecord(ORecordId iRid);
 
-  OStorageOperationResult<ORawBuffer> readRecordIfVersionIsNotLatest(
-      ORecordId rid, String fetchPlan, boolean ignoreCache, int recordVersion)
+  ORawBuffer readRecordIfVersionIsNotLatest(ORecordId rid, int recordVersion)
       throws ORecordNotFoundException;
 
   OStorageOperationResult<Boolean> deleteRecord(ORecordId iRecordId, int iVersion);

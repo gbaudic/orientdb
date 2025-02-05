@@ -39,7 +39,6 @@ import com.orientechnologies.orient.core.exception.OInvalidStorageEncryptionKeyE
 import com.orientechnologies.orient.core.exception.OStorageException;
 import com.orientechnologies.orient.core.id.ORecordId;
 import com.orientechnologies.orient.core.storage.ORawBuffer;
-import com.orientechnologies.orient.core.storage.OStorageOperationResult;
 import com.orientechnologies.orient.core.storage.cache.OReadCache;
 import com.orientechnologies.orient.core.storage.disk.OLocalPaginatedStorage;
 import com.orientechnologies.orient.core.storage.fs.OFile;
@@ -537,11 +536,10 @@ public class OEnterpriseLocalPaginatedStorage extends OLocalPaginatedStorage {
   }
 
   @Override
-  public OStorageOperationResult<ORawBuffer> readRecord(
-      ORecordId iRid, String iFetchPlan, boolean iIgnoreCache, boolean prefetchRecords) {
+  public ORawBuffer readRecord(ORecordId iRid) {
 
     try {
-      return super.readRecord(iRid, iFetchPlan, iIgnoreCache, prefetchRecords);
+      return super.readRecord(iRid);
     } finally {
       listeners.forEach(OEnterpriseStorageOperationListener::onRead);
     }

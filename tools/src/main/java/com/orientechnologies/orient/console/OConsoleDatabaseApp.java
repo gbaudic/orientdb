@@ -52,7 +52,6 @@ import com.orientechnologies.orient.core.db.OrientDBConfig;
 import com.orientechnologies.orient.core.db.OrientDBConfigBuilder;
 import com.orientechnologies.orient.core.db.OrientDBInternal;
 import com.orientechnologies.orient.core.db.document.ODatabaseDocument;
-import com.orientechnologies.orient.core.db.document.SimpleRecordReader;
 import com.orientechnologies.orient.core.db.record.OIdentifiable;
 import com.orientechnologies.orient.core.db.tool.OBonsaiTreeRepair;
 import com.orientechnologies.orient.core.db.tool.ODatabaseCompare;
@@ -3059,16 +3058,7 @@ public class OConsoleDatabaseApp extends OConsoleApplication
   public void reloadRecordInternal(String iRecordId, String iFetchPlan) {
     checkForDatabase();
 
-    currentRecord =
-        currentDatabase.executeReadRecord(
-            new ORecordId(iRecordId),
-            null,
-            -1,
-            iFetchPlan,
-            true,
-            false,
-            OStorage.LOCKING_STRATEGY.NONE,
-            new SimpleRecordReader(false));
+    currentRecord = currentDatabase.load(new ORecordId(iRecordId), iFetchPlan, true);
     displayRecord(null);
 
     message("\nOK");

@@ -41,6 +41,7 @@ import com.orientechnologies.orient.core.sql.executor.OExecutionPlan;
 import com.orientechnologies.orient.core.sql.executor.OResultSet;
 import com.orientechnologies.orient.core.sql.executor.resultset.OExecutionStream;
 import com.orientechnologies.orient.core.storage.OPhysicalPosition;
+import com.orientechnologies.orient.core.storage.ORawBuffer;
 import com.orientechnologies.orient.core.storage.OStorage;
 import com.orientechnologies.orient.core.storage.ridbag.sbtree.OBonsaiCollectionPointer;
 import com.orientechnologies.orient.core.storage.ridbag.sbtree.OSBTreeCollectionManager;
@@ -330,4 +331,10 @@ public interface ODatabaseDocumentInternal extends ODatabaseSession, ODatabaseIn
   boolean isReusable();
 
   OBonsaiCollectionPointer createSBTree(int clusterId, UUID ownerUUID);
+
+  public ORawBuffer directRead(
+      ORecordId rid, String fetchPlan, boolean ignoreCache, int recordVersion);
+
+  public ORawBuffer readIfVersionIsNotLatest(
+      ORecordId rid, String fetchPlan, boolean ignoreCache, int recordVersion);
 }

@@ -22,9 +22,7 @@ package com.orientechnologies.orient.core.tx;
 import com.orientechnologies.common.concur.ONeedRetryException;
 import com.orientechnologies.common.exception.OException;
 import com.orientechnologies.orient.core.db.ODatabaseDocumentInternal;
-import com.orientechnologies.orient.core.db.document.LatestVersionRecordReader;
 import com.orientechnologies.orient.core.db.document.RecordReader;
-import com.orientechnologies.orient.core.db.document.SimpleRecordReader;
 import com.orientechnologies.orient.core.db.record.OIdentifiable;
 import com.orientechnologies.orient.core.db.record.ORecordOperation;
 import com.orientechnologies.orient.core.exception.ODatabaseException;
@@ -81,7 +79,7 @@ public class OTransactionNoTx extends OTransactionAbstract {
         ignoreCache,
         !ignoreCache,
         OStorage.LOCKING_STRATEGY.NONE,
-        new SimpleRecordReader(database.isPrefetchRecords()));
+        database::directRead);
   }
 
   @Override
@@ -96,9 +94,9 @@ public class OTransactionNoTx extends OTransactionAbstract {
 
     final RecordReader recordReader;
     if (force) {
-      recordReader = new SimpleRecordReader(database.isPrefetchRecords());
+      recordReader = database::directRead;
     } else {
-      recordReader = new LatestVersionRecordReader();
+      recordReader = database::readIfVersionIsNotLatest;
     }
 
     final ORecord loadedRecord =
@@ -135,7 +133,7 @@ public class OTransactionNoTx extends OTransactionAbstract {
         ignoreCache,
         !ignoreCache,
         OStorage.LOCKING_STRATEGY.NONE,
-        new LatestVersionRecordReader());
+        database::readIfVersionIsNotLatest);
   }
 
   /**
