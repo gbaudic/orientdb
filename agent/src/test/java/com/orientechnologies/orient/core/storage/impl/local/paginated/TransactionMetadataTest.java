@@ -1,11 +1,16 @@
 package com.orientechnologies.orient.core.storage.impl.local.paginated;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertArrayEquals;
+import static org.junit.Assert.assertTrue;
 
 import com.orientechnologies.common.io.OFileUtils;
-import com.orientechnologies.orient.core.db.*;
+import com.orientechnologies.orient.core.db.ODatabaseDocumentInternal;
+import com.orientechnologies.orient.core.db.ODatabaseSession;
+import com.orientechnologies.orient.core.db.ODatabaseType;
+import com.orientechnologies.orient.core.db.OrientDB;
+import com.orientechnologies.orient.core.db.OrientDBConfig;
+import com.orientechnologies.orient.core.db.OrientDBInternal;
 import com.orientechnologies.orient.core.record.OVertex;
-import com.orientechnologies.orient.core.storage.impl.local.OAbstractPaginatedStorage;
 import com.orientechnologies.orient.core.tx.OTransactionId;
 import com.orientechnologies.orient.core.tx.OTransactionInternal;
 import com.orientechnologies.orient.core.tx.OTransactionSequenceStatus;
@@ -14,7 +19,9 @@ import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.IOException;
 import java.util.Optional;
-import org.junit.*;
+import org.junit.After;
+import org.junit.Before;
+import org.junit.Test;
 
 public class TransactionMetadataTest {
 
@@ -54,8 +61,7 @@ public class TransactionMetadataTest {
             OrientDBConfig.defaultConfig());
     ODatabaseSession db1 = orientDB.open(DB_NAME + "_re", "admin", "admin");
     Optional<byte[]> fromStorage =
-        ((OAbstractPaginatedStorage) ((ODatabaseDocumentInternal) db1).getStorage())
-            .getLastMetadata();
+        (((ODatabaseDocumentInternal) db1).getStorage()).getLastMetadata();
     assertTrue(fromStorage.isPresent());
     assertArrayEquals(fromStorage.get(), metadata);
   }

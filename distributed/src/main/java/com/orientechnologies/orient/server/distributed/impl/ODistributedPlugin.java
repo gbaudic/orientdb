@@ -61,7 +61,6 @@ import com.orientechnologies.orient.core.metadata.schema.OType;
 import com.orientechnologies.orient.core.metadata.schema.OView;
 import com.orientechnologies.orient.core.metadata.security.OSecurityUser;
 import com.orientechnologies.orient.core.record.impl.ODocument;
-import com.orientechnologies.orient.core.storage.impl.local.OAbstractPaginatedStorage;
 import com.orientechnologies.orient.core.tx.OTxMetadataHolder;
 import com.orientechnologies.orient.core.tx.OTxMetadataHolderImpl;
 import com.orientechnologies.orient.distributed.db.OrientDBDistributed;
@@ -1368,7 +1367,7 @@ public class ODistributedPlugin extends OServerPluginAbstract
       OTxMetadataHolder metadata;
       try (ODatabaseDocumentInternal inst =
           serverInstance.getDatabases().openNoAuthorization(databaseName)) {
-        Optional<byte[]> read = ((OAbstractPaginatedStorage) inst.getStorage()).getLastMetadata();
+        Optional<byte[]> read = inst.getStorage().getLastMetadata();
         if (read.isPresent()) {
           metadata = OTxMetadataHolderImpl.read(read.get());
         } else {
@@ -2008,7 +2007,7 @@ public class ODistributedPlugin extends OServerPluginAbstract
         context.saveDatabaseConfiguration(database);
 
         try (ODatabaseDocumentInternal inst = context.openNoAuthorization(database)) {
-          Optional<byte[]> read = ((OAbstractPaginatedStorage) inst.getStorage()).getLastMetadata();
+          Optional<byte[]> read = inst.getStorage().getLastMetadata();
           if (read.isPresent()) {
             OTxMetadataHolder metadata = OTxMetadataHolderImpl.read(read.get());
             final OSyncDatabaseNewDeltaTask deployTask =

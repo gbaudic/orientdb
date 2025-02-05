@@ -47,7 +47,6 @@ import com.orientechnologies.orient.core.metadata.schema.OProperty;
 import com.orientechnologies.orient.core.record.impl.ODocument;
 import com.orientechnologies.orient.core.storage.OStorage;
 import com.orientechnologies.orient.core.storage.disk.OLocalPaginatedStorage;
-import com.orientechnologies.orient.core.storage.impl.local.OAbstractPaginatedStorage;
 import com.orientechnologies.orient.core.storage.impl.local.paginated.atomicoperations.OAtomicOperation;
 import java.io.File;
 import java.io.IOException;
@@ -343,9 +342,8 @@ public abstract class OLuceneIndexEngineAbstract implements OLuceneIndexEngine {
         }
       }
 
-      final OAbstractPaginatedStorage storageLocalAbstract = (OAbstractPaginatedStorage) storage;
-      if (storageLocalAbstract instanceof OLocalPaginatedStorage) {
-        OLocalPaginatedStorage localStorage = (OLocalPaginatedStorage) storageLocalAbstract;
+      if (storage instanceof OLocalPaginatedStorage) {
+        OLocalPaginatedStorage localStorage = (OLocalPaginatedStorage) storage;
         File storagePath = localStorage.getStoragePath().toFile();
         deleteIndexFolder(storagePath);
       }

@@ -88,7 +88,6 @@ import com.orientechnologies.orient.core.sql.executor.OResult;
 import com.orientechnologies.orient.core.sql.executor.OResultInternal;
 import com.orientechnologies.orient.core.sql.executor.OResultSet;
 import com.orientechnologies.orient.core.storage.OStorage;
-import com.orientechnologies.orient.core.storage.impl.local.OAbstractPaginatedStorage;
 import com.orientechnologies.orient.core.util.OURLConnection;
 import com.orientechnologies.orient.core.util.OURLHelper;
 import com.orientechnologies.orient.server.config.OServerConfigurationManager;
@@ -2427,7 +2426,7 @@ public class OConsoleDatabaseApp extends OConsoleApplication
 
     message("\nChecking storage.");
     try {
-      ((OAbstractPaginatedStorage) currentDatabase.getStorage()).check(verbose, this);
+      currentDatabase.getStorage().check(verbose, this);
     } catch (ODatabaseImportException e) {
       printError(e);
     }

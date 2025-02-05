@@ -26,7 +26,6 @@ import com.orientechnologies.orient.core.metadata.schema.OClass;
 import com.orientechnologies.orient.core.metadata.schema.clusterselection.OClusterSelectionStrategy;
 import com.orientechnologies.orient.core.record.impl.ODocument;
 import com.orientechnologies.orient.core.storage.OStorage;
-import com.orientechnologies.orient.core.storage.impl.local.OAbstractPaginatedStorage;
 import java.util.List;
 
 /**
@@ -58,15 +57,9 @@ public class OAutoShardingClusterSelectionStrategy implements OClusterSelectionS
               + "' has an auto-sharding index defined with multiple fields");
 
     final OStorage stg = ODatabaseRecordThreadLocal.instance().get().getStorage();
-    if (!(stg instanceof OAbstractPaginatedStorage))
-      throw new OConfigurationException(
-          "Cannot use auto-sharding cluster strategy because storage is not embedded");
 
     try {
-      indexEngine =
-          (OIndexEngine)
-              ((OAbstractPaginatedStorage) stg)
-                  .getIndexEngine(((OIndexInternal) index).getIndexId());
+      indexEngine = (OIndexEngine) stg.getIndexEngine(((OIndexInternal) index).getIndexId());
     } catch (OInvalidIndexEngineIdException e) {
       throw OException.wrapException(
           new OConfigurationException(

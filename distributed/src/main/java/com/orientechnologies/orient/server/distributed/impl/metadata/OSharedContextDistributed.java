@@ -21,7 +21,6 @@ import com.orientechnologies.orient.core.sql.executor.OQueryStats;
 import com.orientechnologies.orient.core.sql.parser.OExecutionPlanCache;
 import com.orientechnologies.orient.core.sql.parser.OStatementCache;
 import com.orientechnologies.orient.core.storage.OStorage;
-import com.orientechnologies.orient.core.storage.impl.local.OAbstractPaginatedStorage;
 import com.orientechnologies.orient.distributed.db.OrientDBDistributed;
 import java.util.HashMap;
 
@@ -64,13 +63,12 @@ public class OSharedContextDistributed extends OSharedContextEmbedded {
 
     queryStats = new OQueryStats();
     activeDistributedQueries = new HashMap<>();
-    ((OAbstractPaginatedStorage) storage)
-        .setStorageConfigurationUpdateListener(
-            update -> {
-              for (OMetadataUpdateListener listener : browseListeners()) {
-                listener.onStorageConfigurationUpdate(storage.getName(), update);
-              }
-            });
+    storage.setStorageConfigurationUpdateListener(
+        update -> {
+          for (OMetadataUpdateListener listener : browseListeners()) {
+            listener.onStorageConfigurationUpdate(storage.getName(), update);
+          }
+        });
 
     this.viewManager = new ViewManager(orientDB, storage.getName());
   }

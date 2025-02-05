@@ -48,7 +48,6 @@ import com.orientechnologies.orient.core.record.ORecord;
 import com.orientechnologies.orient.core.record.impl.ODocument;
 import com.orientechnologies.orient.core.sharding.auto.OAutoShardingIndexFactory;
 import com.orientechnologies.orient.core.storage.OStorage;
-import com.orientechnologies.orient.core.storage.impl.local.OAbstractPaginatedStorage;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
@@ -886,11 +885,10 @@ public class OIndexManagerShared implements OIndexManagerAbstract {
   public boolean autoRecreateIndexesAfterCrash(ODatabaseDocumentInternal database) {
     if (rebuildCompleted) return false;
 
-    final OStorage storage = database.getStorage();
-    if (storage instanceof OAbstractPaginatedStorage) {
-      OAbstractPaginatedStorage paginatedStorage = (OAbstractPaginatedStorage) storage;
-      return paginatedStorage.wereDataRestoredAfterOpen()
-          && paginatedStorage.wereNonTxOperationsPerformedInPreviousOpen();
+    if (!database.isRemote()) {
+      final OStorage storage = database.getStorage();
+      return storage.wereDataRestoredAfterOpen()
+          && storage.wereNonTxOperationsPerformedInPreviousOpen();
     }
 
     return false;

@@ -117,8 +117,8 @@ import com.orientechnologies.orient.core.storage.ORecordMetadata;
 import com.orientechnologies.orient.core.storage.OStorage;
 import com.orientechnologies.orient.core.storage.OStorageInfo;
 import com.orientechnologies.orient.core.storage.cluster.OOfflineClusterException;
-import com.orientechnologies.orient.core.storage.impl.local.OAbstractPaginatedStorage;
 import com.orientechnologies.orient.core.storage.impl.local.OFreezableStorageComponent;
+import com.orientechnologies.orient.core.storage.ridbag.sbtree.OBonsaiCollectionPointer;
 import com.orientechnologies.orient.core.storage.ridbag.sbtree.OSBTreeCollectionManager;
 import com.orientechnologies.orient.core.tx.OTransactionAbstract;
 import com.orientechnologies.orient.core.tx.OTransactionInternal;
@@ -137,6 +137,7 @@ import java.util.Map.Entry;
 import java.util.Optional;
 import java.util.Set;
 import java.util.TimeZone;
+import java.util.UUID;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
@@ -494,7 +495,7 @@ public class ODatabaseDocumentEmbedded extends ODatabaseDocumentAbstract
    */
   public ODatabaseDocumentInternal copy() {
     var storage = (OStorage) getSharedContext().getStorage();
-    storage.open(null, null, config.getConfigurations());
+    storage.open(config.getConfigurations());
     ODatabaseDocumentEmbedded database = new ODatabaseDocumentEmbedded(storage);
     database.init(config, this.sharedContext);
     String user;
@@ -683,11 +684,11 @@ public class ODatabaseDocumentEmbedded extends ODatabaseDocumentAbstract
               .getScriptExecutor(language);
       OResultSet original;
 
-      ((OAbstractPaginatedStorage) this.storage).pauseConfigurationUpdateNotifications();
+      this.storage.pauseConfigurationUpdateNotifications();
       try {
         original = executor.execute(this, script, params);
       } finally {
-        ((OAbstractPaginatedStorage) this.storage).fireConfigurationUpdateNotifications();
+        this.storage.fireConfigurationUpdateNotifications();
       }
       List<ODocument> result = original.stream().map((x) -> (ODocument) x.toElement()).toList();
       original.close();
@@ -749,12 +750,12 @@ public class ODatabaseDocumentEmbedded extends ODatabaseDocumentAbstract
               .getCommandManager()
               .getScriptExecutor(language);
 
-      ((OAbstractPaginatedStorage) this.storage).pauseConfigurationUpdateNotifications();
+      this.storage.pauseConfigurationUpdateNotifications();
       OResultSet original;
       try {
         original = executor.execute(this, script, args);
       } finally {
-        ((OAbstractPaginatedStorage) this.storage).fireConfigurationUpdateNotifications();
+        this.storage.fireConfigurationUpdateNotifications();
       }
       OLocalResultSetLifecycleDecorator result =
           new OLocalResultSetLifecycleDecorator((OResultSetInternal) original, newQueryId());
@@ -804,11 +805,11 @@ public class ODatabaseDocumentEmbedded extends ODatabaseDocumentAbstract
               .getScriptExecutor(language);
       OResultSet original;
 
-      ((OAbstractPaginatedStorage) this.storage).pauseConfigurationUpdateNotifications();
+      this.storage.fireConfigurationUpdateNotifications();
       try {
         original = executor.execute(this, script, args);
       } finally {
-        ((OAbstractPaginatedStorage) this.storage).fireConfigurationUpdateNotifications();
+        this.storage.fireConfigurationUpdateNotifications();
       }
 
       OLocalResultSetLifecycleDecorator result =
@@ -1510,9 +1511,9 @@ public class ODatabaseDocumentEmbedded extends ODatabaseDocumentAbstract
     OTransactionAbstract transaction = (OTransactionAbstract) getTransaction();
     if (!transaction.isLockedRecord(iRecord)) {
       if (lockingStrategy == OStorage.LOCKING_STRATEGY.EXCLUSIVE_LOCK)
-        ((OAbstractPaginatedStorage) getStorage()).acquireWriteLock(rid, timeout);
+        getStorage().acquireWriteLock(rid, timeout);
       else if (lockingStrategy == OStorage.LOCKING_STRATEGY.SHARED_LOCK)
-        ((OAbstractPaginatedStorage) getStorage()).acquireReadLock(rid, timeout);
+        getStorage().acquireReadLock(rid, timeout);
       else throw new IllegalStateException("Unsupported locking strategy " + lockingStrategy);
     }
     transaction.trackLockedRecord(iRecord.getIdentity(), lockingStrategy);
@@ -1524,10 +1525,8 @@ public class ODatabaseDocumentEmbedded extends ODatabaseDocumentAbstract
     OTransactionAbstract transaction = (OTransactionAbstract) getTransaction();
     OStorage.LOCKING_STRATEGY strategy = transaction.trackUnlockRecord(rid);
 
-    if (strategy == OStorage.LOCKING_STRATEGY.EXCLUSIVE_LOCK)
-      ((OAbstractPaginatedStorage) getStorage()).releaseWriteLock(rid);
-    else if (strategy == OStorage.LOCKING_STRATEGY.SHARED_LOCK)
-      ((OAbstractPaginatedStorage) getStorage()).releaseReadLock(rid);
+    if (strategy == OStorage.LOCKING_STRATEGY.EXCLUSIVE_LOCK) getStorage().releaseWriteLock(rid);
+    else if (strategy == OStorage.LOCKING_STRATEGY.SHARED_LOCK) getStorage().releaseReadLock(rid);
   }
 
   @Override
@@ -2003,11 +2002,11 @@ public class ODatabaseDocumentEmbedded extends ODatabaseDocumentAbstract
   }
 
   public void startEsclusiveMetadataChange() {
-    ((OAbstractPaginatedStorage) storage).startDDL();
+    storage.startDDL();
   }
 
   public void endEsclusiveMetadataChange() {
-    ((OAbstractPaginatedStorage) storage).endDDL();
+    storage.endDDL();
   }
 
   @Override
@@ -2128,8 +2127,8 @@ public class ODatabaseDocumentEmbedded extends ODatabaseDocumentAbstract
 
   @Override
   public void internalCommitPreallocate(OTransactionOptimistic oTransactionOptimistic) {
-    ((OAbstractPaginatedStorage) getStorage()).preallocateRids(oTransactionOptimistic);
-    ((OAbstractPaginatedStorage) getStorage()).commitPreAllocated(oTransactionOptimistic);
+    getStorage().preallocateRids(oTransactionOptimistic);
+    getStorage().commitPreAllocated(oTransactionOptimistic);
   }
 
   public OPhysicalPosition[] higherPhysicalPositions(
@@ -2160,5 +2159,10 @@ public class ODatabaseDocumentEmbedded extends ODatabaseDocumentAbstract
   @Override
   public boolean isReusable() {
     return !getStorage().isClosed();
+  }
+
+  @Override
+  public OBonsaiCollectionPointer createSBTree(int clusterId, UUID ownerUUID) {
+    return getStorage().createSBTree(clusterId, ownerUUID);
   }
 }

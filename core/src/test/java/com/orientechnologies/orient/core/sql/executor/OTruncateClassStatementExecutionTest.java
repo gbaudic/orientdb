@@ -3,7 +3,6 @@ package com.orientechnologies.orient.core.sql.executor;
 import com.orientechnologies.BaseMemoryInternalDatabase;
 import com.orientechnologies.common.util.ORawPair;
 import com.orientechnologies.orient.core.db.ODatabaseDocumentInternal;
-import com.orientechnologies.orient.core.db.ODatabaseInternal;
 import com.orientechnologies.orient.core.id.ORID;
 import com.orientechnologies.orient.core.index.OIndex;
 import com.orientechnologies.orient.core.index.OIndexManagerAbstract;
@@ -133,7 +132,7 @@ public class OTruncateClassStatementExecutionTest extends BaseMemoryInternalData
     db.command("insert into TestTruncateVertexClassSuperclassWithIndex set name = 'foo'");
     db.command("insert into TestTruncateVertexClassSubclassWithIndex set name = 'bar'");
 
-    if (!((ODatabaseInternal) db).getStorage().isRemote()) {
+    if (!((ODatabaseDocumentInternal) db).isRemote()) {
       final OIndexManagerAbstract indexManager =
           ((OMetadataInternal) db.getMetadata()).getIndexManagerInternal();
       final OIndex indexOne =

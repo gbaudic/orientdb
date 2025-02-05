@@ -92,6 +92,7 @@ import com.orientechnologies.orient.core.storage.ORecordMetadata;
 import com.orientechnologies.orient.core.storage.OStorage;
 import com.orientechnologies.orient.core.storage.OStorageInfo;
 import com.orientechnologies.orient.core.storage.cluster.OOfflineClusterException;
+import com.orientechnologies.orient.core.storage.ridbag.sbtree.OBonsaiCollectionPointer;
 import com.orientechnologies.orient.core.storage.ridbag.sbtree.OSBTreeCollectionManager;
 import com.orientechnologies.orient.core.tx.OTransaction;
 import com.orientechnologies.orient.core.tx.OTransactionAbstract;
@@ -106,6 +107,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
+import java.util.UUID;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
@@ -1253,5 +1255,10 @@ public class ODatabaseDocumentRemote extends ODatabaseDocumentAbstract {
   @Override
   public boolean isReusable() {
     return !getStorageRemote().isClosed();
+  }
+
+  @Override
+  public OBonsaiCollectionPointer createSBTree(int clusterId, UUID ownerUUID) {
+    throw new UnsupportedOperationException();
   }
 }

@@ -44,15 +44,10 @@ import com.orientechnologies.orient.core.record.ORecord;
 import com.orientechnologies.orient.core.record.impl.ODocument;
 import com.orientechnologies.orient.core.record.impl.ODocumentInternal;
 import com.orientechnologies.orient.core.storage.OStorage;
-import com.orientechnologies.orient.core.storage.cache.OReadCache;
-import com.orientechnologies.orient.core.storage.cache.OWriteCache;
 import com.orientechnologies.orient.core.storage.impl.local.OAbstractPaginatedStorage;
-import com.orientechnologies.orient.core.storage.impl.local.paginated.atomicoperations.OAtomicOperation;
-import com.orientechnologies.orient.core.storage.ridbag.sbtree.OIndexRIDContainer;
 import com.orientechnologies.orient.core.tx.OTransactionIndexChanges.OPERATION;
 import com.orientechnologies.orient.core.tx.OTransactionIndexChangesPerKey;
 import com.orientechnologies.orient.core.tx.OTransactionIndexChangesPerKey.OTransactionIndexEntry;
-import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
 import java.util.Collection;
 import java.util.Collections;
@@ -81,7 +76,7 @@ public abstract class OIndexAbstract implements OIndexInternal {
   private static final OAlwaysGreaterKey ALWAYS_GREATER_KEY = new OAlwaysGreaterKey();
   protected static final String CONFIG_MAP_RID = "mapRid";
   private static final String CONFIG_CLUSTERS = "clusters";
-  protected final OAbstractPaginatedStorage storage;
+  protected final OStorage storage;
   private final ReentrantReadWriteLock rwLock = new ReentrantReadWriteLock();
 
   protected volatile int indexId = -1;
@@ -94,7 +89,7 @@ public abstract class OIndexAbstract implements OIndexInternal {
     acquireExclusiveLock();
     try {
       this.im = im;
-      this.storage = (OAbstractPaginatedStorage) storage;
+      this.storage = storage;
     } finally {
       releaseExclusiveLock();
     }
@@ -977,36 +972,7 @@ public abstract class OIndexAbstract implements OIndexInternal {
   }
 
   private void removeValuesContainer() {
-    if (im.getAlgorithm().equals(ODefaultIndexFactory.SBTREE_BONSAI_VALUE_CONTAINER)) {
-
-      final OAtomicOperation atomicOperation =
-          storage.getAtomicOperationsManager().getCurrentOperation();
-
-      final OReadCache readCache = storage.getReadCache();
-      final OWriteCache writeCache = storage.getWriteCache();
-
-      if (atomicOperation == null) {
-        try {
-          final String fileName = im.getName() + OIndexRIDContainer.INDEX_FILE_EXTENSION;
-          if (writeCache.exists(fileName)) {
-            final long fileId = writeCache.loadFile(fileName);
-            readCache.deleteFile(fileId, writeCache);
-          }
-        } catch (IOException e) {
-          logger.error("Cannot delete file for value containers", e);
-        }
-      } else {
-        try {
-          final String fileName = im.getName() + OIndexRIDContainer.INDEX_FILE_EXTENSION;
-          if (atomicOperation.isFileExists(fileName)) {
-            final long fileId = atomicOperation.loadFile(fileName);
-            atomicOperation.deleteFile(fileId);
-          }
-        } catch (IOException e) {
-          logger.error("Cannot delete file for value containers", e);
-        }
-      }
-    }
+    storage.removeIndexValuesContainer(im);
   }
 
   protected void onIndexEngineChange(final int indexId) {

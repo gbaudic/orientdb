@@ -24,7 +24,7 @@ import com.orientechnologies.orient.core.serialization.serializer.record.binary.
 import com.orientechnologies.orient.core.serialization.serializer.record.binary.ORecordSerializerNetworkDistributed;
 import com.orientechnologies.orient.core.serialization.serializer.record.binary.ORecordSerializerNetworkV37;
 import com.orientechnologies.orient.core.storage.ORecordDuplicatedException;
-import com.orientechnologies.orient.core.storage.impl.local.OAbstractPaginatedStorage;
+import com.orientechnologies.orient.core.storage.OStorage;
 import com.orientechnologies.orient.core.tx.OTransactionId;
 import com.orientechnologies.orient.core.tx.OTransactionInternal;
 import com.orientechnologies.orient.core.tx.ValidationResult;
@@ -385,7 +385,7 @@ public class OTransactionPhase1Task extends OAbstractRemoteTask implements OLock
     }
 
     final ODatabaseDocumentInternal database = tx.getDatabase();
-    final OAbstractPaginatedStorage storage = (OAbstractPaginatedStorage) database.getStorage();
+    final OStorage storage = database.getStorage();
     tx.getIndexOperations()
         .forEach(
             (index, changes) -> {

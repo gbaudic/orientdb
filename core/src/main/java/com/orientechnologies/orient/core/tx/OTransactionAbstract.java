@@ -32,7 +32,6 @@ import com.orientechnologies.orient.core.record.impl.ODocument;
 import com.orientechnologies.orient.core.record.impl.ODocumentInternal;
 import com.orientechnologies.orient.core.record.impl.ORecordBytes;
 import com.orientechnologies.orient.core.storage.OStorage;
-import com.orientechnologies.orient.core.storage.impl.local.OAbstractPaginatedStorage;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
@@ -124,10 +123,12 @@ public abstract class OTransactionAbstract implements OTransaction {
       try {
         final LockedRecordMetadata lockedRecordMetadata = lock.getValue();
 
-        if (lockedRecordMetadata.strategy.equals(OStorage.LOCKING_STRATEGY.EXCLUSIVE_LOCK)) {
-          ((OAbstractPaginatedStorage) getDatabase().getStorage()).releaseWriteLock(lock.getKey());
-        } else if (lockedRecordMetadata.strategy.equals(OStorage.LOCKING_STRATEGY.SHARED_LOCK)) {
-          ((OAbstractPaginatedStorage) getDatabase().getStorage()).releaseReadLock(lock.getKey());
+        if (!getDatabase().isRemote()) {
+          if (lockedRecordMetadata.strategy.equals(OStorage.LOCKING_STRATEGY.EXCLUSIVE_LOCK)) {
+            getDatabase().getStorage().releaseWriteLock(lock.getKey());
+          } else if (lockedRecordMetadata.strategy.equals(OStorage.LOCKING_STRATEGY.SHARED_LOCK)) {
+            getDatabase().getStorage().releaseReadLock(lock.getKey());
+          }
         }
       } catch (Exception e) {
         logger.debug("Error on releasing lock against record %s", e, lock.getKey());

@@ -21,8 +21,8 @@ import com.orientechnologies.orient.core.db.OrientDBConfig;
 import com.orientechnologies.orient.core.db.OrientDBEmbedded;
 import com.orientechnologies.orient.core.db.document.ODatabaseDocumentEmbedded;
 import com.orientechnologies.orient.core.exception.ODatabaseException;
+import com.orientechnologies.orient.core.storage.OStorage;
 import com.orientechnologies.orient.core.storage.disk.OLocalPaginatedStorage;
-import com.orientechnologies.orient.core.storage.impl.local.OAbstractPaginatedStorage;
 import com.orientechnologies.orient.enterprise.channel.binary.OChannelBinary;
 import com.orientechnologies.orient.server.OClientConnection;
 import com.orientechnologies.orient.server.OServer;
@@ -99,7 +99,7 @@ public class OrientDBDistributed extends OrientDBEmbedded implements OServerAwar
     return plugin;
   }
 
-  protected OSharedContext createSharedContext(OAbstractPaginatedStorage storage) {
+  protected OSharedContext createSharedContext(OStorage storage) {
     if (OSystemDatabase.SYSTEM_DB_NAME.equals(storage.getName())
         || plugin == null
         || !plugin.isEnabled()) {
@@ -109,7 +109,7 @@ public class OrientDBDistributed extends OrientDBEmbedded implements OServerAwar
   }
 
   protected ODatabaseDocumentEmbedded newSessionInstance(
-      OAbstractPaginatedStorage storage, OrientDBConfig config, OSharedContext sharedContext) {
+      OStorage storage, OrientDBConfig config, OSharedContext sharedContext) {
     ODatabaseDocumentEmbedded embedded;
     if (OSystemDatabase.SYSTEM_DB_NAME.equals(storage.getName())
         || plugin == null
@@ -126,7 +126,7 @@ public class OrientDBDistributed extends OrientDBEmbedded implements OServerAwar
 
   @Override
   protected ODatabaseDocumentEmbedded newCreateSessionInstance(
-      OAbstractPaginatedStorage storage, OrientDBConfig config, OSharedContext sharedContext) {
+      OStorage storage, OrientDBConfig config, OSharedContext sharedContext) {
     ODatabaseDocumentEmbedded embedded;
     if (OSystemDatabase.SYSTEM_DB_NAME.equals(storage.getName())
         || plugin == null
@@ -142,7 +142,7 @@ public class OrientDBDistributed extends OrientDBEmbedded implements OServerAwar
   }
 
   protected ODatabaseDocumentEmbedded newPooledSessionInstance(
-      ODatabasePoolInternal pool, OAbstractPaginatedStorage storage, OSharedContext sharedContext) {
+      ODatabasePoolInternal pool, OStorage storage, OSharedContext sharedContext) {
     ODatabaseDocumentEmbedded embedded;
     if (OSystemDatabase.SYSTEM_DB_NAME.equals(storage.getName())
         || plugin == null
@@ -162,7 +162,7 @@ public class OrientDBDistributed extends OrientDBEmbedded implements OServerAwar
   }
 
   public void fullSync(String dbName, InputStream backupStream, OrientDBConfig config) {
-    OAbstractPaginatedStorage storage = null;
+    OStorage storage = null;
     ODatabaseDocumentEmbedded embedded;
     synchronized (this) {
       if (!isOpen()) {
@@ -184,13 +184,12 @@ public class OrientDBDistributed extends OrientDBEmbedded implements OServerAwar
           ODatabaseRecordThreadLocal.instance().remove();
         }
         storage =
-            (OAbstractPaginatedStorage)
-                disk.createStorage(
-                    buildName(dbName),
-                    maxWALSegmentSize,
-                    doubleWriteLogMaxSegSize,
-                    generateStorageId(),
-                    this);
+            disk.createStorage(
+                buildName(dbName),
+                maxWALSegmentSize,
+                doubleWriteLogMaxSegSize,
+                generateStorageId(),
+                this);
         embedded = internalCreate(config, storage);
         storages.put(dbName, storage);
       } catch (OModificationOperationProhibitedException e) {
@@ -270,7 +269,7 @@ public class OrientDBDistributed extends OrientDBEmbedded implements OServerAwar
 
     synchronized (this) {
       if (exists(name, null, null)) {
-        OAbstractPaginatedStorage storage = getOrInitStorage(name);
+        OStorage storage = getOrInitStorage(name);
         OSharedContext sharedContext = sharedContexts.get(name);
         if (sharedContext != null) {
           sharedContext.close();

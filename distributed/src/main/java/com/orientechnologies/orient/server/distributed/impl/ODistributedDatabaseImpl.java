@@ -32,7 +32,7 @@ import com.orientechnologies.orient.core.db.ODatabaseDocumentInternal;
 import com.orientechnologies.orient.core.db.ODatabaseSession;
 import com.orientechnologies.orient.core.db.OSystemDatabase;
 import com.orientechnologies.orient.core.id.ORID;
-import com.orientechnologies.orient.core.storage.impl.local.OAbstractPaginatedStorage;
+import com.orientechnologies.orient.core.storage.OStorage;
 import com.orientechnologies.orient.core.storage.impl.local.OSyncSource;
 import com.orientechnologies.orient.core.tx.OTransactionId;
 import com.orientechnologies.orient.core.tx.OTransactionSequenceStatus;
@@ -413,7 +413,7 @@ public class ODistributedDatabaseImpl implements ODistributedDatabase {
   }
 
   public void fillStatus() {
-    OAbstractPaginatedStorage storage = context.getStorage(databaseName);
+    OStorage storage = context.getStorage(databaseName);
 
     if (storage != null) {
       sequenceManager.fill(storage.getLastMetadata());

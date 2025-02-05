@@ -6,7 +6,6 @@ import com.orientechnologies.orient.core.db.OSharedContext;
 import com.orientechnologies.orient.core.db.document.ODatabaseDocumentEmbedded;
 import com.orientechnologies.orient.core.record.impl.ODocument;
 import com.orientechnologies.orient.core.storage.OStorage;
-import com.orientechnologies.orient.core.storage.impl.local.OAbstractPaginatedStorage;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
@@ -56,11 +55,7 @@ public class ORecreateIndexesTask implements Runnable {
       try {
         recreateIndexes(indexesToRebuild, newDb);
       } finally {
-        if (indexManager.storage instanceof OAbstractPaginatedStorage) {
-          final OAbstractPaginatedStorage abstractPaginatedStorage =
-              (OAbstractPaginatedStorage) indexManager.storage;
-          abstractPaginatedStorage.synch();
-        }
+        indexManager.storage.synch();
         newDb.close();
       }
 

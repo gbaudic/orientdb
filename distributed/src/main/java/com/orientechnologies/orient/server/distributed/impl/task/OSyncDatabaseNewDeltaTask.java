@@ -3,7 +3,6 @@ package com.orientechnologies.orient.server.distributed.impl.task;
 import com.orientechnologies.orient.core.command.OCommandDistributedReplicateRequest;
 import com.orientechnologies.orient.core.config.OGlobalConfiguration;
 import com.orientechnologies.orient.core.db.ODatabaseDocumentInternal;
-import com.orientechnologies.orient.core.storage.impl.local.OAbstractPaginatedStorage;
 import com.orientechnologies.orient.core.storage.impl.local.OBackgroundNewDelta;
 import com.orientechnologies.orient.core.tx.OTransactionId;
 import com.orientechnologies.orient.core.tx.OTransactionSequenceStatus;
@@ -55,7 +54,7 @@ public class OSyncDatabaseNewDeltaTask extends OAbstractRemoteTask {
     List<OTransactionId> missing = db.missingTransactions(lastState);
     if (!missing.isEmpty()) {
       Optional<OBackgroundNewDelta> delta =
-          ((OAbstractPaginatedStorage) database.getStorage()).extractTransactionsFromWal(missing);
+          database.getStorage().extractTransactionsFromWal(missing);
       if (delta.isPresent()) {
         ((ODistributedDatabaseImpl) db).setLastValidBackup(delta.get());
         return new ONewDeltaTaskResponse(

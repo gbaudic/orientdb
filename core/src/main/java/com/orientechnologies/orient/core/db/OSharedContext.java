@@ -19,7 +19,6 @@ import com.orientechnologies.orient.core.sql.parser.OExecutionPlanCache;
 import com.orientechnologies.orient.core.sql.parser.OStatementCache;
 import com.orientechnologies.orient.core.storage.OStorage;
 import com.orientechnologies.orient.core.storage.OStorageInfo;
-import com.orientechnologies.orient.core.storage.impl.local.OAbstractPaginatedStorage;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.Callable;
@@ -133,8 +132,7 @@ public abstract class OSharedContext extends OListenerManger<OMetadataUpdateList
     return resource;
   }
 
-  public synchronized void reInit(
-      OAbstractPaginatedStorage storage2, ODatabaseDocumentInternal database) {
+  public synchronized void reInit(OStorage storage, ODatabaseDocumentInternal database) {
     throw new UnsupportedOperationException();
   }
 

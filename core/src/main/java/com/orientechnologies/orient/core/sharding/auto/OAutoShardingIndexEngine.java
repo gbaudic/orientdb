@@ -40,6 +40,7 @@ import com.orientechnologies.orient.core.index.engine.OIndexEngine;
 import com.orientechnologies.orient.core.index.multivalue.OMultivalueEntityRemover;
 import com.orientechnologies.orient.core.index.multivalue.OMultivalueIndexKeyUpdaterImpl;
 import com.orientechnologies.orient.core.iterator.OEmptyIterator;
+import com.orientechnologies.orient.core.storage.OStorage;
 import com.orientechnologies.orient.core.storage.impl.local.OAbstractPaginatedStorage;
 import com.orientechnologies.orient.core.storage.impl.local.paginated.atomicoperations.OAtomicOperation;
 import com.orientechnologies.orient.core.storage.index.hashindex.local.OHashFunction;
@@ -76,7 +77,7 @@ public final class OAutoShardingIndexEngine implements OIndexEngine {
   private static final String SUBINDEX_BUCKET_FILE_EXTENSION = ".asb";
   private static final String SUBINDEX_NULL_BUCKET_FILE_EXTENSION = ".asn";
 
-  private final OAbstractPaginatedStorage storage;
+  private final OStorage storage;
   private List<OHashTable<Object, Object>> partitions;
   private OAutoShardingStrategy strategy;
   private final String name;
@@ -86,7 +87,7 @@ public final class OAutoShardingIndexEngine implements OIndexEngine {
   private String valueContainerAlgorithm;
 
   OAutoShardingIndexEngine(
-      final String iName, int id, final OAbstractPaginatedStorage iStorage, final int iVersion) {
+      final String iName, int id, final OStorage iStorage, final int iVersion) {
     this.name = iName;
     this.id = id;
     this.storage = iStorage;
@@ -265,7 +266,7 @@ public final class OAutoShardingIndexEngine implements OIndexEngine {
               SUBINDEX_TREE_FILE_EXTENSION,
               SUBINDEX_BUCKET_FILE_EXTENSION,
               SUBINDEX_NULL_BUCKET_FILE_EXTENSION,
-              storage));
+              (OAbstractPaginatedStorage) storage));
     }
   }
 
@@ -310,7 +311,11 @@ public final class OAutoShardingIndexEngine implements OIndexEngine {
       int binaryFormatVersion = storage.getConfiguration().getBinaryFormatVersion();
       final OIndexKeyUpdater<Object> creator =
           new OMultivalueIndexKeyUpdaterImpl(
-              value, valueContainerAlgorithm, binaryFormatVersion, name, storage);
+              value,
+              valueContainerAlgorithm,
+              binaryFormatVersion,
+              name,
+              (OAbstractPaginatedStorage) storage);
 
       update(atomicOperation, key, creator);
     } else {

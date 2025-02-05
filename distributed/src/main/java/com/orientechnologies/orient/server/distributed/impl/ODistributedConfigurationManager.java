@@ -5,7 +5,7 @@ import com.orientechnologies.orient.core.db.ODatabaseSession;
 import com.orientechnologies.orient.core.db.OSharedContextEmbedded;
 import com.orientechnologies.orient.core.exception.OConfigurationException;
 import com.orientechnologies.orient.core.record.impl.ODocument;
-import com.orientechnologies.orient.core.storage.impl.local.OAbstractPaginatedStorage;
+import com.orientechnologies.orient.core.storage.OStorage;
 import com.orientechnologies.orient.distributed.db.OrientDBDistributed;
 import com.orientechnologies.orient.server.distributed.ODistributedConfiguration;
 import com.orientechnologies.orient.server.distributed.ODistributedServerManager;
@@ -174,7 +174,7 @@ public class ODistributedConfigurationManager {
   }
 
   private boolean isMemory() {
-    OAbstractPaginatedStorage storage = context.getStorage(databaseName);
+    OStorage storage = context.getStorage(databaseName);
     return storage != null && storage.isMemory();
   }
 

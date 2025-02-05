@@ -27,7 +27,6 @@ import com.orientechnologies.orient.core.index.engine.OBaseIndexEngine;
 import com.orientechnologies.orient.core.index.engine.OIndexEngine;
 import com.orientechnologies.orient.core.metadata.schema.OClass;
 import com.orientechnologies.orient.core.storage.OStorage;
-import com.orientechnologies.orient.core.storage.impl.local.OAbstractPaginatedStorage;
 import com.orientechnologies.orient.core.storage.index.engine.ORemoteIndexEngine;
 import java.util.Collections;
 import java.util.HashSet;
@@ -115,19 +114,18 @@ public class OAutoShardingIndexFactory implements OIndexFactory {
     final OIndexEngine indexEngine;
 
     final String storageType = storage.getType();
-    OAbstractPaginatedStorage realStorage = (OAbstractPaginatedStorage) storage;
     switch (storageType) {
       case "memory":
       case "plocal":
         indexEngine =
             new OAutoShardingIndexEngine(
-                data.getName(), data.getIndexId(), realStorage, data.getVersion());
+                data.getName(), data.getIndexId(), storage, data.getVersion());
         break;
       case "distributed":
         // DISTRIBUTED CASE: HANDLE IT AS FOR LOCAL
         indexEngine =
             new OAutoShardingIndexEngine(
-                data.getName(), data.getIndexId(), realStorage, data.getVersion());
+                data.getName(), data.getIndexId(), storage, data.getVersion());
         break;
       case "remote":
         // MANAGE REMOTE SHARDED INDEX TO CALL THE INTERESTED SERVER

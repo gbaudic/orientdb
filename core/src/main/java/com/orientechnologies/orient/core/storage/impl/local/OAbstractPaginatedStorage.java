@@ -89,6 +89,7 @@ import com.orientechnologies.orient.core.exception.OStorageException;
 import com.orientechnologies.orient.core.exception.OStorageExistsException;
 import com.orientechnologies.orient.core.id.ORID;
 import com.orientechnologies.orient.core.id.ORecordId;
+import com.orientechnologies.orient.core.index.ODefaultIndexFactory;
 import com.orientechnologies.orient.core.index.OIndexDefinition;
 import com.orientechnologies.orient.core.index.OIndexException;
 import com.orientechnologies.orient.core.index.OIndexInternal;
@@ -161,6 +162,7 @@ import com.orientechnologies.orient.core.storage.index.engine.OHashTableIndexEng
 import com.orientechnologies.orient.core.storage.index.engine.OSBTreeIndexEngine;
 import com.orientechnologies.orient.core.storage.index.sbtreebonsai.local.OSBTreeBonsaiLocal;
 import com.orientechnologies.orient.core.storage.ridbag.sbtree.OBonsaiCollectionPointer;
+import com.orientechnologies.orient.core.storage.ridbag.sbtree.OIndexRIDContainer;
 import com.orientechnologies.orient.core.storage.ridbag.sbtree.OIndexRIDContainerSBTree;
 import com.orientechnologies.orient.core.storage.ridbag.sbtree.OSBTreeCollectionManager;
 import com.orientechnologies.orient.core.storage.ridbag.sbtree.OSBTreeCollectionManagerShared;
@@ -518,14 +520,6 @@ public abstract class OAbstractPaginatedStorage
   private static TreeMap<String, OTransactionIndexChanges> getSortedIndexOperations(
       final OTransactionInternal clientTx) {
     return new TreeMap<>(clientTx.getIndexOperations());
-  }
-
-  @Override
-  public final void open(
-      final String iUserName,
-      final String iUserPassword,
-      final OContextConfiguration contextConfiguration) {
-    open(contextConfiguration);
   }
 
   public final void open(final OContextConfiguration contextConfiguration) {
@@ -1068,24 +1062,6 @@ public abstract class OAbstractPaginatedStorage
 
   protected final boolean isClosedInternal() {
     return status == STATUS.CLOSED;
-  }
-
-  @Override
-  public final void close(final boolean force) {
-    try {
-      if (!force) {
-        close();
-        return;
-      }
-
-      doShutdown();
-    } catch (final RuntimeException ee) {
-      throw logAndPrepareForRethrow(ee);
-    } catch (final Error ee) {
-      throw logAndPrepareForRethrow(ee);
-    } catch (final Throwable t) {
-      throw logAndPrepareForRethrow(t);
-    }
   }
 
   @Override
@@ -3528,7 +3504,6 @@ public abstract class OAbstractPaginatedStorage
     }
   }
 
-  @Override
   public final boolean checkForRecordValidity(final OPhysicalPosition ppos) {
     try {
       return ppos != null && !ORecordVersionHelper.isTombstone(ppos.recordVersion);
@@ -3803,11 +3778,6 @@ public abstract class OAbstractPaginatedStorage
     } catch (final Throwable t) {
       throw logAndPrepareForRethrow(t);
     }
-  }
-
-  @Override
-  public final boolean isRemote() {
-    return false;
   }
 
   public boolean wereDataRestoredAfterOpen() {
@@ -5362,7 +5332,23 @@ public abstract class OAbstractPaginatedStorage
     }
   }
 
-  @SuppressWarnings("CanBeFinal")
+  @Override
+  public void incrementalSync(OutputStream dest, Runnable started) {
+    OWriteAheadLog wal = getWALInstance();
+    OLogSequenceNumber lsn = wal.end();
+    if (lsn == null) {
+      lsn = new OLogSequenceNumber(-1, -1);
+    }
+    wal.addCutTillLimit(lsn);
+
+    try {
+      started.run();
+      fullIncrementalBackup(dest);
+    } finally {
+      wal.removeCutTillLimit(lsn);
+    }
+  }
+
   @Override
   public String incrementalBackup(final String backupDirectory, final OCallable<Void, Void> started)
       throws UnsupportedOperationException {
@@ -7119,6 +7105,59 @@ public abstract class OAbstractPaginatedStorage
       throw OException.wrapException(
           new OSecurityException("Implementation of encryption " + TRANSFORMATION + " is absent"),
           e);
+    }
+  }
+
+  @Override
+  public void removeIndexValuesContainer(OIndexMetadata im) {
+    if (im.getAlgorithm().equals(ODefaultIndexFactory.SBTREE_BONSAI_VALUE_CONTAINER)) {
+
+      final OAtomicOperation atomicOperation = getAtomicOperationsManager().getCurrentOperation();
+
+      final OReadCache readCache = getReadCache();
+      final OWriteCache writeCache = getWriteCache();
+
+      if (atomicOperation == null) {
+        try {
+          final String fileName = im.getName() + OIndexRIDContainer.INDEX_FILE_EXTENSION;
+          if (writeCache.exists(fileName)) {
+            final long fileId = writeCache.loadFile(fileName);
+            readCache.deleteFile(fileId, writeCache);
+          }
+        } catch (IOException e) {
+          logger.error("Cannot delete file for value containers", e);
+        }
+      } else {
+        try {
+          final String fileName = im.getName() + OIndexRIDContainer.INDEX_FILE_EXTENSION;
+          if (atomicOperation.isFileExists(fileName)) {
+            final long fileId = atomicOperation.loadFile(fileName);
+            atomicOperation.deleteFile(fileId);
+          }
+        } catch (IOException e) {
+          logger.error("Cannot delete file for value containers", e);
+        }
+      }
+    }
+  }
+
+  @Override
+  public OBonsaiCollectionPointer createSBTree(int clusterId, UUID ownerUUID) {
+    // TODO: check for durability & concurrency issues
+    try {
+      OAtomicOperation atomicOperation = getAtomicOperationsManager().getCurrentOperation();
+      OBonsaiCollectionPointer collectionPointer = null;
+      if (atomicOperation != null) {
+        collectionPointer =
+            getSBtreeCollectionManager().createSBTree(clusterId, atomicOperation, ownerUUID);
+      } else {
+        collectionPointer =
+            atomicOperationsManager.calculateInsideAtomicOperation(
+                null, am -> getSBtreeCollectionManager().createSBTree(clusterId, am, ownerUUID));
+      }
+      return collectionPointer;
+    } catch (IOException e) {
+      throw OException.wrapException(new ODatabaseException("Error during ridbag creation"), e);
     }
   }
 }

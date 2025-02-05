@@ -4,10 +4,7 @@ import com.orientechnologies.common.parser.OVariableParser;
 import com.orientechnologies.orient.core.command.OCommandOutputListener;
 import com.orientechnologies.orient.core.config.OGlobalConfiguration;
 import com.orientechnologies.orient.core.db.ODatabaseDocumentInternal;
-import com.orientechnologies.orient.core.storage.impl.local.OAbstractPaginatedStorage;
 import com.orientechnologies.orient.core.storage.impl.local.OSyncSource;
-import com.orientechnologies.orient.core.storage.impl.local.paginated.wal.OLogSequenceNumber;
-import com.orientechnologies.orient.core.storage.impl.local.paginated.wal.OWriteAheadLog;
 import com.orientechnologies.orient.server.distributed.ODistributedRequestId;
 import com.orientechnologies.orient.server.distributed.ODistributedServerManager;
 import com.orientechnologies.orient.server.distributed.OLoggerDistributed;
@@ -84,24 +81,18 @@ public class OBackgroundBackup implements Runnable, OSyncSource {
         inputStream = new PipedInputStream(pipedOutputStream, OSyncDatabaseTask.CHUNK_MAX_SIZE);
         OutputStream dest = new TeeOutputStream(fileOutputStream, pipedOutputStream);
         if (database.getStorage().supportIncremental()) {
-          OWriteAheadLog wal = ((OAbstractPaginatedStorage) database.getStorage()).getWALInstance();
-          OLogSequenceNumber lsn = wal.end();
-          if (lsn == null) {
-            lsn = new OLogSequenceNumber(-1, -1);
-          }
-          wal.addCutTillLimit(lsn);
-
           try {
             incremental.set(true);
-            started.countDown();
-            database.getStorage().fullIncrementalBackup(dest);
-          } catch (UnsupportedOperationException u) {
-            throw u;
+            database
+                .getStorage()
+                .incrementalSync(
+                    dest,
+                    () -> {
+                      started.countDown();
+                    });
           } catch (RuntimeException r) {
             finished.countDown();
             throw r;
-          } finally {
-            wal.removeCutTillLimit(lsn);
           }
           finished.countDown();
           logger.info("Sending Enterprise backup (%s) for node sync", database.getName());

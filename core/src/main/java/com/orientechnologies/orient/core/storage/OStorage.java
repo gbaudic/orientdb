@@ -19,26 +19,41 @@
  */
 package com.orientechnologies.orient.core.storage;
 
+import com.orientechnologies.common.serialization.types.OBinarySerializer;
 import com.orientechnologies.common.util.OCallable;
+import com.orientechnologies.common.util.ORawPair;
+import com.orientechnologies.orient.core.command.OCommandOutputListener;
 import com.orientechnologies.orient.core.config.OContextConfiguration;
+import com.orientechnologies.orient.core.config.OStorageConfigurationUpdateListener;
 import com.orientechnologies.orient.core.conflict.ORecordConflictStrategy;
 import com.orientechnologies.orient.core.db.OrientDBInternal;
 import com.orientechnologies.orient.core.db.record.OCurrentStorageComponentsFactory;
 import com.orientechnologies.orient.core.db.record.ORecordOperation;
+import com.orientechnologies.orient.core.exception.OInvalidIndexEngineIdException;
 import com.orientechnologies.orient.core.exception.ORecordNotFoundException;
 import com.orientechnologies.orient.core.id.ORID;
 import com.orientechnologies.orient.core.id.ORecordId;
+import com.orientechnologies.orient.core.index.OIndexMetadata;
+import com.orientechnologies.orient.core.index.engine.IndexEngineValuesTransformer;
+import com.orientechnologies.orient.core.index.engine.OBaseIndexEngine;
 import com.orientechnologies.orient.core.storage.cluster.OPaginatedCluster;
+import com.orientechnologies.orient.core.storage.impl.local.OBackgroundNewDelta;
+import com.orientechnologies.orient.core.storage.impl.local.OIndexEngineCallback;
+import com.orientechnologies.orient.core.storage.ridbag.sbtree.OBonsaiCollectionPointer;
 import com.orientechnologies.orient.core.storage.ridbag.sbtree.OSBTreeCollectionManager;
+import com.orientechnologies.orient.core.tx.OTransactionId;
 import com.orientechnologies.orient.core.tx.OTransactionInternal;
 import com.orientechnologies.orient.core.util.OBackupable;
-import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.Collection;
 import java.util.List;
+import java.util.Map;
+import java.util.Optional;
 import java.util.Set;
 import java.util.TimeZone;
+import java.util.UUID;
+import java.util.stream.Stream;
 
 /**
  * This is the gateway interface between the Database side and the storage. Provided implementations
@@ -74,10 +89,7 @@ public interface OStorage extends OBackupable, OStorageInfo {
     KEEP_EXCLUSIVE_LOCK
   }
 
-  void open(
-      String iUserName, String iUserPassword, final OContextConfiguration contextConfiguration);
-
-  void create(OContextConfiguration contextConfiguration) throws IOException;
+  void create(OContextConfiguration contextConfiguration);
 
   boolean exists();
 
@@ -86,8 +98,6 @@ public interface OStorage extends OBackupable, OStorageInfo {
   void delete();
 
   void close();
-
-  void close(boolean iForce);
 
   boolean isClosed();
 
@@ -179,8 +189,6 @@ public interface OStorage extends OBackupable, OStorageInfo {
 
   String getPhysicalClusterNameById(int iClusterId);
 
-  boolean checkForRecordValidity(OPhysicalPosition ppos);
-
   String getName();
 
   long getVersion();
@@ -211,8 +219,6 @@ public interface OStorage extends OBackupable, OStorageInfo {
 
   /** Returns the storage's type. */
   String getType();
-
-  boolean isRemote();
 
   boolean isAssigningClusterIds();
 
@@ -280,4 +286,125 @@ public interface OStorage extends OBackupable, OStorageInfo {
   }
 
   OrientDBInternal getContext();
+
+  Optional<byte[]> getLastMetadata();
+
+  long getSessionsCount();
+
+  long getLastCloseTime();
+
+  void open(OContextConfiguration configurations);
+
+  int getId();
+
+  void setStorageConfigurationUpdateListener(
+      final OStorageConfigurationUpdateListener storageConfigurationUpdateListener);
+
+  void startDDL();
+
+  void endDDL();
+
+  void fireConfigurationUpdateNotifications();
+
+  void pauseConfigurationUpdateNotifications();
+
+  void preallocateRids(final OTransactionInternal clientTx);
+
+  List<ORecordOperation> commitPreAllocated(final OTransactionInternal clientTx);
+
+  void acquireWriteLock(final ORID rid, long timeout);
+
+  void releaseWriteLock(final ORID rid);
+
+  void acquireReadLock(final ORID rid, long timeout);
+
+  void releaseReadLock(final ORID rid);
+
+  boolean wereDataRestoredAfterOpen();
+
+  boolean wereNonTxOperationsPerformedInPreviousOpen();
+
+  boolean hasIndexRangeQuerySupport(int indexId) throws OInvalidIndexEngineIdException;
+
+  int addIndexEngine(
+      final OIndexMetadata indexMetadata, final Map<String, String> engineProperties);
+
+  int loadIndexEngine(final String name);
+
+  int loadExternalIndexEngine(
+      final OIndexMetadata indexMetadata, final Map<String, String> engineProperties);
+
+  void clearIndex(final int indexId) throws OInvalidIndexEngineIdException;
+
+  void deleteIndexEngine(int indexId) throws OInvalidIndexEngineIdException;
+
+  Stream<ORawPair<Object, ORID>> getIndexStream(
+      int indexId, final IndexEngineValuesTransformer valuesTransformer)
+      throws OInvalidIndexEngineIdException;
+
+  <T> T callIndexEngine(
+      final boolean readOperation, int indexId, final OIndexEngineCallback<T> callback)
+      throws OInvalidIndexEngineIdException;
+
+  Stream<Object> getIndexKeyStream(int indexId) throws OInvalidIndexEngineIdException;
+
+  OBaseIndexEngine getIndexEngine(int indexId) throws OInvalidIndexEngineIdException;
+
+  void removeIndexValuesContainer(OIndexMetadata im);
+
+  Stream<ORawPair<Object, ORID>> iterateIndexEntriesBetween(
+      int indexId,
+      final Object rangeFrom,
+      final boolean fromInclusive,
+      final Object rangeTo,
+      final boolean toInclusive,
+      final boolean ascSortOrder,
+      final IndexEngineValuesTransformer transformer)
+      throws OInvalidIndexEngineIdException;
+
+  Stream<ORawPair<Object, ORID>> iterateIndexEntriesMajor(
+      int indexId,
+      final Object fromKey,
+      final boolean isInclusive,
+      final boolean ascSortOrder,
+      final IndexEngineValuesTransformer transformer)
+      throws OInvalidIndexEngineIdException;
+
+  Stream<ORawPair<Object, ORID>> iterateIndexEntriesMinor(
+      int indexId,
+      final Object toKey,
+      final boolean isInclusive,
+      final boolean ascSortOrder,
+      final IndexEngineValuesTransformer transformer)
+      throws OInvalidIndexEngineIdException;
+
+  Object getIndexValue(int indexId, final Object key) throws OInvalidIndexEngineIdException;
+
+  Stream<ORID> getIndexValues(int indexId, final Object key) throws OInvalidIndexEngineIdException;
+
+  long getIndexSize(int indexId, final IndexEngineValuesTransformer transformer)
+      throws OInvalidIndexEngineIdException;
+
+  Stream<ORawPair<Object, ORID>> getIndexDescStream(
+      int indexId, final IndexEngineValuesTransformer valuesTransformer)
+      throws OInvalidIndexEngineIdException;
+
+  int getVersionForKey(final String indexName, final Object key);
+
+  void metadataOnly(byte[] metadata);
+
+  boolean isMemory();
+
+  Optional<OBackgroundNewDelta> extractTransactionsFromWal(
+      List<OTransactionId> transactionsMetadata);
+
+  boolean check(final boolean verbose, final OCommandOutputListener listener);
+
+  OBinarySerializer<?> resolveObjectSerializer(final byte serializerId);
+
+  OBonsaiCollectionPointer createSBTree(int clusterId, UUID ownerUUID);
+
+  boolean isDeleted(final ORID rid);
+
+  void incrementalSync(OutputStream dest, Runnable started);
 }

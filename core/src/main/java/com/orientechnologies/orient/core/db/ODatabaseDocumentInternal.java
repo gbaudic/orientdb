@@ -328,4 +328,6 @@ public interface ODatabaseDocumentInternal extends ODatabaseSession, ODatabaseIn
   long countRecords();
 
   boolean isReusable();
+
+  OBonsaiCollectionPointer createSBTree(int clusterId, UUID ownerUUID);
 }
