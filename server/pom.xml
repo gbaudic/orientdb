@@ -161,7 +161,6 @@
                     <plugin>
                         <groupId>org.apache.maven.plugins</groupId>
                         <artifactId>maven-failsafe-plugin</artifactId>
-                        <version>${surefire.version}</version>
                         <configuration>
                             <skipTests>true</skipTests>
                         </configuration>
@@ -176,7 +175,6 @@
                     <plugin>
                         <groupId>org.apache.maven.plugins</groupId>
                         <artifactId>maven-surefire-plugin</artifactId>
-                        <version>${surefire.version}</version>
                         <configuration>
                             <includes>
                                 <include>**/*ST.java</include>
@@ -194,13 +192,6 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-surefire-plugin</artifactId>
-                <dependencies>
-                    <dependency>
-                        <groupId>org.apache.maven.surefire</groupId>
-                        <artifactId>surefire-junit47</artifactId>
-                        <version>${surefire.version}</version>
-                    </dependency>
-                </dependencies>
                 <configuration>
                     <systemPropertyVariables>
                         <buildDirectory>${project.build.directory}</buildDirectory>
@@ -213,13 +204,6 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-failsafe-plugin</artifactId>
-                <dependencies>
-                    <dependency>
-                        <groupId>org.apache.maven.surefire</groupId>
-                        <artifactId>surefire-junit47</artifactId>
-                        <version>${surefire.version}</version>
-                    </dependency>
-                </dependencies>
                 <configuration>
                     <systemPropertyVariables>
                         <buildDirectory>${project.build.directory}</buildDirectory>

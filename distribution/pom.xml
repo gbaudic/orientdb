@@ -266,7 +266,6 @@
                     <plugin>
                         <groupId>org.apache.maven.plugins</groupId>
                         <artifactId>maven-failsafe-plugin</artifactId>
-                        <version>${surefire.version}</version>
                         <configuration>
                             <excludes>
                                 <exclude>**/OCommunityEditionSingleNodeIT.java</exclude>
@@ -310,7 +309,6 @@
                     <plugin>
                         <groupId>org.apache.maven.plugins</groupId>
                         <artifactId>maven-failsafe-plugin</artifactId>
-                        <version>${surefire.version}</version>
                         <configuration>
                             <excludes>
                                 <include>**/OCommunityEditionSingleNodeIT.java</include>

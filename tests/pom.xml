@@ -187,7 +187,6 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-failsafe-plugin</artifactId>
-                <version>${surefire.version}</version>
                 <configuration>
                     <systemPropertyVariables>
                         <security.userPasswordSaltIterations>10</security.userPasswordSaltIterations>
@@ -252,7 +251,6 @@
                     <plugin>
                         <groupId>org.apache.maven.plugins</groupId>
                         <artifactId>maven-failsafe-plugin</artifactId>
-                        <version>${surefire.version}</version>
                         <configuration>
                             <skipTests>true</skipTests>
                         </configuration>
