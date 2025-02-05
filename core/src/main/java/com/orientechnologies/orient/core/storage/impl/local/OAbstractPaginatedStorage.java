@@ -2037,7 +2037,7 @@ public abstract class OAbstractPaginatedStorage
   @Override
   public ORawBuffer readRecord(ORecordId rid) {
     try {
-      return readRecord(rid, false);
+      return internalReadRecord(rid);
     } catch (final RuntimeException ee) {
       throw logAndPrepareForRethrow(ee);
     } catch (final Error ee) {
@@ -4408,7 +4408,7 @@ public abstract class OAbstractPaginatedStorage
     }
   }
 
-  private ORawBuffer readRecord(final ORecordId rid, final boolean prefetchRecords) {
+  private ORawBuffer internalReadRecord(final ORecordId rid) {
 
     if (!rid.isPersistent()) {
       throw new ORecordNotFoundException(
@@ -4430,7 +4430,7 @@ public abstract class OAbstractPaginatedStorage
       }
       // Disabled this assert have no meaning anymore
       // assert iLockingStrategy.equals(LOCKING_STRATEGY.DEFAULT);
-      return doReadRecord(cluster, rid, prefetchRecords);
+      return doReadRecord(cluster, rid);
     }
 
     stateLock.readLock().lock();
@@ -4450,7 +4450,7 @@ public abstract class OAbstractPaginatedStorage
       } catch (IllegalArgumentException e) {
         return null;
       }
-      return doReadRecord(cluster, rid, prefetchRecords);
+      return doReadRecord(cluster, rid);
     } finally {
       try {
         if (readLock) {
@@ -4711,11 +4711,10 @@ public abstract class OAbstractPaginatedStorage
     }
   }
 
-  private ORawBuffer doReadRecord(
-      final OCluster clusterSegment, final ORecordId rid, final boolean prefetchRecords) {
+  private ORawBuffer doReadRecord(final OCluster clusterSegment, final ORecordId rid) {
     try {
 
-      final ORawBuffer buff = clusterSegment.readRecord(rid.getClusterPosition(), prefetchRecords);
+      final ORawBuffer buff = clusterSegment.readRecord(rid.getClusterPosition());
 
       if (buff != null && logger.isDebugEnabled()) {
         logger.debug(

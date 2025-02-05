@@ -499,12 +499,7 @@ public final class OPaginatedClusterV0 extends OPaginatedCluster {
   }
 
   @Override
-  public ORawBuffer readRecord(final long clusterPosition, final boolean prefetchRecords)
-      throws IOException {
-    return readRecord(clusterPosition);
-  }
-
-  private ORawBuffer readRecord(final long clusterPosition) throws IOException {
+  public ORawBuffer readRecord(final long clusterPosition) throws IOException {
     atomicOperationsManager.acquireReadLock(this);
     try {
       acquireSharedLock();
@@ -628,7 +623,7 @@ public final class OPaginatedClusterV0 extends OPaginatedCluster {
         }
 
         if (loadedRecordVersion > recordVersion) {
-          return readRecord(clusterPosition, false);
+          return readRecord(clusterPosition);
         }
 
         return null;

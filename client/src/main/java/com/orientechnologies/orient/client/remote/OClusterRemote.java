@@ -110,7 +110,7 @@ public class OClusterRemote implements OCluster {
   }
 
   @Override
-  public ORawBuffer readRecord(long clusterPosition, boolean prefetchRecords) {
+  public ORawBuffer readRecord(long clusterPosition) {
     throw new UnsupportedOperationException("readRecord");
   }
 

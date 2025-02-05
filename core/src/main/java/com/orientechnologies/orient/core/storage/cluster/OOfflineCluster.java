@@ -137,7 +137,7 @@ public class OOfflineCluster implements OCluster {
   }
 
   @Override
-  public ORawBuffer readRecord(long clusterPosition, boolean prefetchRecords) {
+  public ORawBuffer readRecord(long clusterPosition) {
     throw OException.wrapException(
         new ORecordNotFoundException(
             new ORecordId(id, clusterPosition),

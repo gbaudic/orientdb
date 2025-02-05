@@ -1105,7 +1105,7 @@ public final class OClusterBasedStorageConfiguration implements OStorageConfigur
                   (entry) -> {
                     final ORawBuffer buffer;
                     try {
-                      buffer = cluster.readRecord(entry.second.getClusterPosition(), false);
+                      buffer = cluster.readRecord(entry.second.getClusterPosition());
                       return new ORawPair<>(
                           entry.first.substring(PROPERTY_PREFIX_PROPERTY.length()),
                           deserializeStringValue(buffer.buffer, 0));
@@ -1257,8 +1257,7 @@ public final class OClusterBasedStorageConfiguration implements OStorageConfigur
                 String name = null;
                 try {
                   name = entry.first.substring(ENGINE_PREFIX_PROPERTY.length());
-                  final ORawBuffer buffer =
-                      cluster.readRecord(entry.second.getClusterPosition(), false);
+                  final ORawBuffer buffer = cluster.readRecord(entry.second.getClusterPosition());
                   return deserializeIndexEngineProperty(
                       name, buffer.buffer, Integer.MIN_VALUE, entry.second.getClusterId());
                 } catch (IOException e) {
@@ -1376,8 +1375,7 @@ public final class OClusterBasedStorageConfiguration implements OStorageConfigur
                     Integer.parseInt(entry.first.substring(CLUSTERS_PREFIX_PROPERTY.length()));
 
                 try {
-                  final ORawBuffer buffer =
-                      cluster.readRecord(entry.second.getClusterPosition(), false);
+                  final ORawBuffer buffer = cluster.readRecord(entry.second.getClusterPosition());
 
                   if (clusters.size() <= id) {
                     final int diff = id - clusters.size();
@@ -1813,7 +1811,7 @@ public final class OClusterBasedStorageConfiguration implements OStorageConfigur
         return null;
       }
 
-      final ORawBuffer buffer = cluster.readRecord(rid.getClusterPosition(), false);
+      final ORawBuffer buffer = cluster.readRecord(rid.getClusterPosition());
       return new ORawPair<>(buffer.buffer, rid.getClusterId());
     } catch (final IOException e) {
       throw OException.wrapException(

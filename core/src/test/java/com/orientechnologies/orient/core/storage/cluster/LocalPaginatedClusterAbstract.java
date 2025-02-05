@@ -96,7 +96,7 @@ public abstract class LocalPaginatedClusterAbstract {
     }
 
     Assert.assertEquals(0, paginatedCluster.getEntries());
-    Assert.assertNull(paginatedCluster.readRecord(physicalPosition[0].clusterPosition, false));
+    Assert.assertNull(paginatedCluster.readRecord(physicalPosition[0].clusterPosition));
 
     atomicOperationsManager.executeInsideAtomicOperation(
         null,
@@ -136,7 +136,7 @@ public abstract class LocalPaginatedClusterAbstract {
     }
 
     Assert.assertEquals(0, paginatedCluster.getEntries());
-    Assert.assertNull(paginatedCluster.readRecord(physicalPosition[0].clusterPosition, false));
+    Assert.assertNull(paginatedCluster.readRecord(physicalPosition[0].clusterPosition));
 
     atomicOperationsManager.executeInsideAtomicOperation(
         null,
@@ -145,7 +145,7 @@ public abstract class LocalPaginatedClusterAbstract {
                 paginatedCluster.createRecord(
                     smallRecord, recordVersion, (byte) 1, null, atomicOperation));
 
-    ORawBuffer rawBuffer = paginatedCluster.readRecord(physicalPosition[0].clusterPosition, false);
+    ORawBuffer rawBuffer = paginatedCluster.readRecord(physicalPosition[0].clusterPosition);
     Assert.assertNotNull(rawBuffer);
 
     Assert.assertEquals(rawBuffer.version, recordVersion);
@@ -176,7 +176,7 @@ public abstract class LocalPaginatedClusterAbstract {
     }
 
     Assert.assertEquals(0, paginatedCluster.getEntries());
-    Assert.assertNull(paginatedCluster.readRecord(physicalPosition[0].clusterPosition, false));
+    Assert.assertNull(paginatedCluster.readRecord(physicalPosition[0].clusterPosition));
 
     atomicOperationsManager.executeInsideAtomicOperation(
         null,
@@ -185,7 +185,7 @@ public abstract class LocalPaginatedClusterAbstract {
                 paginatedCluster.createRecord(
                     bigRecord, recordVersion, (byte) 1, null, atomicOperation));
 
-    ORawBuffer rawBuffer = paginatedCluster.readRecord(physicalPosition[0].clusterPosition, false);
+    ORawBuffer rawBuffer = paginatedCluster.readRecord(physicalPosition[0].clusterPosition);
     Assert.assertNotNull(rawBuffer);
 
     Assert.assertEquals(rawBuffer.version, recordVersion);
@@ -242,7 +242,7 @@ public abstract class LocalPaginatedClusterAbstract {
     }
 
     for (long clusterPosition : rolledBackRecordSet) {
-      ORawBuffer rawBuffer = paginatedCluster.readRecord(clusterPosition, false);
+      ORawBuffer rawBuffer = paginatedCluster.readRecord(clusterPosition);
       Assert.assertNull(rawBuffer);
     }
 
@@ -262,7 +262,7 @@ public abstract class LocalPaginatedClusterAbstract {
     }
 
     for (Map.Entry<Long, byte[]> entry : positionRecordMap.entrySet()) {
-      ORawBuffer rawBuffer = paginatedCluster.readRecord(entry.getKey(), false);
+      ORawBuffer rawBuffer = paginatedCluster.readRecord(entry.getKey());
       Assert.assertNotNull(rawBuffer);
 
       Assert.assertEquals(rawBuffer.version, recordVersion);
@@ -328,7 +328,7 @@ public abstract class LocalPaginatedClusterAbstract {
     }
 
     for (long clusterPosition : rolledBackRecordSet) {
-      ORawBuffer rawBuffer = paginatedCluster.readRecord(clusterPosition, false);
+      ORawBuffer rawBuffer = paginatedCluster.readRecord(clusterPosition);
       Assert.assertNull(rawBuffer);
     }
 
@@ -351,7 +351,7 @@ public abstract class LocalPaginatedClusterAbstract {
     }
 
     for (Map.Entry<Long, byte[]> entry : positionRecordMap.entrySet()) {
-      ORawBuffer rawBuffer = paginatedCluster.readRecord(entry.getKey(), false);
+      ORawBuffer rawBuffer = paginatedCluster.readRecord(entry.getKey());
       Assert.assertNotNull(rawBuffer);
 
       Assert.assertEquals(rawBuffer.version, recordVersion);
@@ -410,7 +410,7 @@ public abstract class LocalPaginatedClusterAbstract {
     }
 
     for (long clusterPosition : rolledBackRecordSet) {
-      ORawBuffer rawBuffer = paginatedCluster.readRecord(clusterPosition, false);
+      ORawBuffer rawBuffer = paginatedCluster.readRecord(clusterPosition);
       Assert.assertNull(rawBuffer);
     }
 
@@ -431,7 +431,7 @@ public abstract class LocalPaginatedClusterAbstract {
     }
 
     for (Map.Entry<Long, byte[]> entry : positionRecordMap.entrySet()) {
-      ORawBuffer rawBuffer = paginatedCluster.readRecord(entry.getKey(), false);
+      ORawBuffer rawBuffer = paginatedCluster.readRecord(entry.getKey());
       Assert.assertNotNull(rawBuffer);
 
       Assert.assertEquals(rawBuffer.version, recordVersion);
@@ -458,14 +458,14 @@ public abstract class LocalPaginatedClusterAbstract {
             atomicOperation -> paginatedCluster.allocatePosition((byte) 'd', atomicOperation));
 
     Assert.assertTrue(position.clusterPosition >= 0);
-    ORawBuffer rec = paginatedCluster.readRecord(position.clusterPosition, false);
+    ORawBuffer rec = paginatedCluster.readRecord(position.clusterPosition);
     Assert.assertNull(rec);
     atomicOperationsManager.executeInsideAtomicOperation(
         null,
         atomicOperation ->
             paginatedCluster.createRecord(new byte[20], 1, (byte) 'd', position, atomicOperation));
 
-    rec = paginatedCluster.readRecord(position.clusterPosition, false);
+    rec = paginatedCluster.readRecord(position.clusterPosition);
     Assert.assertNotNull(rec);
   }
 
@@ -480,7 +480,7 @@ public abstract class LocalPaginatedClusterAbstract {
               null,
               atomicOperation -> paginatedCluster.allocatePosition((byte) 'd', atomicOperation));
       Assert.assertTrue(position.clusterPosition >= 0);
-      ORawBuffer rec = paginatedCluster.readRecord(position.clusterPosition, false);
+      ORawBuffer rec = paginatedCluster.readRecord(position.clusterPosition);
       Assert.assertNull(rec);
       positions.add(position);
     }
@@ -493,7 +493,7 @@ public abstract class LocalPaginatedClusterAbstract {
               OPhysicalPosition position =
                   paginatedCluster.allocatePosition((byte) 'd', atomicOperation);
               Assert.assertTrue(position.clusterPosition >= 0);
-              ORawBuffer rec = paginatedCluster.readRecord(position.clusterPosition, false);
+              ORawBuffer rec = paginatedCluster.readRecord(position.clusterPosition);
               Assert.assertNull(rec);
             }
             throw new RollbackException();
@@ -507,7 +507,7 @@ public abstract class LocalPaginatedClusterAbstract {
               null,
               atomicOperation -> paginatedCluster.allocatePosition((byte) 'd', atomicOperation));
       Assert.assertTrue(position.clusterPosition >= 0);
-      ORawBuffer rec = paginatedCluster.readRecord(position.clusterPosition, false);
+      ORawBuffer rec = paginatedCluster.readRecord(position.clusterPosition);
       Assert.assertNull(rec);
       positions.add(position);
     }
@@ -519,7 +519,7 @@ public abstract class LocalPaginatedClusterAbstract {
           atomicOperation ->
               paginatedCluster.createRecord(
                   new byte[20], 1, (byte) 'd', position, atomicOperation));
-      ORawBuffer rec = paginatedCluster.readRecord(position.clusterPosition, false);
+      ORawBuffer rec = paginatedCluster.readRecord(position.clusterPosition);
       Assert.assertNotNull(rec);
     }
   }
@@ -573,7 +573,7 @@ public abstract class LocalPaginatedClusterAbstract {
       }
 
       for (Map.Entry<Long, byte[]> entry : positionRecordMap.entrySet()) {
-        ORawBuffer rawBuffer = paginatedCluster.readRecord(entry.getKey(), false);
+        ORawBuffer rawBuffer = paginatedCluster.readRecord(entry.getKey());
         Assert.assertNotNull(rawBuffer);
 
         Assert.assertEquals(rawBuffer.version, recordVersion);
@@ -604,7 +604,7 @@ public abstract class LocalPaginatedClusterAbstract {
 
     Assert.assertEquals(paginatedCluster.getEntries(), records - deletedRecords);
     for (long deletedPosition : deletedPositions) {
-      Assert.assertNull(paginatedCluster.readRecord(deletedPosition, false));
+      Assert.assertNull(paginatedCluster.readRecord(deletedPosition));
       atomicOperationsManager.executeInsideAtomicOperation(
           null,
           atomicOperation ->
@@ -612,7 +612,7 @@ public abstract class LocalPaginatedClusterAbstract {
     }
 
     for (Map.Entry<Long, byte[]> entry : positionRecordMap.entrySet()) {
-      ORawBuffer rawBuffer = paginatedCluster.readRecord(entry.getKey(), false);
+      ORawBuffer rawBuffer = paginatedCluster.readRecord(entry.getKey());
       Assert.assertNotNull(rawBuffer);
 
       Assert.assertEquals(rawBuffer.version, recordVersion);
@@ -676,7 +676,7 @@ public abstract class LocalPaginatedClusterAbstract {
       }
 
       for (Map.Entry<Long, byte[]> entry : positionRecordMap.entrySet()) {
-        ORawBuffer rawBuffer = paginatedCluster.readRecord(entry.getKey(), false);
+        ORawBuffer rawBuffer = paginatedCluster.readRecord(entry.getKey());
         Assert.assertNotNull(rawBuffer);
 
         Assert.assertEquals(rawBuffer.version, recordVersion);
@@ -707,7 +707,7 @@ public abstract class LocalPaginatedClusterAbstract {
 
     Assert.assertEquals(paginatedCluster.getEntries(), records - deletedRecords);
     for (long deletedPosition : deletedPositions) {
-      Assert.assertNull(paginatedCluster.readRecord(deletedPosition, false));
+      Assert.assertNull(paginatedCluster.readRecord(deletedPosition));
       atomicOperationsManager.executeInsideAtomicOperation(
           null,
           atomicOperation ->
@@ -715,7 +715,7 @@ public abstract class LocalPaginatedClusterAbstract {
     }
 
     for (Map.Entry<Long, byte[]> entry : positionRecordMap.entrySet()) {
-      ORawBuffer rawBuffer = paginatedCluster.readRecord(entry.getKey(), false);
+      ORawBuffer rawBuffer = paginatedCluster.readRecord(entry.getKey());
       Assert.assertNotNull(rawBuffer);
 
       Assert.assertEquals(rawBuffer.version, recordVersion);
@@ -774,7 +774,7 @@ public abstract class LocalPaginatedClusterAbstract {
       }
 
       for (Map.Entry<Long, byte[]> entry : positionRecordMap.entrySet()) {
-        ORawBuffer rawBuffer = paginatedCluster.readRecord(entry.getKey(), false);
+        ORawBuffer rawBuffer = paginatedCluster.readRecord(entry.getKey());
         Assert.assertNotNull(rawBuffer);
 
         Assert.assertEquals(rawBuffer.version, recordVersion);
@@ -805,7 +805,7 @@ public abstract class LocalPaginatedClusterAbstract {
 
     Assert.assertEquals(paginatedCluster.getEntries(), records - deletedRecords);
     for (long deletedPosition : deletedPositions) {
-      Assert.assertNull(paginatedCluster.readRecord(deletedPosition, false));
+      Assert.assertNull(paginatedCluster.readRecord(deletedPosition));
       atomicOperationsManager.executeInsideAtomicOperation(
           null,
           atomicOperation ->
@@ -813,7 +813,7 @@ public abstract class LocalPaginatedClusterAbstract {
     }
 
     for (Map.Entry<Long, byte[]> entry : positionRecordMap.entrySet()) {
-      ORawBuffer rawBuffer = paginatedCluster.readRecord(entry.getKey(), false);
+      ORawBuffer rawBuffer = paginatedCluster.readRecord(entry.getKey());
       Assert.assertNotNull(rawBuffer);
 
       Assert.assertEquals(rawBuffer.version, recordVersion);
@@ -890,7 +890,7 @@ public abstract class LocalPaginatedClusterAbstract {
     Assert.assertEquals(paginatedCluster.getEntries(), (long) (1.5 * records - deletedRecords));
 
     for (Map.Entry<Long, byte[]> entry : positionRecordMap.entrySet()) {
-      ORawBuffer rawBuffer = paginatedCluster.readRecord(entry.getKey(), false);
+      ORawBuffer rawBuffer = paginatedCluster.readRecord(entry.getKey());
       Assert.assertNotNull(rawBuffer);
 
       Assert.assertEquals(rawBuffer.version, recordVersion);
@@ -929,7 +929,7 @@ public abstract class LocalPaginatedClusterAbstract {
     } catch (RollbackException ignore) {
     }
 
-    ORawBuffer rawBuffer = paginatedCluster.readRecord(physicalPosition.clusterPosition, false);
+    ORawBuffer rawBuffer = paginatedCluster.readRecord(physicalPosition.clusterPosition);
     Assert.assertNotNull(rawBuffer);
 
     Assert.assertEquals(recordVersion, rawBuffer.version);
@@ -946,7 +946,7 @@ public abstract class LocalPaginatedClusterAbstract {
                 (byte) 2,
                 atomicOperation));
 
-    rawBuffer = paginatedCluster.readRecord(physicalPosition.clusterPosition, false);
+    rawBuffer = paginatedCluster.readRecord(physicalPosition.clusterPosition);
 
     Assert.assertEquals(rawBuffer.version, updatedRecordVersion);
     Assertions.assertThat(rawBuffer.buffer).isEqualTo(updatedRecord);
@@ -984,7 +984,7 @@ public abstract class LocalPaginatedClusterAbstract {
     } catch (RollbackException ignore) {
     }
 
-    ORawBuffer rawBuffer = paginatedCluster.readRecord(physicalPosition.clusterPosition, false);
+    ORawBuffer rawBuffer = paginatedCluster.readRecord(physicalPosition.clusterPosition);
     Assert.assertNotNull(rawBuffer);
     Assert.assertEquals(rawBuffer.version, recordVersion);
     Assertions.assertThat(rawBuffer.buffer).isEqualTo(new byte[] {1, 2, 3, 4, 5, 6, 7, 8, 9, 0});
@@ -999,7 +999,7 @@ public abstract class LocalPaginatedClusterAbstract {
                 updateRecordVersion,
                 (byte) 2,
                 atomicOperation));
-    rawBuffer = paginatedCluster.readRecord(physicalPosition.clusterPosition, false);
+    rawBuffer = paginatedCluster.readRecord(physicalPosition.clusterPosition);
 
     Assert.assertEquals(rawBuffer.version, updateRecordVersion);
 
@@ -1039,7 +1039,7 @@ public abstract class LocalPaginatedClusterAbstract {
     } catch (RollbackException ignore) {
     }
 
-    ORawBuffer rawBuffer = paginatedCluster.readRecord(physicalPosition.clusterPosition, false);
+    ORawBuffer rawBuffer = paginatedCluster.readRecord(physicalPosition.clusterPosition);
     Assert.assertNotNull(rawBuffer);
 
     Assert.assertEquals(rawBuffer.version, recordVersion);
@@ -1056,7 +1056,7 @@ public abstract class LocalPaginatedClusterAbstract {
                 (byte) 2,
                 atomicOperation));
 
-    rawBuffer = paginatedCluster.readRecord(physicalPosition.clusterPosition, false);
+    rawBuffer = paginatedCluster.readRecord(physicalPosition.clusterPosition);
 
     Assert.assertEquals(rawBuffer.version, updateRecordVersion);
     Assertions.assertThat(rawBuffer.buffer).isEqualTo(smallRecord);
@@ -1081,7 +1081,7 @@ public abstract class LocalPaginatedClusterAbstract {
                 paginatedCluster.createRecord(
                     bigRecord, recordVersion, (byte) 1, null, atomicOperation));
 
-    ORawBuffer rawBuffer = paginatedCluster.readRecord(physicalPosition.clusterPosition, false);
+    ORawBuffer rawBuffer = paginatedCluster.readRecord(physicalPosition.clusterPosition);
     Assert.assertNotNull(rawBuffer);
 
     Assert.assertEquals(rawBuffer.version, recordVersion);
@@ -1107,7 +1107,7 @@ public abstract class LocalPaginatedClusterAbstract {
     } catch (RollbackException ignore) {
     }
 
-    rawBuffer = paginatedCluster.readRecord(physicalPosition.clusterPosition, false);
+    rawBuffer = paginatedCluster.readRecord(physicalPosition.clusterPosition);
     Assert.assertNotNull(rawBuffer);
 
     Assert.assertEquals(rawBuffer.version, recordVersion);
@@ -1123,7 +1123,7 @@ public abstract class LocalPaginatedClusterAbstract {
                 recordVersion,
                 (byte) 2,
                 atomicOperation));
-    rawBuffer = paginatedCluster.readRecord(physicalPosition.clusterPosition, false);
+    rawBuffer = paginatedCluster.readRecord(physicalPosition.clusterPosition);
 
     Assert.assertEquals(rawBuffer.version, recordVersion);
     Assertions.assertThat(rawBuffer.buffer).isEqualTo(updatedBigRecord);
@@ -1205,7 +1205,7 @@ public abstract class LocalPaginatedClusterAbstract {
     }
 
     for (Map.Entry<Long, byte[]> entry : positionRecordMap.entrySet()) {
-      ORawBuffer rawBuffer = paginatedCluster.readRecord(entry.getKey(), false);
+      ORawBuffer rawBuffer = paginatedCluster.readRecord(entry.getKey());
       Assert.assertNotNull(rawBuffer);
 
       Assertions.assertThat(rawBuffer.buffer).isEqualTo(entry.getValue());
@@ -1297,7 +1297,7 @@ public abstract class LocalPaginatedClusterAbstract {
     }
 
     for (Map.Entry<Long, byte[]> entry : positionRecordMap.entrySet()) {
-      ORawBuffer rawBuffer = paginatedCluster.readRecord(entry.getKey(), false);
+      ORawBuffer rawBuffer = paginatedCluster.readRecord(entry.getKey());
       Assert.assertNotNull(rawBuffer);
       Assertions.assertThat(rawBuffer.buffer).isEqualTo(entry.getValue());
 
@@ -1382,7 +1382,7 @@ public abstract class LocalPaginatedClusterAbstract {
     }
 
     for (Map.Entry<Long, byte[]> entry : positionRecordMap.entrySet()) {
-      ORawBuffer rawBuffer = paginatedCluster.readRecord(entry.getKey(), false);
+      ORawBuffer rawBuffer = paginatedCluster.readRecord(entry.getKey());
       Assert.assertNotNull(rawBuffer);
 
       Assertions.assertThat(rawBuffer.buffer).isEqualTo(entry.getValue());
@@ -1413,7 +1413,7 @@ public abstract class LocalPaginatedClusterAbstract {
                 paginatedCluster.createRecord(
                     record, recordVersion, (byte) 2, null, atomicOperation));
 
-    ORawBuffer rawBuffer = paginatedCluster.readRecord(physicalPosition.clusterPosition, false);
+    ORawBuffer rawBuffer = paginatedCluster.readRecord(physicalPosition.clusterPosition);
 
     Assert.assertEquals(recordVersion, rawBuffer.version);
     Assertions.assertThat(rawBuffer.buffer).isEqualTo(record);
@@ -1433,7 +1433,7 @@ public abstract class LocalPaginatedClusterAbstract {
                   (byte) 2,
                   atomicOperation));
 
-      rawBuffer = paginatedCluster.readRecord(physicalPosition.clusterPosition, false);
+      rawBuffer = paginatedCluster.readRecord(physicalPosition.clusterPosition);
 
       Assert.assertEquals(updatedRecordVersion, rawBuffer.version);
       Assertions.assertThat(rawBuffer.buffer).isEqualTo(updatedRecord);

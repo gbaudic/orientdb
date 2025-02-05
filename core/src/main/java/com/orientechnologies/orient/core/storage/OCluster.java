@@ -95,7 +95,7 @@ public interface OCluster {
       byte recordType,
       OAtomicOperation atomicOperation);
 
-  ORawBuffer readRecord(long clusterPosition, boolean prefetchRecords) throws IOException;
+  ORawBuffer readRecord(long clusterPosition) throws IOException;
 
   ORawBuffer readRecordIfVersionIsNotLatest(long clusterPosition, int recordVersion)
       throws IOException, ORecordNotFoundException;
