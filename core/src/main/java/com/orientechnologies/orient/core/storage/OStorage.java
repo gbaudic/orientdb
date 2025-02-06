@@ -168,11 +168,7 @@ public interface OStorage extends OBackupable, OStorageInfo {
 
   long count(int iClusterId);
 
-  long count(int iClusterId, boolean countTombstones);
-
   long count(int[] iClusterIds);
-
-  long count(int[] iClusterIds, boolean countTombstones);
 
   /** Returns the size of the database. */
   long getSize();

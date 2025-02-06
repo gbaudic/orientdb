@@ -297,18 +297,6 @@ public abstract class ODatabaseDocumentAbstract extends OListenerManger<ODatabas
   }
 
   /** {@inheritDoc} */
-  @Override
-  public long countClusterElements(final int[] iClusterIds) {
-    return countClusterElements(iClusterIds, false);
-  }
-
-  /** {@inheritDoc} */
-  @Override
-  public long countClusterElements(final int iClusterId) {
-    return countClusterElements(iClusterId, false);
-  }
-
-  /** {@inheritDoc} */
   public OMetadataDefault getMetadata() {
     checkOpenness();
     return metadata;

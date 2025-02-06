@@ -58,8 +58,6 @@ public interface OCluster {
 
   String encryption();
 
-  long getTombstonesCount();
-
   /**
    * Allocates a physical position pointer on the storage for generate an id without a content.
    *

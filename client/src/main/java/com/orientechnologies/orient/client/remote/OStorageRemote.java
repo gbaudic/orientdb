@@ -830,10 +830,6 @@ public class OStorageRemote implements ORemotePushHandler, OStorageInfo {
     return count(new int[] {iClusterId});
   }
 
-  public long count(int iClusterId, boolean countTombstones) {
-    return count(new int[] {iClusterId}, countTombstones);
-  }
-
   public long[] getClusterDataRange(final int iClusterId) {
     OGetClusterDataRangeRequest request = new OGetClusterDataRangeRequest(iClusterId);
     OGetClusterDataRangeResponse response =
@@ -903,11 +899,7 @@ public class OStorageRemote implements ORemotePushHandler, OStorageInfo {
   }
 
   public long count(final int[] iClusterIds) {
-    return count(iClusterIds, false);
-  }
-
-  public long count(final int[] iClusterIds, final boolean countTombstones) {
-    OCountRequest request = new OCountRequest(iClusterIds, countTombstones);
+    OCountRequest request = new OCountRequest(iClusterIds, false);
     OCountResponse response =
         networkOperation(
             request, "Error on read record count in clusters: " + Arrays.toString(iClusterIds));

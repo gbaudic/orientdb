@@ -987,11 +987,6 @@ public final class OPaginatedClusterV0 extends OPaginatedCluster {
   }
 
   @Override
-  public long getTombstonesCount() {
-    return 0;
-  }
-
-  @Override
   public OPhysicalPosition getPhysicalPosition(final OPhysicalPosition position)
       throws IOException {
     atomicOperationsManager.acquireReadLock(this);

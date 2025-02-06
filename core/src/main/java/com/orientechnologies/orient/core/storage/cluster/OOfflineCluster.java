@@ -99,11 +99,6 @@ public class OOfflineCluster implements OCluster {
   }
 
   @Override
-  public long getTombstonesCount() {
-    return 0;
-  }
-
-  @Override
   public OPhysicalPosition allocatePosition(byte recordType, OAtomicOperation atomicOperation)
       throws IOException {
     throw new OOfflineClusterException(

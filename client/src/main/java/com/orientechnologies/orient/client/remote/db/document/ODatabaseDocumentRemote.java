@@ -886,16 +886,16 @@ public class ODatabaseDocumentRemote extends ODatabaseDocumentAbstract {
 
   /** {@inheritDoc} */
   @Override
-  public long countClusterElements(int iClusterId, boolean countTombstones) {
+  public long countClusterElements(int iClusterId) {
     checkIfActive();
-    return getStorageRemote().count(iClusterId, countTombstones);
+    return getStorageRemote().count(iClusterId);
   }
 
   /** {@inheritDoc} */
   @Override
-  public long countClusterElements(int[] iClusterIds, boolean countTombstones) {
+  public long countClusterElements(int[] iClusterIds) {
     checkIfActive();
-    return getStorageRemote().count(iClusterIds, countTombstones);
+    return getStorageRemote().count(iClusterIds);
   }
 
   /** {@inheritDoc} */

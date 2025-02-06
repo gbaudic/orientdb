@@ -426,7 +426,7 @@ public abstract class OAbstractPaginatedStorage
 
     for (OCluster c : getClusterInstances()) {
       if (c != null) {
-        tot += c.getEntries() - c.getTombstonesCount();
+        tot += c.getEntries();
       }
     }
 
@@ -1571,12 +1571,7 @@ public abstract class OAbstractPaginatedStorage
   }
 
   @Override
-  public final long count(final int iClusterId) {
-    return count(iClusterId, false);
-  }
-
-  @Override
-  public final long count(final int clusterId, final boolean countTombstones) {
+  public final long count(final int clusterId) {
     try {
       if (clusterId == -1) {
         throw new OStorageException(
@@ -1594,11 +1589,7 @@ public abstract class OAbstractPaginatedStorage
           return 0;
         }
 
-        if (countTombstones) {
-          return cluster.getEntries();
-        }
-
-        return cluster.getEntries() - cluster.getTombstonesCount();
+        return cluster.getEntries();
       } finally {
         stateLock.readLock().unlock();
       }
@@ -1656,11 +1647,6 @@ public abstract class OAbstractPaginatedStorage
     } catch (final Throwable t) {
       throw logAndPrepareForRethrow(t, false);
     }
-  }
-
-  @Override
-  public final long count(final int[] iClusterIds) {
-    return count(iClusterIds, false);
   }
 
   @Override
@@ -1783,7 +1769,7 @@ public abstract class OAbstractPaginatedStorage
   }
 
   @Override
-  public final long count(final int[] iClusterIds, final boolean countTombstones) {
+  public final long count(final int[] iClusterIds) {
     try {
       long tot = 0;
 
@@ -1801,7 +1787,7 @@ public abstract class OAbstractPaginatedStorage
           if (iClusterId > -1) {
             final OCluster c = clusters.get(iClusterId);
             if (c != null) {
-              tot += c.getEntries() - (countTombstones ? 0L : c.getTombstonesCount());
+              tot += c.getEntries();
             }
           }
         }

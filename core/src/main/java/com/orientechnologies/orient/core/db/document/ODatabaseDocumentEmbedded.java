@@ -1669,26 +1669,26 @@ public class ODatabaseDocumentEmbedded extends ODatabaseDocumentAbstract
 
   /** {@inheritDoc} */
   @Override
-  public long countClusterElements(int iClusterId, boolean countTombstones) {
+  public long countClusterElements(int iClusterId) {
     final String name = getClusterNameById(iClusterId);
     if (name == null) {
       return 0;
     }
     checkSecurity(ORule.ResourceGeneric.CLUSTER, ORole.PERMISSION_READ, name);
     checkIfActive();
-    return getStorage().count(iClusterId, countTombstones);
+    return getStorage().count(iClusterId);
   }
 
   /** {@inheritDoc} */
   @Override
-  public long countClusterElements(int[] iClusterIds, boolean countTombstones) {
+  public long countClusterElements(int[] iClusterIds) {
     checkIfActive();
     String name;
     for (int iClusterId : iClusterIds) {
       name = getClusterNameById(iClusterId);
       checkSecurity(ORule.ResourceGeneric.CLUSTER, ORole.PERMISSION_READ, name);
     }
-    return getStorage().count(iClusterIds, countTombstones);
+    return getStorage().count(iClusterIds);
   }
 
   /** {@inheritDoc} */

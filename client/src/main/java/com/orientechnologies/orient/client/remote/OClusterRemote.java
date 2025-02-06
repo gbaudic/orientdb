@@ -160,11 +160,6 @@ public class OClusterRemote implements OCluster {
   }
 
   @Override
-  public long getTombstonesCount() {
-    throw new UnsupportedOperationException("getTombstonesCount()");
-  }
-
-  @Override
   public long getFirstPosition() {
     return 0;
   }

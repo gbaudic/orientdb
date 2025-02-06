@@ -238,9 +238,6 @@ public interface ODatabase<T> extends OBackupable, Closeable {
    */
   long countClusterElements(int iCurrentClusterId);
 
-  @Deprecated
-  long countClusterElements(int iCurrentClusterId, boolean countTombstones);
-
   /**
    * Counts all the entities in the specified cluster ids.
    *
@@ -248,9 +245,6 @@ public interface ODatabase<T> extends OBackupable, Closeable {
    * @return Total number of entities contained in the specified clusters
    */
   long countClusterElements(int[] iClusterIds);
-
-  @Deprecated
-  long countClusterElements(int[] iClusterIds, boolean countTombstones);
 
   /**
    * Counts all the entities in the specified cluster name.

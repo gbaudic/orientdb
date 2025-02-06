@@ -241,10 +241,7 @@ public final class OConnectionBinaryExecutor implements OBinaryRequestExecutor {
 
   @Override
   public OBinaryResponse executeCountCluster(OCountRequest request) {
-    final long count =
-        connection
-            .getDatabase()
-            .countClusterElements(request.getClusterIds(), request.isCountTombstones());
+    final long count = connection.getDatabase().countClusterElements(request.getClusterIds());
     return new OCountResponse(count);
   }
 
