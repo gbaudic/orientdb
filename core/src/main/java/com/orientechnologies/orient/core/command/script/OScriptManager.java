@@ -323,11 +323,6 @@ public class OScriptManager {
   }
 
   private void bindLegacyDatabaseAndUtil(Bindings binding, ODatabaseDocumentInternal db) {
-    if (db != null) {
-      // BIND FIXED VARIABLES
-      //      binding.put("db", new OScriptDocumentDatabaseWrapper(db));
-      binding.put("orient", new OScriptOrientWrapper(db));
-    }
     binding.put("util", new OFunctionUtilWrapper());
   }
 
