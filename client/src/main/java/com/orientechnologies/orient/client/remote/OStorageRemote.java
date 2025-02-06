@@ -1177,11 +1177,7 @@ public class OStorageRemote implements ORemotePushHandler, OStorageInfo {
     unstickToSession();
     final OCommit38Request request =
         new OCommit38Request(
-            iTx.getId(),
-            true,
-            iTx.isUsingLog(),
-            iTx.getRecordOperations(),
-            iTx.getIndexOperations());
+            iTx.getId(), true, true, iTx.getRecordOperations(), iTx.getIndexOperations());
 
     final OCommit37Response response = networkOperationNoRetry(request, "Error on commit");
     for (OCommit37Response.OCreatedRecordResponse created : response.getCreated()) {
@@ -1915,7 +1911,7 @@ public class OStorageRemote implements ORemotePushHandler, OStorageInfo {
         new OBeginTransaction38Request(
             transaction.getId(),
             true,
-            transaction.isUsingLog(),
+            true,
             transaction.getRecordOperations(),
             transaction.getIndexOperations());
     OBeginTransactionResponse response =
@@ -1931,7 +1927,7 @@ public class OStorageRemote implements ORemotePushHandler, OStorageInfo {
     ORebeginTransaction38Request request =
         new ORebeginTransaction38Request(
             transaction.getId(),
-            transaction.isUsingLog(),
+            true,
             transaction.getRecordOperations(),
             transaction.getIndexOperations());
     OBeginTransactionResponse response =

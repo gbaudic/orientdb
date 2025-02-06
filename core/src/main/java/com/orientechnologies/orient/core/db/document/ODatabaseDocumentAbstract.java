@@ -809,7 +809,8 @@ public abstract class ODatabaseDocumentAbstract extends OListenerManger<ODatabas
   /** {@inheritDoc} */
   public <RET extends ORecord> RET load(
       final ORecord iRecord, final String iFetchPlan, final boolean iIgnoreCache) {
-    return (RET)getTransaction().loadRecord(iRecord.getIdentity(), iRecord, iFetchPlan, iIgnoreCache);
+    return (RET)
+        getTransaction().loadRecord(iRecord.getIdentity(), iRecord, iFetchPlan, iIgnoreCache);
   }
 
   @Override

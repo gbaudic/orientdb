@@ -57,7 +57,6 @@ public class OTransactionOptimistic extends OTransactionRealAbstract {
   private static final AtomicInteger txSerial = new AtomicInteger();
   protected boolean changed = true;
   private boolean alreadyCleared = false;
-  private boolean usingLog = true;
   private int txStartCounter;
   private boolean sentToServer = false;
 
@@ -450,14 +449,6 @@ public class OTransactionOptimistic extends OTransactionRealAbstract {
         + ", idxEntries="
         + indexEntries.size()
         + ']';
-  }
-
-  public boolean isUsingLog() {
-    return usingLog;
-  }
-
-  public void setUsingLog(final boolean useLog) {
-    this.usingLog = useLog;
   }
 
   public void setStatus(final TXSTATUS iStatus) {

@@ -687,7 +687,6 @@ public final class OConnectionBinaryExecutor implements OBinaryRequestExecutor {
         new OTransactionOptimisticProxy(
             connection.getDatabase(),
             request.getTxId(),
-            request.isUsingLong(),
             request.getOperations(),
             request.getIndexChanges(),
             connection.getData().protocolVersion,
@@ -1388,7 +1387,6 @@ public final class OConnectionBinaryExecutor implements OBinaryRequestExecutor {
         new OTransactionOptimisticServer(
             connection.getDatabase(),
             request.getTxId(),
-            request.isUsingLog(),
             request.getOperations(),
             request.getIndexChanges());
     try {
@@ -1408,7 +1406,6 @@ public final class OConnectionBinaryExecutor implements OBinaryRequestExecutor {
         new OTransactionOptimisticServer(
             connection.getDatabase(),
             request.getTxId(),
-            request.isUsingLog(),
             request.getOperations(),
             request.getIndexChanges());
     try {
@@ -1429,11 +1426,7 @@ public final class OConnectionBinaryExecutor implements OBinaryRequestExecutor {
     if (request.isHasContent()) {
       tx =
           new OTransactionOptimisticServer(
-              database,
-              request.getTxId(),
-              request.isUsingLog(),
-              request.getOperations(),
-              request.getIndexChanges());
+              database, request.getTxId(), request.getOperations(), request.getIndexChanges());
       try {
         database.rawBegin(tx);
       } catch (final ORecordNotFoundException e) {
@@ -1492,11 +1485,7 @@ public final class OConnectionBinaryExecutor implements OBinaryRequestExecutor {
     if (request.isHasContent()) {
       tx =
           new OTransactionOptimisticServer(
-              database,
-              request.getTxId(),
-              request.isUsingLog(),
-              request.getOperations(),
-              request.getIndexChanges());
+              database, request.getTxId(), request.getOperations(), request.getIndexChanges());
       try {
         database.rawBegin(tx);
       } catch (final ORecordNotFoundException e) {

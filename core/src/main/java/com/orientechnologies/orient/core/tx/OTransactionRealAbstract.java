@@ -111,17 +111,11 @@ public abstract class OTransactionRealAbstract extends OTransactionAbstract
     return id;
   }
 
-  public void clearRecordEntries() {}
-
   public void restore() {}
 
   @Override
   public int getEntryCount() {
     return allEntries.size();
-  }
-
-  public Collection<ORecordOperation> getCurrentRecordEntries() {
-    return allEntries.values();
   }
 
   public Collection<ORecordOperation> getRecordOperations() {
@@ -199,11 +193,6 @@ public abstract class OTransactionRealAbstract extends OTransactionAbstract
       }
 
     return result;
-  }
-
-  public void clearIndexEntries() {
-    indexEntries.clear();
-    recordIndexOperations.clear();
   }
 
   public List<String> getInvolvedIndexes() {

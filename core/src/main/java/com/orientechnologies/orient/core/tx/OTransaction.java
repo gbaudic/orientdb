@@ -77,9 +77,6 @@ public interface OTransaction {
 
   ODatabaseDocument getDatabase();
 
-  @Deprecated
-  void clearRecordEntries();
-
   ORecord loadRecord(ORID iRid, ORecord iRecord, String iFetchPlan, boolean ignoreCache);
 
   ORecord reloadRecord(ORID iRid, ORecord iRecord, String iFetchPlan, boolean ignoreCache);
@@ -93,9 +90,6 @@ public interface OTransaction {
 
   TXSTATUS getStatus();
 
-  @Deprecated
-  Iterable<? extends ORecordOperation> getCurrentRecordEntries();
-
   Iterable<? extends ORecordOperation> getRecordOperations();
 
   List<ORecordOperation> getNewRecordEntriesByClass(OClass iClass, boolean iPolymorphic);
@@ -107,26 +101,6 @@ public interface OTransaction {
   List<String> getInvolvedIndexes();
 
   ODocument getIndexChanges();
-
-  @Deprecated
-  void clearIndexEntries();
-
-  boolean isUsingLog();
-
-  /**
-   * If you set this flag to false, you are unable to
-   *
-   * <ol>
-   *   <li>Rollback data changes in case of exception
-   *   <li>Restore data in case of server crash
-   * </ol>
-   *
-   * <p>So you practically unable to work in multithreaded environment and keep data consistent.
-   *
-   * @deprecated This option has no effect
-   */
-  @Deprecated
-  void setUsingLog(boolean useLog);
 
   void close();
 

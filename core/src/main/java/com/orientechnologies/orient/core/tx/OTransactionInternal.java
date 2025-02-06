@@ -72,10 +72,6 @@ public interface OTransactionInternal extends OTransaction {
    */
   void updateIdentityAfterCommit(ORID oldRID, ORID rid);
 
-  /** Retrieve if log is enabled for the transaction */
-  @Deprecated
-  boolean isUsingLog();
-
   /**
    * Extract a single change from a specified record id.
    *

@@ -94,7 +94,6 @@ public class OETLOrientDBLoader extends OETLAbstractLoader {
     if (tx) {
       if (!db.getTransaction().isActive()) {
         db.begin();
-        db.getTransaction().setUsingLog(txUseLog);
       }
     }
 
@@ -145,7 +144,6 @@ public class OETLOrientDBLoader extends OETLAbstractLoader {
           debug("committing document batch %d", progress.get());
           db.commit();
           db.begin();
-          db.getTransaction().setUsingLog(txUseLog);
           batchCounter.set(0);
         }
       }

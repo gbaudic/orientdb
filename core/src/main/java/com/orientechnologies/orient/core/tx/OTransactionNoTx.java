@@ -194,10 +194,6 @@ public class OTransactionNoTx extends OTransactionAbstract {
     }
   }
 
-  public Collection<ORecordOperation> getCurrentRecordEntries() {
-    return null;
-  }
-
   public Collection<ORecordOperation> getRecordOperations() {
     return null;
   }
@@ -211,8 +207,6 @@ public class OTransactionNoTx extends OTransactionAbstract {
     return null;
   }
 
-  public void clearRecordEntries() {}
-
   public int getRecordEntriesSize() {
     return 0;
   }
@@ -225,10 +219,6 @@ public class OTransactionNoTx extends OTransactionAbstract {
     return null;
   }
 
-  public boolean isUsingLog() {
-    return false;
-  }
-
   @Override
   public void setCustomData(String iName, Object iValue) {}
 
@@ -236,8 +226,6 @@ public class OTransactionNoTx extends OTransactionAbstract {
   public Object getCustomData(String iName) {
     return null;
   }
-
-  public void setUsingLog(final boolean useLog) {}
 
   public ODocument getIndexChanges() {
     return null;
@@ -268,8 +256,6 @@ public class OTransactionNoTx extends OTransactionAbstract {
   public void addChangedDocument(ODocument document) {
     // do nothing
   }
-
-  public void clearIndexEntries() {}
 
   public OTransactionIndexChanges getIndexChanges(final String iName) {
     return null;
