@@ -346,9 +346,6 @@ public abstract class OAbstractPaginatedStorage
   private final OModifiableLong txCommit = new OModifiableLong();
   private final OModifiableLong txRollback = new OModifiableLong();
 
-  private final AtomicInteger sessionCount = new AtomicInteger(0);
-  private volatile long lastCloseTime = System.currentTimeMillis();
-
   protected static final String DATABASE_INSTANCE_ID = "databaseInstenceId";
 
   protected AtomicOperationsTable atomicOperationsTable;
@@ -416,25 +413,7 @@ public abstract class OAbstractPaginatedStorage
   }
 
   @Override
-  public void close() {
-    var sessions = sessionCount.decrementAndGet();
-
-    if (sessions < 0) {
-      throw new OStorageException(
-          "Amount of closed sessions in storage "
-              + name
-              + " is bigger than amount of open sessions");
-    }
-    lastCloseTime = System.currentTimeMillis();
-  }
-
-  public long getSessionsCount() {
-    return sessionCount.get();
-  }
-
-  public long getLastCloseTime() {
-    return lastCloseTime;
-  }
+  public void close() {}
 
   @Override
   public boolean dropCluster(final String iClusterName) {
@@ -528,7 +507,6 @@ public abstract class OAbstractPaginatedStorage
           // ALREADY OPENED: THIS IS THE CASE WHEN A STORAGE INSTANCE IS
           // REUSED
 
-          sessionCount.incrementAndGet();
           return;
         }
 
@@ -718,10 +696,6 @@ public abstract class OAbstractPaginatedStorage
       throw logAndPrepareForRethrow(ee);
     } catch (final Throwable t) {
       throw logAndPrepareForRethrow(t);
-    } finally {
-      if (status == STATUS.OPEN) {
-        sessionCount.incrementAndGet();
-      }
     }
 
     logger.infoNoDb(

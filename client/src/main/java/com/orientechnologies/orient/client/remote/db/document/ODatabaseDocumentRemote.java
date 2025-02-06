@@ -136,7 +136,7 @@ public class ODatabaseDocumentRemote extends ODatabaseDocumentAbstract {
       unmodifiableHooks = Collections.unmodifiableMap(hooks);
 
       localCache = new OLocalRecordCache();
-
+      this.sharedContext.startSession();
       init();
 
       databaseOwner = this;
@@ -1116,6 +1116,7 @@ public class ODatabaseDocumentRemote extends ODatabaseDocumentAbstract {
 
       if (isClosed()) {
         status = STATUS.CLOSED;
+        sharedContext.endSession();
         return;
       }
 
@@ -1128,6 +1129,7 @@ public class ODatabaseDocumentRemote extends ODatabaseDocumentAbstract {
       callOnCloseListeners();
 
       status = STATUS.CLOSED;
+      sharedContext.endSession();
       if (!recycle) {
         sharedContext = null;
 

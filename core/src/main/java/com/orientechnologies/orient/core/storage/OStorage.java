@@ -286,10 +286,6 @@ public interface OStorage extends OBackupable, OStorageInfo {
 
   Optional<byte[]> getLastMetadata();
 
-  long getSessionsCount();
-
-  long getLastCloseTime();
-
   void open(OContextConfiguration configurations);
 
   int getId();

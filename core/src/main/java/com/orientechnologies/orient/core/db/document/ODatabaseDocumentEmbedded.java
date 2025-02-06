@@ -179,6 +179,7 @@ public class ODatabaseDocumentEmbedded extends ODatabaseDocumentAbstract
 
   public void init(OrientDBConfig config, OSharedContext sharedContext) {
     this.sharedContext = sharedContext;
+    this.sharedContext.startSession();
     activateOnCurrentThread();
     this.config = config;
     applyAttributes(config);
@@ -1947,6 +1948,9 @@ public class ODatabaseDocumentEmbedded extends ODatabaseDocumentAbstract
       localCache.shutdown();
 
       if (isClosed()) {
+        if (status != STATUS.CLOSED) {
+          sharedContext.endSession();
+        }
         status = STATUS.CLOSED;
         return;
       }
@@ -1961,6 +1965,7 @@ public class ODatabaseDocumentEmbedded extends ODatabaseDocumentAbstract
 
       status = STATUS.CLOSED;
       if (!recycle) {
+        sharedContext.endSession();
         sharedContext = null;
 
         if (getStorage() != null) getStorage().close();

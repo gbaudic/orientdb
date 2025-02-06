@@ -26,4 +26,6 @@ public interface OStorageInfo {
   String getPhysicalClusterNameById(int iClusterId);
 
   String getName();
+
+  String getType();
 }

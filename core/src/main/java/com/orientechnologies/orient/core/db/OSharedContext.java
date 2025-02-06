@@ -22,6 +22,7 @@ import com.orientechnologies.orient.core.storage.OStorageInfo;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.Callable;
+import java.util.concurrent.atomic.AtomicInteger;
 
 /** Created by tglman on 15/06/16. */
 public abstract class OSharedContext extends OListenerManger<OMetadataUpdateListener> {
@@ -43,6 +44,8 @@ public abstract class OSharedContext extends OListenerManger<OMetadataUpdateList
   protected volatile boolean loaded = false;
   protected Map<String, Object> resources;
   protected OStringCache stringCache;
+  private final AtomicInteger sessionCount = new AtomicInteger(0);
+  private volatile long lastCloseTime = System.currentTimeMillis();
 
   public OSharedContext() {
     super(true);
@@ -138,5 +141,26 @@ public abstract class OSharedContext extends OListenerManger<OMetadataUpdateList
 
   public OStringCache getStringCache() {
     return this.stringCache;
+  }
+
+  public void startSession() {
+    sessionCount.incrementAndGet();
+  }
+
+  public void endSession() {
+    int count = sessionCount.decrementAndGet();
+    assert count >= 0
+        : "Amount of closed sessions in database "
+            + storage.getName()
+            + " is bigger than amount of open sessions";
+    lastCloseTime = System.currentTimeMillis();
+  }
+
+  public int getSessionCount() {
+    return sessionCount.get();
+  }
+
+  public long getLastCloseTime() {
+    return lastCloseTime;
   }
 }

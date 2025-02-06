@@ -277,12 +277,12 @@ public class OrientDBEmbedded implements OrientDBInternal {
 
   private synchronized void checkAndCloseStorages(long delay) {
     Set<String> toClose = new HashSet<>();
-    for (OStorage storage : storages.values()) {
-      if (storage.getType().equalsIgnoreCase(ODatabaseType.PLOCAL.name())
-          && storage.getSessionsCount() == 0) {
+    for (OSharedContext contex : sharedContexts.values()) {
+      if (contex.getStorage().getType().equalsIgnoreCase(ODatabaseType.PLOCAL.name())
+          && contex.getSessionCount() == 0) {
         long currentTime = System.currentTimeMillis();
-        if (currentTime > storage.getLastCloseTime() + delay) {
-          toClose.add(storage.getName());
+        if (currentTime > contex.getLastCloseTime() + delay) {
+          toClose.add(contex.getStorage().getName());
         }
       }
     }
