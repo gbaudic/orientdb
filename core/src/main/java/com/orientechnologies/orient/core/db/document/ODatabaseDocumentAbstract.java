@@ -253,15 +253,7 @@ public abstract class ODatabaseDocumentAbstract extends OListenerManger<ODatabas
   /** {@inheritDoc} */
   public <RET extends ORecord> RET load(
       final ORID iRecordId, final String iFetchPlan, final boolean iIgnoreCache) {
-    return executeReadRecord(
-        (ORecordId) iRecordId,
-        null,
-        -1,
-        iFetchPlan,
-        iIgnoreCache,
-        !iIgnoreCache,
-        OStorage.LOCKING_STRATEGY.DEFAULT,
-        this::directRead);
+    return (RET) getTransaction().loadRecord(iRecordId, null, iFetchPlan, iIgnoreCache);
   }
 
   /** Deletes the record checking the version. */
@@ -817,15 +809,7 @@ public abstract class ODatabaseDocumentAbstract extends OListenerManger<ODatabas
   /** {@inheritDoc} */
   public <RET extends ORecord> RET load(
       final ORecord iRecord, final String iFetchPlan, final boolean iIgnoreCache) {
-    return executeReadRecord(
-        (ORecordId) iRecord.getIdentity(),
-        iRecord,
-        -1,
-        iFetchPlan,
-        iIgnoreCache,
-        !iIgnoreCache,
-        OStorage.LOCKING_STRATEGY.NONE,
-        this::directRead);
+    return (RET)getTransaction().loadRecord(iRecord.getIdentity(), iRecord, iFetchPlan, iIgnoreCache);
   }
 
   @Override
