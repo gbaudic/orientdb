@@ -108,7 +108,6 @@ import com.orientechnologies.orient.core.metadata.schema.OImmutableClass;
 import com.orientechnologies.orient.core.metadata.schema.OType;
 import com.orientechnologies.orient.core.record.ORecord;
 import com.orientechnologies.orient.core.record.ORecordInternal;
-import com.orientechnologies.orient.core.record.ORecordVersionHelper;
 import com.orientechnologies.orient.core.record.impl.OBlob;
 import com.orientechnologies.orient.core.record.impl.ODocument;
 import com.orientechnologies.orient.core.record.impl.ODocumentInternal;
@@ -3455,15 +3454,7 @@ public abstract class OAbstractPaginatedStorage
   }
 
   public final boolean checkForRecordValidity(final OPhysicalPosition ppos) {
-    try {
-      return ppos != null && !ORecordVersionHelper.isTombstone(ppos.recordVersion);
-    } catch (final RuntimeException ee) {
-      throw logAndPrepareForRethrow(ee);
-    } catch (final Error ee) {
-      throw logAndPrepareForRethrow(ee, false);
-    } catch (final Throwable t) {
-      throw logAndPrepareForRethrow(t, false);
-    }
+    return ppos != null;
   }
 
   @Override
@@ -5106,12 +5097,7 @@ public abstract class OAbstractPaginatedStorage
       default:
         // MVCC CONTROL AND RECORD UPDATE OR WRONG VERSION VALUE
         // MVCC TRANSACTION: CHECK IF VERSION IS THE SAME
-        if (v < -2) {
-          // OVERWRITE VERSION: THIS IS USED IN CASE OF FIX OF RECORDS IN DISTRIBUTED MODE
-          version.set(ORecordVersionHelper.clearRollbackMode(v));
-          iDatabaseVersion.set(version.get());
-
-        } else if (v != iDatabaseVersion.get()) {
+        if (v != iDatabaseVersion.get()) {
           final ORecordConflictStrategy strategy =
               iCluster.getRecordConflictStrategy() != null
                   ? iCluster.getRecordConflictStrategy()

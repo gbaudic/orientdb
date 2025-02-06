@@ -141,7 +141,6 @@ import com.orientechnologies.orient.core.id.ORID;
 import com.orientechnologies.orient.core.id.ORecordId;
 import com.orientechnologies.orient.core.metadata.security.OTokenException;
 import com.orientechnologies.orient.core.record.ORecordInternal;
-import com.orientechnologies.orient.core.record.ORecordVersionHelper;
 import com.orientechnologies.orient.core.record.impl.ODocument;
 import com.orientechnologies.orient.core.security.OCredentialInterceptor;
 import com.orientechnologies.orient.core.security.OSecurityManager;
@@ -308,7 +307,7 @@ public class OStorageRemote implements ORemotePushHandler, OStorageInfo {
   }
 
   public boolean checkForRecordValidity(final OPhysicalPosition ppos) {
-    return ppos != null && !ORecordVersionHelper.isTombstone(ppos.recordVersion);
+    return ppos != null;
   }
 
   public String getName() {

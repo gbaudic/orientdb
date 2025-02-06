@@ -79,7 +79,6 @@ import com.orientechnologies.orient.core.record.ORecord;
 import com.orientechnologies.orient.core.record.ORecordAbstract;
 import com.orientechnologies.orient.core.record.ORecordInternal;
 import com.orientechnologies.orient.core.record.ORecordSchemaAware;
-import com.orientechnologies.orient.core.record.ORecordVersionHelper;
 import com.orientechnologies.orient.core.record.OVertex;
 import com.orientechnologies.orient.core.serialization.serializer.OStringSerializerHelper;
 import com.orientechnologies.orient.core.serialization.serializer.record.ORecordSerializer;
@@ -894,7 +893,7 @@ public class ODocument extends ORecordAbstract
       }
     }
 
-    if (p.isReadonly() && !ORecordVersionHelper.isTombstone(iRecord.getVersion())) {
+    if (p.isReadonly()) {
       if (entry != null && (entry.isChanged() || entry.isTrackedModified()) && !entry.isCreated()) {
         // check if the field is actually changed by equal.
         // this is due to a limitation in the merge algorithm used server side marking all non

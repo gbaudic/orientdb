@@ -76,7 +76,6 @@ import com.orientechnologies.orient.core.metadata.sequence.OSequenceAction;
 import com.orientechnologies.orient.core.record.OEdge;
 import com.orientechnologies.orient.core.record.ORecord;
 import com.orientechnologies.orient.core.record.ORecordInternal;
-import com.orientechnologies.orient.core.record.ORecordVersionHelper;
 import com.orientechnologies.orient.core.record.OVertex;
 import com.orientechnologies.orient.core.record.impl.ODocument;
 import com.orientechnologies.orient.core.record.impl.ODocumentInternal;
@@ -709,8 +708,6 @@ public class ODatabaseDocumentRemote extends ODatabaseDocumentAbstract {
       ORecordInternal.fill(iRecord, rid, recordBuffer.version, recordBuffer.buffer, false, this);
 
       if (iRecord instanceof ODocument) ODocumentInternal.checkClass((ODocument) iRecord, this);
-
-      if (ORecordVersionHelper.isTombstone(iRecord.getVersion())) return (RET) iRecord;
 
       if (beforeReadOperations(iRecord)) return null;
 

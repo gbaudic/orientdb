@@ -26,7 +26,6 @@ import com.orientechnologies.orient.core.config.OGlobalConfiguration;
 import com.orientechnologies.orient.core.db.ODatabaseSession;
 import com.orientechnologies.orient.core.id.ORID;
 import com.orientechnologies.orient.core.record.ORecord;
-import com.orientechnologies.orient.core.record.ORecordVersionHelper;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -82,8 +81,7 @@ public class OLocalRecordCache {
   public void updateRecord(final ORecord record) {
     if (record.getIdentity().getClusterId() != excludedCluster
         && record.getIdentity().isValid()
-        && !record.isDirty()
-        && !ORecordVersionHelper.isTombstone(record.getVersion())) {
+        && !record.isDirty()) {
       if (underlying.get(record.getIdentity()) != record) underlying.put(record);
     }
   }
