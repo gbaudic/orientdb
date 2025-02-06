@@ -150,13 +150,6 @@ public interface ODatabaseDocument extends ODatabase<ORecord> {
   @Deprecated
   <REC extends ORecord> ORecordIteratorCluster<REC> browseCluster(String iClusterName);
 
-  @Deprecated
-  <REC extends ORecord> ORecordIteratorCluster<REC> browseCluster(
-      String iClusterName,
-      long startClusterPosition,
-      long endClusterPosition,
-      boolean loadTombstones);
-
   /**
    * Browses all the records of the specified cluster of the passed record type.
    *
@@ -174,14 +167,6 @@ public interface ODatabaseDocument extends ODatabase<ORecord> {
       Class<REC> iRecordClass,
       long startClusterPosition,
       long endClusterPosition);
-
-  @Deprecated
-  <REC extends ORecord> ORecordIteratorCluster<REC> browseCluster(
-      String iClusterName,
-      Class<REC> iRecordClass,
-      long startClusterPosition,
-      long endClusterPosition,
-      boolean loadTombstones);
 
   /**
    * Returns the record for a OIdentifiable instance. If the argument received already is a ORecord

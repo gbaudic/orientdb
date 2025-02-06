@@ -278,26 +278,6 @@ public abstract class ODatabaseDocumentAbstract extends OListenerManger<ODatabas
     return (ORecordIteratorCluster<REC>) browseCluster(iClusterName);
   }
 
-  /** {@inheritDoc} */
-  @Override
-  @Deprecated
-  public <REC extends ORecord> ORecordIteratorCluster<REC> browseCluster(
-      final String iClusterName,
-      final Class<REC> iRecordClass,
-      final long startClusterPosition,
-      final long endClusterPosition,
-      final boolean loadTombstones) {
-    checkSecurity(ORule.ResourceGeneric.CLUSTER, ORole.PERMISSION_READ, iClusterName);
-    checkIfActive();
-    final int clusterId = getClusterIdByName(iClusterName);
-    return new ORecordIteratorCluster<REC>(
-        this,
-        clusterId,
-        startClusterPosition,
-        endClusterPosition,
-        OStorage.LOCKING_STRATEGY.DEFAULT);
-  }
-
   @Override
   public <REC extends ORecord> ORecordIteratorCluster<REC> browseCluster(
       String iClusterName,
@@ -1218,24 +1198,6 @@ public abstract class ODatabaseDocumentAbstract extends OListenerManger<ODatabas
   @Override
   public Iterable<ODatabaseListener> getListeners() {
     return getListenersCopy();
-  }
-
-  /** {@inheritDoc} */
-  @Override
-  @Deprecated
-  public ORecordIteratorCluster<ODocument> browseCluster(
-      String iClusterName,
-      long startClusterPosition,
-      long endClusterPosition,
-      boolean loadTombstones) {
-    checkSecurity(ORule.ResourceGeneric.CLUSTER, ORole.PERMISSION_READ, iClusterName);
-
-    return new ORecordIteratorCluster<ODocument>(
-        this,
-        getClusterIdByName(iClusterName),
-        startClusterPosition,
-        endClusterPosition,
-        OStorage.LOCKING_STRATEGY.DEFAULT);
   }
 
   /**
