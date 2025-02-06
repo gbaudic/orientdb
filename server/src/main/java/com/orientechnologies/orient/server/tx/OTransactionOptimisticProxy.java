@@ -48,24 +48,18 @@ public class OTransactionOptimisticProxy extends OTransactionOptimistic {
       new LinkedHashMap<ORID, ORecordOperation>();
   private final Map<ORecordId, ORecord> createdRecords = new HashMap<ORecordId, ORecord>();
   private final Map<ORecordId, ORecord> updatedRecords = new HashMap<ORecordId, ORecord>();
-  @Deprecated private final int clientTxId;
-  private final short protocolVersion;
   private List<ORecordOperationRequest> operations;
   private final ODocument indexChanges;
   private final ORecordSerializer serializer;
 
   public OTransactionOptimisticProxy(
       ODatabaseDocumentInternal database,
-      int txId,
       List<ORecordOperationRequest> operations,
       ODocument indexChanges,
-      short protocolVersion,
       ORecordSerializer serializer) {
     super(database);
-    clientTxId = id;
     this.operations = operations;
     this.indexChanges = indexChanges;
-    this.protocolVersion = protocolVersion;
     this.serializer = serializer;
   }
 

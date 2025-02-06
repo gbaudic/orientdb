@@ -686,10 +686,8 @@ public final class OConnectionBinaryExecutor implements OBinaryRequestExecutor {
     final OTransactionOptimisticProxy tx =
         new OTransactionOptimisticProxy(
             connection.getDatabase(),
-            request.getTxId(),
             request.getOperations(),
             request.getIndexChanges(),
-            connection.getData().protocolVersion,
             connection.getData().getSerializer());
     try {
       try {

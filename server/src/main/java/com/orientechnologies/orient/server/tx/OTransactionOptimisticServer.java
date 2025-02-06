@@ -48,7 +48,7 @@ public class OTransactionOptimisticServer extends OTransactionOptimistic {
     super(database);
     if (database.getTransaction().isActive()) {
       this.newObjectCounter =
-          ((OTransactionRealAbstract) database.getTransaction()).getNewObjectCounter();
+          ((OTransactionOptimistic) database.getTransaction()).getNewObjectCounter();
     }
     clientTxId = txId;
     this.operations = operations;
